@@ -6,9 +6,8 @@
         background-color="#001529"
         text-color="#9F9F8D"
         active-text-color="#fff"
-        @open="handleOpen"
-        @close="handleClose">
-      :collapse="isCollapse">
+        router
+        :collapse="isCollapse">
         <div class="logo" style="height:64px">
             <div class="in"></div>
         </div>
@@ -17,7 +16,7 @@
             <img src="../assets/images/u59.png" alt="" id="u59" style=" height: 14px">
             <span slot="title" style="color:#fff">权限管理</span>
             </template>
-            <el-menu-item index="1-1" style="padding-left: 48px;">公司管理</el-menu-item>
+            <el-menu-item index="/companies" style="padding-left: 48px;">公司管理</el-menu-item>
             <el-menu-item index="1-2" style="padding-left: 48px;">角色管理</el-menu-item>
             <el-menu-item index="1-3" style="padding-left: 48px;">用户管理</el-menu-item>
             <el-menu-item index="1-4" style="padding-left: 48px;">操作日志</el-menu-item>
@@ -46,14 +45,6 @@ export default {
   methods: {
     collapse() {
       this.isCollapse = !this.isCollapse
-    },
-    handleOpen(key, keyPath) {
-      console.log(key, keyPath)
-      console.log(111)
-    },
-    handleClose(key, keyPath) {
-      console.log(key, keyPath)
-      console.log(222)
     }
   }
 }
@@ -110,6 +101,9 @@ export default {
       #u59 {
         margin-right: 10px;
       }
+    }
+    .el-menu-item.is-active:visited {
+      background-color: red !important;
     }
   }
 }

@@ -1,6 +1,6 @@
 <template>
   <div class="compaines">
-   
+   123
   </div>
 </template>
 

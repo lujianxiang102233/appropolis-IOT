@@ -29,6 +29,16 @@
             </div>
             <span class="text">APPROPOLIS</span>
             <span id="edit">变更</span>
+            <div class="user" @click="logout">
+             <img src="../assets/images/u70.png" @click="collapse">
+             <span>admin</span>
+             <div class="logout" v-show="isShow">
+               <ul>
+                 <li>修改密码</li>
+                 <li>注销</li>
+               </ul>
+             </div>
+            </div>
         </el-header>
         <el-main><router-view/></el-main>
     </el-container>
@@ -39,12 +49,16 @@
 export default {
   data() {
     return {
-      isCollapse: false
+      isCollapse: false,
+      isShow: false
     }
   },
   methods: {
     collapse() {
       this.isCollapse = !this.isCollapse
+    },
+    logout() {
+      this.isShow = !this.isShow
     }
   }
 }
@@ -57,17 +71,17 @@ export default {
     background-color: #fff;
     line-height: 64px;
     font-size: 28px;
-    float: left;
-    width: 500px;
+    width: 100%;
     .img {
       height: 100%;
-      width: 77px;
+      width: 55px;
       float: left;
       cursor: pointer;
       img {
         width: 20px;
         height: 15px;
         margin-top: 28px;
+        margin-left: 8px;
       }
     }
     .text {
@@ -81,6 +95,62 @@ export default {
       float: left;
       margin-left: 33px;
       font-size: 14px;
+      cursor: pointer;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+    .user {
+      float: right;
+      line-height: 64px;
+      width: 100px;
+      cursor: pointer;
+      position: relative;
+      img {
+        display: block;
+        float: left;
+        margin-top: 26px;
+        margin-right: 10px;
+      }
+      span {
+        font-weight: normal;
+        font-size: 14px;
+        color: #999;
+        position: relative;
+        &::after {
+          content: '';
+          width: 0;
+          height: 0;
+          border-left: 5px solid transparent;
+          border-right: 5px solid transparent;
+          border-top: 5px solid #999;
+          display: inline-block;
+          position: absolute;
+          top: 8px;
+          right: -18px;
+        }
+      }
+      .logout {
+        position: absolute;
+        bottom: -64px;
+        right: 0px;
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.4470588);
+        z-index: 99;
+        background-color: #fff;
+        ul {
+          li {
+            height: 40px;
+            width: 80px;
+            line-height: 40px;
+            font-size: 14px;
+            color: #333;
+            text-align: center;
+            &:nth-child(1) {
+              border-bottom: 1px solid #ccc;
+            }
+          }
+        }
+      }
     }
   }
   .el-menu-vertical-demo:not(.el-menu--collapse) {
@@ -102,9 +172,13 @@ export default {
         margin-right: 10px;
       }
     }
-    .el-menu-item.is-active:visited {
-      background-color: red !important;
-    }
   }
+
+  .el-menu-item.is-active {
+    background-color: #3692e8 !important;
+  }
+}
+.el-menu--vertical .el-menu-item.is-active {
+  background-color: #3692e8 !important;
 }
 </style>

@@ -3,9 +3,9 @@
         <img src="../assets/images/u5.png" alt="" class="img">
         <h1>蒙羊牧业有限公司项目后台管理系统</h1>
         <el-form :model="form" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
-            <el-form-item prop="username" class="username">
-                <el-input v-model="form.username" placeholder="请输入用户名称" class="user"></el-input>
-                <i v-show="form.username.length > 0" class="el-icon-circle-close" @click="clear"></i>
+            <el-form-item prop="loginName" class="loginName">
+                <el-input v-model="form.loginName" placeholder="请输入用户名称" class="user"></el-input>
+                <i v-show="form.loginName.length > 0" class="el-icon-circle-close" @click="clear"></i>
             </el-form-item>
             <el-form-item prop="password">
                 <el-input v-model="form.password" placeholder="请输入登录密码" class="psd" type="password"></el-input>
@@ -22,24 +22,32 @@ export default {
   data() {
     return {
       form: {
-        username: '',
+        loginName: '',
         password: ''
       },
       rules: {
-        username: [
+        loginName: [
           { required: true, message: '请输入用户名称', trigger: 'blur' }
         ],
         password: [
           { required: true, message: '请输入登录密码', trigger: 'blur' }
         ]
+      },
+      code: {
+        companyCode: 'front'
       }
     }
   },
   methods: {
     login(formName) {
-      this.$refs[formName].validate(valid => {
+      this.$refs[formName].validate(async valid => {
         if (valid) {
-          alert('submit!')
+          console.log({ ...this.form, ...this.code })
+          let res = await this.axios.post(
+            `http://47.96.139.247:8888/employee/login`,
+            { ...this.form, ...this.code }
+          )
+          console.log(res)
         } else {
           console.log('error submit!!')
           return false
@@ -47,7 +55,7 @@ export default {
       })
     },
     clear() {
-      this.form.username = ''
+      this.form.loginName = ''
     }
   }
 }
@@ -116,7 +124,7 @@ h1 {
     .el-button {
       height: 50px;
     }
-    .username {
+    .loginName {
       position: relative;
       .el-icon-circle-close {
         position: absolute;

@@ -51,7 +51,6 @@
         <el-form-item label="活动名称" prop="name">
           <el-input v-model="ruleForm.name"></el-input>
         </el-form-item>
- 
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>

@@ -40,13 +40,14 @@ export default {
   },
   methods: {
     login(formName) {
+      console.log(formName)
       this.$refs[formName].validate(async valid => {
         if (valid) {
           let res = await this.axios.post(`/employee/login`, {
             ...this.form,
             ...this.code
           })
-          // console.log(res.data)
+          console.log(res.data)
           let { code, data } = res.data.content
           if (code === +-3017 || code === +-3016) {
             this.$message.error(`用户名或者密码错误`)

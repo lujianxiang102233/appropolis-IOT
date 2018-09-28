@@ -7,14 +7,14 @@
     <el-form :inline="true" :model="formInline" class="demo-form-inline" v-if="coList.indexOf('permission_co_query')>-1">
       <div class="filter">筛选</div>
       <el-form-item label="公司名称">
-        <el-input v-model="formInline.user" placeholder="请输入"></el-input>
+        <el-input v-model="formInline.user" placeholder="请输入" class="filter-ipt"></el-input>
       </el-form-item>
       <el-form-item class="fr">
         <el-button type="primary" @click="onSubmit" size="medium">查询</el-button>
         <el-button @click="resetForm('ruleForm')" size="medium">重置</el-button>
       </el-form-item>
     </el-form>
-     <el-button type="primary" style="margin-top: 10px;" size="medium" @click="dialogVisible = true" v-if="coList.indexOf('permission_co_add')>-1">+ 新建</el-button>
+     <el-button type="primary" style="margin-top: 10px;" size="medium" @click="addDalogVisible = true" v-if="coList.indexOf('permission_co_add')>-1">+ 新建</el-button>
      <el-table
       :data="tableData"
       style="width: 100%">
@@ -48,8 +48,7 @@
         label="操作">
           <template slot-scope="scope">
             <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_resetAdmin')>-1" plain>重置超管</el-button>
-            <!--permission_co_func没有 -->
-            <el-button type="success" size="mini" v-if="coList.indexOf('permission_co_resetAdmin')>-1" plain>权限</el-button>
+            <el-button type="success" size="mini" v-if="coList.indexOf('permission_co_func')>-1" plain>权限</el-button>
           </template>
       </el-table-column>
     </el-table>
@@ -64,46 +63,87 @@
     </el-pagination>
     <el-dialog
       title="提示"
-      :visible.sync="dialogVisible"
+      :visible.sync="addDalogVisible"
       width="40%">
-      <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
-        <el-form-item label="活动名称" prop="name">
-          <el-input v-model="ruleForm.name"></el-input>
+      <el-form :model="addForm" :rules="rules" ref="addForm" label-width="120px" class="demo-ruleForm">
+        <el-form-item label="公司名称" prop="companyName">
+          <el-input v-model="addForm.companyName" placeholder="请输入"></el-input>
+        </el-form-item>
+        <el-form-item label="公司内码" prop="companyCode">
+          <el-input v-model="addForm.companyCode" placeholder="请输入"></el-input>
+        </el-form-item>
+        <el-form-item label="超管用户名" prop="adminLoginName">
+          <el-input v-model="addForm.adminLoginName" placeholder="请输入"></el-input>
+        </el-form-item>
+        <el-form-item label="超管登录密码" prop="adminPassword">
+          <el-input type="password" v-model="addForm.adminPassword" autocomplete="off" placeholder="请输入"></el-input>
+        </el-form-item>
+        <el-form-item label="请重复密码" prop="checkAdminPassword">
+          <el-input type="password" v-model="addForm.checkAdminPassword" autocomplete="off" placeholder="请输入"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+        <el-button @click="addDalogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="add('addForm')">确 定</el-button>
       </span>
     </el-dialog>
   </div>
 </template>
-
 <script>
 export default {
   data() {
+    var validatePass = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请输入密码'))
+      } else {
+        if (this.addForm.checkAdminPassword !== '') {
+          this.$refs.addForm.validateField('checkAdminPassword')
+        }
+        callback()
+      }
+    }
+    var validatePass2 = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请再次输入密码'))
+      } else if (value !== this.addForm.adminPassword) {
+        callback(new Error('两次输入密码不一致!'))
+      } else {
+        callback()
+      }
+    }
     return {
       formInline: {
-        user: '',
-        region: ''
+        user: ''
       },
       tableData: [],
       dialogVisible: false,
-      ruleForm: {
-        name: '',
-        region: '',
-        date1: '',
-        date2: '',
-        delivery: false,
-        type: [],
-        resource: '',
-        desc: ''
+      addDalogVisible: false,
+      addForm: {
+        adminLoginName: '',
+        adminPassword: '',
+        checkAdminPassword: '',
+        companyCode: '',
+        companyName: ''
       },
       rules: {
-        name: [
-          { required: true, message: '请输入活动名称', trigger: 'blur' },
-          { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
-        ]
+        companyName: [
+          { required: true, message: '请输入公司名称', trigger: 'blur' },
+          {
+            pattern: /^([\u2E80-\u9FFF]){1,100}$/,
+            message: '最长100个中文字符',
+            trigger: 'change'
+          }
+        ],
+        companyCode: [
+          { required: true, message: '请输入公司内码', trigger: 'blur' },
+          {
+            pattern: /^([a-zA-Z]){1,100}$/,
+            message: '最长20个英文字符，仅英文',
+            trigger: 'change'
+          }
+        ],
+        adminPassword: [{ validator: validatePass, trigger: 'blur' }],
+        checkAdminPassword: [{ validator: validatePass2, trigger: 'blur' }]
       },
       companyName: '{companyName}',
       pageIndex: 1,
@@ -120,7 +160,6 @@ export default {
       this.$refs[formName].resetFields()
     },
     handleSizeChange(val) {
-      console.log(`每页 ${val} 条`)
       this.pageSize = val
       this.getList()
     },
@@ -142,6 +181,16 @@ export default {
         this.tableData = list
         this.total = total
       }
+    },
+    add(formName) {
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          alert('submit!')
+        } else {
+          console.log('error submit!!')
+          return false
+        }
+      })
     }
   },
   created() {
@@ -184,5 +233,15 @@ export default {
 .el-pagination {
   float: right;
   margin-top: 40px;
+}
+.el-input {
+  /deep/ .el-input__inner {
+    width: 70%;
+  }
+}
+.el-input.filter-ipt {
+  /deep/ .el-input__inner {
+    height: 30px;
+  }
 }
 </style>

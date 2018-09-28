@@ -19,19 +19,18 @@
       :data="tableData"
       style="width: 100%">
       <el-table-column
-        prop="companyId"
-        label="公司序号"
-        width="80">
+        type="index"
+        width="50">
       </el-table-column>
       <el-table-column
         prop="companyName"
         label="公司名称"
-        width="120">
+        width="160">
       </el-table-column>
       <el-table-column
         prop="adminLoginName"
         label="超管用户名"
-        width="130">
+        width="160">
       </el-table-column>
       <el-table-column
         prop="companyCode"
@@ -39,6 +38,7 @@
         width="130">
       </el-table-column>
       <el-table-column
+        width="160"
         label="创建时间">
           <template slot-scope="scope">
             {{ scope.row.createDate | time}}
@@ -56,11 +56,11 @@
     <el-pagination
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
-      :current-page="currentPage4"
-      :page-sizes="[100, 200, 300, 400]"
-      :page-size="100"
+      :currentPage="pageIndex"
+      :page-sizes="[5, 10, 15, 20]"
+      :page-size="pageSize"
       layout="total, sizes, prev, pager, next, jumper"
-      :total="400">
+      :total="total">
     </el-pagination>
     <el-dialog
       title="提示"
@@ -88,10 +88,6 @@ export default {
         region: ''
       },
       tableData: [],
-      currentPage1: 5,
-      currentPage2: 5,
-      currentPage3: 5,
-      currentPage4: 4,
       dialogVisible: false,
       ruleForm: {
         name: '',
@@ -112,6 +108,7 @@ export default {
       companyName: '{companyName}',
       pageIndex: 1,
       pageSize: 5,
+      total: 1,
       coList: []
     }
   },
@@ -124,24 +121,31 @@ export default {
     },
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`)
+      this.pageSize = val
+      this.getList()
     },
     handleCurrentChange(val) {
-      console.log(`当前页: ${val}`)
+      this.pageIndex = val
+      this.getList()
+    },
+    async getList() {
+      this.coList = JSON.parse(localStorage.getItem('points'))
+      let res = await this.axios.get(
+        `/company/${this.companyName}/${this.pageIndex}/${this.pageSize}`
+      )
+      console.log(res.data)
+      let {
+        code,
+        data: { list, total }
+      } = res.data.content
+      if (code === 0) {
+        this.tableData = list
+        this.total = total
+      }
     }
   },
-  async created() {
-    this.coList = JSON.parse(localStorage.getItem('points'))
-    console.log(this.coList)
-    let res = await this.axios.get(
-      `/company/${this.companyName}/${this.pageIndex}/${this.pageSize}`
-    )
-    let {
-      code,
-      data: { list }
-    } = res.data.content
-    if (code === 0) {
-      this.tableData = list
-    }
+  created() {
+    this.getList()
   }
 }
 </script>
@@ -176,5 +180,9 @@ export default {
       }
     }
   }
+}
+.el-pagination {
+  float: right;
+  margin-top: 40px;
 }
 </style>

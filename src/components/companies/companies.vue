@@ -4,7 +4,7 @@
       <el-breadcrumb-item>权限管理</el-breadcrumb-item>
       <el-breadcrumb-item>公司管理</el-breadcrumb-item>
     </el-breadcrumb>
-    <el-form :inline="true" :model="formInline" class="demo-form-inline">
+    <el-form :inline="true" :model="formInline" class="demo-form-inline" v-if="coList.indexOf('permission_co_query')>-1">
       <div class="filter">筛选</div>
       <el-form-item label="公司名称">
         <el-input v-model="formInline.user" placeholder="请输入"></el-input>
@@ -14,23 +14,43 @@
         <el-button @click="resetForm('ruleForm')" size="medium">重置</el-button>
       </el-form-item>
     </el-form>
-     <el-button type="primary" size="medium" @click="dialogVisible = true">+ 新建</el-button>
+     <el-button type="primary" style="margin-top: 10px;" size="medium" @click="dialogVisible = true" v-if="coList.indexOf('permission_co_add')>-1">+ 新建</el-button>
      <el-table
       :data="tableData"
       style="width: 100%">
       <el-table-column
-        prop="date"
-        label="日期"
-        width="180">
+        prop="companyId"
+        label="公司序号"
+        width="80">
       </el-table-column>
       <el-table-column
-        prop="name"
-        label="姓名"
-        width="180">
+        prop="companyName"
+        label="公司名称"
+        width="120">
       </el-table-column>
       <el-table-column
-        prop="address"
-        label="地址">
+        prop="adminLoginName"
+        label="超管用户名"
+        width="130">
+      </el-table-column>
+      <el-table-column
+        prop="companyCode"
+        label="公司内码"
+        width="130">
+      </el-table-column>
+      <el-table-column
+        label="创建时间">
+          <template slot-scope="scope">
+            {{ scope.row.createDate | time}}
+          </template>
+      </el-table-column>
+      <el-table-column
+        label="操作">
+          <template slot-scope="scope">
+            <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_resetAdmin')>-1" plain>重置超管</el-button>
+            <!--permission_co_func没有 -->
+            <el-button type="success" size="mini" v-if="coList.indexOf('permission_co_resetAdmin')>-1" plain>权限</el-button>
+          </template>
       </el-table-column>
     </el-table>
     <el-pagination
@@ -67,28 +87,7 @@ export default {
         user: '',
         region: ''
       },
-      tableData: [
-        {
-          date: '2016-05-02',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        },
-        {
-          date: '2016-05-04',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1517 弄'
-        },
-        {
-          date: '2016-05-01',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1519 弄'
-        },
-        {
-          date: '2016-05-03',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1516 弄'
-        }
-      ],
+      tableData: [],
       currentPage1: 5,
       currentPage2: 5,
       currentPage3: 5,
@@ -110,9 +109,10 @@ export default {
           { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
         ]
       },
-      companyName: '',
-      pageIndex: 10,
-      pageSize: '5'
+      companyName: '{companyName}',
+      pageIndex: 1,
+      pageSize: 5,
+      coList: []
     }
   },
   methods: {
@@ -128,6 +128,20 @@ export default {
     handleCurrentChange(val) {
       console.log(`当前页: ${val}`)
     }
+  },
+  async created() {
+    this.coList = JSON.parse(localStorage.getItem('points'))
+    console.log(this.coList)
+    let res = await this.axios.get(
+      `/company/${this.companyName}/${this.pageIndex}/${this.pageSize}`
+    )
+    let {
+      code,
+      data: { list }
+    } = res.data.content
+    if (code === 0) {
+      this.tableData = list
+    }
   }
 }
 </script>
@@ -141,7 +155,7 @@ export default {
 }
 .demo-form-inline {
   border: 1px solid #999;
-  margin: 10px 0;
+  margin-top: 10px;
   padding: 10px;
   height: 60px;
   .filter {

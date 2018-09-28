@@ -45,8 +45,7 @@
     <el-dialog
       title="提示"
       :visible.sync="dialogVisible"
-      width="40%"
-      :before-close="handleClose">
+      width="40%">
       <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
         <el-form-item label="活动名称" prop="name">
           <el-input v-model="ruleForm.name"></el-input>
@@ -110,7 +109,10 @@ export default {
           { required: true, message: '请输入活动名称', trigger: 'blur' },
           { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
         ]
-      }
+      },
+      companyName: '',
+      pageIndex: 10,
+      pageSize: '5'
     }
   },
   methods: {
@@ -125,13 +127,6 @@ export default {
     },
     handleCurrentChange(val) {
       console.log(`当前页: ${val}`)
-    },
-    handleClose(done) {
-      this.$confirm('确认关闭？')
-        .then(_ => {
-          done()
-        })
-        .catch(_ => {})
     }
   }
 }

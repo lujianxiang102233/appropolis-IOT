@@ -8,6 +8,16 @@ import './assets/css/comment.css'
 Vue.prototype.axios = axios
 Vue.use(ElementUI)
 
+axios.interceptors.request.use(
+  function (config) {
+    config.baseURL = 'http://47.96.139.247:8888'
+    config.headers.Authorization = localStorage.getItem('token')
+    return config
+  },
+  function (error) {
+    return Promise.reject(error)
+  }
+)
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */

@@ -42,14 +42,19 @@ export default {
     login(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
-          console.log({ ...this.form, ...this.code })
-          let res = await this.axios.post(
-            `http://47.96.139.247:8888/employee/login`,
-            { ...this.form, ...this.code }
-          )
-          console.log(res)
+          let res = await this.axios.post(`/employee/login`, {
+            ...this.form,
+            ...this.code
+          })
+          let { code, data } = res.data.content
+          if (code === +-3017 || code === +-3016) {
+            this.$message.error(`用户名或者密码错误`)
+          }
+          if (code === +0) {
+            localStorage.getItem('token', data.token)
+            this.$router.push('/')
+          }
         } else {
-          console.log('error submit!!')
           return false
         }
       })

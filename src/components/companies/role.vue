@@ -1,13 +1,23 @@
 <template>
-  <div class="compaines" style="padding-left: 34px;">
+  <div class="role" style="padding-left: 34px;">
     <el-breadcrumb separator="/">
       <el-breadcrumb-item>权限管理</el-breadcrumb-item>
-      <el-breadcrumb-item>公司管理</el-breadcrumb-item>
+      <el-breadcrumb-item>角色管理</el-breadcrumb-item>
     </el-breadcrumb>
-    <el-form :inline="true" class="demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_co_query')>-1">
+    <el-form :inline="true" :model="formInline" class="demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_co_query')>-1">
       <div class="filter">筛选</div>
-      <el-form-item label="公司名称">
-        <el-input v-model="companyName" placeholder="请输入" class="filter-ipt"></el-input>
+      <el-form-item label="角色名称" prop="roleName">
+        <el-input v-model="formInline.user" placeholder="请输入" class="filter-ipt"></el-input>
+      </el-form-item>
+      <el-form-item label="角色状态" prop="roleStatus">
+          <el-select v-model="value" placeholder="请选择">
+            <el-option
+            v-for="item in formInline.options"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+            </el-option>
+        </el-select>
       </el-form-item>
       <el-form-item class="fr">
         <el-button type="primary" @click="onSubmit" size="medium">查询</el-button>
@@ -135,6 +145,33 @@ export default {
       }
     }
     return {
+      formInline: {
+        roleName: '',
+        roleStatus: '',
+        options: [
+          {
+            value: '选项1',
+            label: '黄金糕'
+          },
+          {
+            value: '选项2',
+            label: '双皮奶'
+          },
+          {
+            value: '选项3',
+            label: '蚵仔煎'
+          },
+          {
+            value: '选项4',
+            label: '龙须面'
+          },
+          {
+            value: '选项5',
+            label: '北京烤鸭'
+          }
+        ],
+        value: ''
+      },
       tableData: [],
       dialogVisible: false,
       addDalogVisible: false,
@@ -183,7 +220,7 @@ export default {
           { validator: validatePass2, trigger: 'blur' }
         ]
       },
-      companyName: '',
+      companyName: '{companyName}',
       pageIndex: 1,
       pageSize: 5,
       total: 1,
@@ -192,7 +229,7 @@ export default {
   },
   methods: {
     onSubmit() {
-      this.getList()
+      console.log('submit!')
     },
     resetForm(formName) {
       this.$refs[formName].resetFields()
@@ -208,13 +245,9 @@ export default {
     },
     async getList() {
       this.coList = JSON.parse(localStorage.getItem('points'))
-      let getUrl = `/company/${this.companyName}/${this.pageIndex}/${
-        this.pageSize
-      }`
-      if (this.companyName.length === 0) {
-        getUrl = `/company/{companyName}/${this.pageIndex}/${this.pageSize}`
-      }
-      let res = await this.axios.get(getUrl)
+      let res = await this.axios.get(
+        `/company/${this.companyName}/${this.pageIndex}/${this.pageSize}`
+      )
       console.log(res.data)
       let {
         code,
@@ -249,6 +282,7 @@ export default {
     },
     output() {
       this.addForm.adminLoginName = this.addForm.companyCode + 'admin'
+      console.log(this.addForm.adminLoginName.length)
       if (!this.addForm.companyCode) {
         this.addForm.adminLoginName = ''
       }

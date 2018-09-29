@@ -34,7 +34,7 @@ export default {
         ]
       },
       code: {
-        companyCode: 'front'
+        companyCode: 'CP01'
       }
     }
   },

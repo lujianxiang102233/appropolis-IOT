@@ -47,7 +47,8 @@
       <el-table-column
         label="操作">
           <template slot-scope="scope">
-            <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_resetAdmin')>-1" plain @click="resetAdmin">重置超管</el-button>
+            <!-- @click="resetAdmin(scope.row)" -->
+            <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_resetAdmin')>-1" plain @click="resetAdmin(scope.row)">重置超管</el-button>
             <el-button type="success" size="mini" v-if="coList.indexOf('permission_co_func')>-1" plain>权限</el-button>
           </template>
       </el-table-column>
@@ -62,7 +63,7 @@
       :total="total">
     </el-pagination>
     <el-dialog
-      title="提示"
+      title="新建公司"
       :visible.sync="addDalogVisible"
       width="40%">
       <el-form :model="addForm" :rules="rules" ref="addForm" label-width="120px" class="demo-ruleForm">
@@ -92,22 +93,22 @@
       :visible.sync="resetDalogVisible"
       width="40%">
       <el-form :model="retForm" :rules="rules" ref="retForm" label-width="120px" class="demo-ruleForm">
-        <el-form-item label="公司名称" prop="companyName">
+        <el-form-item label="公司名称">
           <el-input v-model="retForm.companyName" placeholder="请输入"></el-input>
         </el-form-item>
         <el-form-item label="超管用户名" prop="adminLoginName">
           <el-input v-model="retForm.adminLoginName" placeholder="请输入"></el-input>
         </el-form-item>
-        <el-form-item label="超管登录密码" prop="adminPassword">
-          <el-input type="password" v-model="retForm.adminPassword" autocomplete="off" placeholder="请输入"></el-input>
+        <el-form-item label="超管登录密码" prop="retAdminPassword">
+          <el-input type="password" v-model="retForm.retAdminPassword" autocomplete="off" placeholder="请输入"></el-input>
         </el-form-item>
-        <el-form-item label="请重复密码" prop="checkAdminPassword">
-          <el-input type="password" v-model="retForm.checkAdminPassword" autocomplete="off" placeholder="请输入"></el-input>
+        <el-form-item label="请重复密码" prop="retCheckAdminPassword">
+          <el-input type="password" v-model="retForm.retCheckAdminPassword" autocomplete="off" placeholder="请输入"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="resetDalogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="reset('addForm')">确 定</el-button>
+        <el-button @click="retCancel">取 消</el-button>
+        <el-button type="primary" @click="reset('retForm')">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -115,7 +116,7 @@
 <script>
 export default {
   data() {
-    var validatePass = (rule, value, callback) => {
+    var validatePass1 = (rule, value, callback) => {
       if (value === '') {
         callback(new Error('请输入密码'))
       } else {
@@ -129,7 +130,26 @@ export default {
       if (value === '') {
         callback(new Error('请再次输入密码'))
       } else if (value !== this.addForm.adminPassword) {
-        callback(new Error('两次输入密码不一致!'))
+        callback(new Error('呵呵,两次输入密码不一致!'))
+      } else {
+        callback()
+      }
+    }
+    var validatePass3 = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请输入密码'))
+      } else {
+        if (this.retForm.retCheckAdminPassword !== '') {
+          this.$refs.retForm.validateField('retCheckAdminPassword')
+        }
+        callback()
+      }
+    }
+    var validatePass4 = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请再次输入密码'))
+      } else if (value !== this.retForm.retAdminPassword) {
+        callback(new Error('亲，两次输入密码不一致!'))
       } else {
         callback()
       }
@@ -148,9 +168,10 @@ export default {
       },
       retForm: {
         adminLoginName: '',
-        adminPassword: '',
-        checkAdminPassword: '',
-        companyName: ''
+        retAdminPassword: '',
+        retCheckAdminPassword: '',
+        companyName: '',
+        companyId: ''
       },
       rules: {
         companyName: [
@@ -176,11 +197,24 @@ export default {
             message: '仅英文及数字，6-16位。至少包括1位数字、大小写英文字符',
             trigger: 'change'
           },
-          { validator: validatePass, trigger: 'blur' }
+          { validator: validatePass1, trigger: 'blur' }
         ],
         checkAdminPassword: [
           { required: true, message: '请再次输入密码', trigger: 'blur' },
           { validator: validatePass2, trigger: 'blur' }
+        ],
+        retAdminPassword: [
+          { required: true, message: '请输入密码111', trigger: 'blur' },
+          {
+            pattern: /^([a-zA-Z0-9]){6,16}$/,
+            message: '仅英文及数字，6-16位。至少包括1位数字、大小写英文字符',
+            trigger: 'change'
+          },
+          { validator: validatePass3, trigger: 'blur' }
+        ],
+        retCheckAdminPassword: [
+          { required: true, message: '请再次输入密码222', trigger: 'blur' },
+          { validator: validatePass4, trigger: 'blur' }
         ]
       },
       companyName: '',
@@ -242,7 +276,6 @@ export default {
             this.addForm = {}
           }
         } else {
-          console.log('error submit!!')
           return false
         }
       })
@@ -253,8 +286,46 @@ export default {
         this.addForm.adminLoginName = ''
       }
     },
-    resetAdmin() {
+    resetAdmin(row) {
       this.resetDalogVisible = true
+      // console.log(row)
+      let { companyName, adminLoginName, companyId } = row
+      this.retForm.companyName = companyName
+      this.retForm.adminLoginName = adminLoginName
+      this.retForm.companyId = String(companyId)
+    },
+    reset(formName) {
+      console.log(formName)
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          let res = await this.axios.put(
+            `/company/password/${this.retForm.companyId}`,
+            {
+              password: this.retForm.retCheckAdminPassword
+            }
+          )
+          console.log(res)
+          let { code } = res.data.content
+          if (code === +0) {
+            console.log(this.resetForm.companyName)
+            this.$message.success(this.retForm.companyName + '超管账号重置成功')
+          }
+          if (code === +-999) {
+            this.$message.success(`Exception Message`)
+          }
+          if (code === +-3007) {
+            this.$message.success(`重置密码与原密码一样`)
+          }
+        } else {
+          return false
+        }
+      })
+    },
+    retCancel() {
+      this.resetDalogVisible = false
+      this.retForm = {}
+      // this.resetForm.retCheckAdminPassword = ''
+      // this.resetForm.retAdminPassword = ''
     }
   },
   created() {

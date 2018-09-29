@@ -70,7 +70,7 @@
           <el-input v-model="addForm.companyName" placeholder="请输入"></el-input>
         </el-form-item>
         <el-form-item label="公司内码" prop="companyCode">
-          <el-input v-model="addForm.companyCode" placeholder="请输入"></el-input>
+          <el-input v-model="addForm.companyCode" placeholder="请输入" @blur="output"></el-input>
         </el-form-item>
         <el-form-item label="超管用户名" prop="adminLoginName">
           <el-input v-model="addForm.adminLoginName" placeholder="请输入"></el-input>
@@ -129,7 +129,7 @@ export default {
         companyName: [
           { required: true, message: '请输入公司名称', trigger: 'blur' },
           {
-            pattern: /^([\u2E80-\u9FFF]){1,100}$/,
+            pattern: /^([\u2E80-\u9FFF]|[a-zA-Z0-9]){1,100}$/,
             message: '最长100个中文字符',
             trigger: 'change'
           }
@@ -142,8 +142,19 @@ export default {
             trigger: 'change'
           }
         ],
-        adminPassword: [{ validator: validatePass, trigger: 'blur' }],
-        checkAdminPassword: [{ validator: validatePass2, trigger: 'blur' }]
+        adminPassword: [
+          { required: true, message: '请输入密码', trigger: 'blur' },
+          {
+            pattern: /^([a-zA-Z0-9]){6,16}$/,
+            message: '仅英文及数字，6-16位。至少包括1位数字、大小写英文字符',
+            trigger: 'change'
+          },
+          { validator: validatePass, trigger: 'blur' }
+        ],
+        checkAdminPassword: [
+          { required: true, message: '请再次输入密码', trigger: 'blur' },
+          { validator: validatePass2, trigger: 'blur' }
+        ]
       },
       companyName: '{companyName}',
       pageIndex: 1,
@@ -161,6 +172,7 @@ export default {
     },
     handleSizeChange(val) {
       this.pageSize = val
+      this.pageIndex = 1
       this.getList()
     },
     handleCurrentChange(val) {
@@ -183,14 +195,34 @@ export default {
       }
     },
     add(formName) {
-      this.$refs[formName].validate(valid => {
+      this.$refs[formName].validate(async valid => {
         if (valid) {
-          alert('submit!')
+          let res = await this.axios.post(`/company`, this.addForm)
+          console.log(res)
+          let { code } = res.data.content
+          if (code === +-3006) {
+            this.$message.error(`公司内码重复`)
+          }
+          if (code === +-9999) {
+            this.$message.error(`Exception Message`)
+          }
+          if (code === +0) {
+            this.getList()
+            this.addDalogVisible = false
+            this.addForm = {}
+          }
         } else {
           console.log('error submit!!')
           return false
         }
       })
+    },
+    output() {
+      this.addForm.adminLoginName = this.addForm.companyCode + 'admin'
+      console.log(this.addForm.adminLoginName.length)
+      if (!this.addForm.companyCode) {
+        this.addForm.adminLoginName = ''
+      }
     }
   },
   created() {

@@ -1,9 +1,11 @@
 <template>
-  <div class="compaines" style="padding-left: 34px;">
+  <div class="companyaccess" style="padding-left: 34px;">
     <el-breadcrumb separator="/">
       <el-breadcrumb-item>权限管理</el-breadcrumb-item>
       <el-breadcrumb-item>公司管理</el-breadcrumb-item>
+      <el-breadcrumb-item>公司权限</el-breadcrumb-item>
     </el-breadcrumb>
+    <div class="editCom"><p>编辑【蒙羊牧业有限公司】权限</p></div>
     <el-form :inline="true" class="demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_co_query')>-1">
       <div class="filter">筛选</div>
       <el-form-item label="公司名称">
@@ -47,7 +49,6 @@
       <el-table-column
         label="操作">
           <template slot-scope="scope">
-            <!-- @click="$router.push('/companyaccess')" -->
             <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_resetAdmin')>-1" plain @click="resetAdmin(scope.row)">重置超管</el-button>
             <el-button type="success" size="mini" v-if="coList.indexOf('permission_co_func')>-1" plain @click="$router.push('/companyaccess')">权限</el-button>
           </template>
@@ -375,6 +376,15 @@ export default {
 .el-input.filter-ipt {
   /deep/ .el-input__inner {
     height: 30px;
+  }
+}
+.editCom {
+  margin-top: 10px;
+  p {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 28px;
+    color: rgba(0, 0, 0, 0.847058823529412);
   }
 }
 </style>

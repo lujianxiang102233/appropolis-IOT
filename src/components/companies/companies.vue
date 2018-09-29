@@ -4,9 +4,9 @@
       <el-breadcrumb-item>权限管理</el-breadcrumb-item>
       <el-breadcrumb-item>公司管理</el-breadcrumb-item>
     </el-breadcrumb>
-    <el-form :inline="true" :model="formInline" class="demo-form-inline" v-if="coList.indexOf('permission_co_query')>-1">
+    <el-form :inline="true" :model="formInline" class="demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_co_query')>-1">
       <div class="filter">筛选</div>
-      <el-form-item label="公司名称">
+      <el-form-item label="公司名称" prop="user">
         <el-input v-model="formInline.user" placeholder="请输入" class="filter-ipt"></el-input>
       </el-form-item>
       <el-form-item class="fr">
@@ -198,7 +198,6 @@ export default {
       this.$refs[formName].validate(async valid => {
         if (valid) {
           let res = await this.axios.post(`/company`, this.addForm)
-          console.log(res)
           let { code } = res.data.content
           if (code === +-3006) {
             this.$message.error(`公司内码重复`)

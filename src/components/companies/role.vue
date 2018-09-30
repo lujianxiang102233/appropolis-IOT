@@ -1,22 +1,22 @@
 <template>
-  <div class="role" style="padding-left: 34px;">
+  <div class="compaines" style="padding-left: 34px;">
     <el-breadcrumb separator="/">
       <el-breadcrumb-item>权限管理</el-breadcrumb-item>
       <el-breadcrumb-item>角色管理</el-breadcrumb-item>
     </el-breadcrumb>
-    <el-form :inline="true" :model="formInline" class="demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_co_query')>-1">
+    <el-form :inline="true" class="demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_role_query')>-1">
       <div class="filter">筛选</div>
-      <el-form-item label="角色名称" prop="roleName">
-        <el-input v-model="formInline.user" placeholder="请输入" class="filter-ipt"></el-input>
+      <el-form-item label="角色名称">
+        <el-input v-model="companyName" placeholder="请输入" class="filter-ipt"></el-input>
       </el-form-item>
-      <el-form-item label="角色状态" prop="roleStatus">
-          <el-select v-model="value" placeholder="请选择">
-            <el-option
-            v-for="item in formInline.options"
+      <el-form-item label="角色状态">
+        <el-select v-model="value" placeholder="请选择">
+          <el-option
+            v-for="item in options"
             :key="item.value"
             :label="item.label"
             :value="item.value">
-            </el-option>
+          </el-option>
         </el-select>
       </el-form-item>
       <el-form-item class="fr">
@@ -24,28 +24,37 @@
         <el-button @click="resetForm('ruleForm')" size="medium">重置</el-button>
       </el-form-item>
     </el-form>
-     <el-button type="primary" style="margin-top: 10px;" size="medium" @click="addDalogVisible = true" v-if="coList.indexOf('permission_co_add')>-1">+ 新建</el-button>
+     <el-button type="primary" style="margin-top: 10px;" size="medium" @click="addDalogVisible = true" v-if="coList.indexOf('permission_role_add')>-1">+ 新建角色</el-button>
      <el-table
       :data="tableData"
       style="width: 100%">
       <el-table-column
-        type="index"
-        width="50">
+        prop="roleName"
+        label="角色名称"
+        width="140">
       </el-table-column>
       <el-table-column
-        prop="companyName"
-        label="公司名称"
+        prop="remark"
+        label="角色描述"
         width="160">
       </el-table-column>
       <el-table-column
-        prop="adminLoginName"
-        label="超管用户名"
-        width="160">
-      </el-table-column>
-      <el-table-column
-        prop="companyCode"
-        label="公司内码"
+        prop="roleCount"
+        label="角色人数"
         width="130">
+      </el-table-column>
+      <el-table-column
+        label="状态"
+        width="130">
+        <template slot-scope="scope">
+            <el-switch
+            v-model="scope.row.enable"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+            @change="changeStatus(scope.row)">
+          </el-switch>
+          <span v-if="scope.row.enable === 0">---</span>
+        </template>
       </el-table-column>
       <el-table-column
         width="160"
@@ -57,8 +66,10 @@
       <el-table-column
         label="操作">
           <template slot-scope="scope">
-            <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_resetAdmin')>-1" plain @click="resetAdmin">重置超管</el-button>
-            <el-button type="success" size="mini" v-if="coList.indexOf('permission_co_func')>-1" plain>权限</el-button>
+            <el-button type="primary" size="mini" v-if="coList.indexOf('permission_role_edit')>-1" plain @click="resetAdmin(scope.row)">编辑</el-button>
+            <el-button type="success" size="mini" v-if="coList.indexOf('permission_role_user')>-1" plain @click="jump(scope.row)">成员</el-button>
+            <el-button type="success" size="mini" v-if="coList.indexOf('permission_role_auth')>-1" plain @click="jump(scope.row)">权限</el-button>
+            <el-button type="success" size="mini" v-if="coList.indexOf('permission_role_del')>-1" plain @click="jump(scope.row)">删除</el-button>
           </template>
       </el-table-column>
     </el-table>
@@ -72,7 +83,7 @@
       :total="total">
     </el-pagination>
     <el-dialog
-      title="提示"
+      title="新建公司"
       :visible.sync="addDalogVisible"
       width="40%">
       <el-form :model="addForm" :rules="rules" ref="addForm" label-width="120px" class="demo-ruleForm">
@@ -97,35 +108,12 @@
         <el-button type="primary" @click="add('addForm')">确 定</el-button>
       </span>
     </el-dialog>
-    <el-dialog
-      title="重置超管密码"
-      :visible.sync="resetDalogVisible"
-      width="40%">
-      <el-form :model="retForm" :rules="rules" ref="retForm" label-width="120px" class="demo-ruleForm">
-        <el-form-item label="公司名称" prop="companyName">
-          <el-input v-model="retForm.companyName" placeholder="请输入"></el-input>
-        </el-form-item>
-        <el-form-item label="超管用户名" prop="adminLoginName">
-          <el-input v-model="retForm.adminLoginName" placeholder="请输入"></el-input>
-        </el-form-item>
-        <el-form-item label="超管登录密码" prop="adminPassword">
-          <el-input type="password" v-model="retForm.adminPassword" autocomplete="off" placeholder="请输入"></el-input>
-        </el-form-item>
-        <el-form-item label="请重复密码" prop="checkAdminPassword">
-          <el-input type="password" v-model="retForm.checkAdminPassword" autocomplete="off" placeholder="请输入"></el-input>
-        </el-form-item>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="resetDalogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="reset('addForm')">确 定</el-button>
-      </span>
-    </el-dialog>
   </div>
 </template>
 <script>
 export default {
   data() {
-    var validatePass = (rule, value, callback) => {
+    var validatePass1 = (rule, value, callback) => {
       if (value === '') {
         callback(new Error('请输入密码'))
       } else {
@@ -139,39 +127,12 @@ export default {
       if (value === '') {
         callback(new Error('请再次输入密码'))
       } else if (value !== this.addForm.adminPassword) {
-        callback(new Error('两次输入密码不一致!'))
+        callback(new Error('呵呵,两次输入密码不一致!'))
       } else {
         callback()
       }
     }
     return {
-      formInline: {
-        roleName: '',
-        roleStatus: '',
-        options: [
-          {
-            value: '选项1',
-            label: '黄金糕'
-          },
-          {
-            value: '选项2',
-            label: '双皮奶'
-          },
-          {
-            value: '选项3',
-            label: '蚵仔煎'
-          },
-          {
-            value: '选项4',
-            label: '龙须面'
-          },
-          {
-            value: '选项5',
-            label: '北京烤鸭'
-          }
-        ],
-        value: ''
-      },
       tableData: [],
       dialogVisible: false,
       addDalogVisible: false,
@@ -185,9 +146,10 @@ export default {
       },
       retForm: {
         adminLoginName: '',
-        adminPassword: '',
-        checkAdminPassword: '',
-        companyName: ''
+        retAdminPassword: '',
+        retCheckAdminPassword: '',
+        companyName: '',
+        companyId: ''
       },
       rules: {
         companyName: [
@@ -213,23 +175,41 @@ export default {
             message: '仅英文及数字，6-16位。至少包括1位数字、大小写英文字符',
             trigger: 'change'
           },
-          { validator: validatePass, trigger: 'blur' }
+          { validator: validatePass1, trigger: 'blur' }
         ],
         checkAdminPassword: [
           { required: true, message: '请再次输入密码', trigger: 'blur' },
           { validator: validatePass2, trigger: 'blur' }
         ]
       },
-      companyName: '{companyName}',
+      companyName: '',
       pageIndex: 1,
       pageSize: 5,
       total: 1,
-      coList: []
+      roleName: '{roleName}',
+      roleState: 2,
+      coList: [],
+      options: [
+        {
+          value: '选项1',
+          label: '全部'
+        },
+        {
+          value: '选项2',
+          label: '开启'
+        },
+        {
+          value: '选项3',
+          label: '关闭'
+        }
+      ],
+      value: '',
+      companyId: ''
     }
   },
   methods: {
     onSubmit() {
-      console.log('submit!')
+      this.getList()
     },
     resetForm(formName) {
       this.$refs[formName].resetFields()
@@ -245,9 +225,17 @@ export default {
     },
     async getList() {
       this.coList = JSON.parse(localStorage.getItem('points'))
-      let res = await this.axios.get(
-        `/company/${this.companyName}/${this.pageIndex}/${this.pageSize}`
-      )
+      this.companyId = localStorage.getItem('companyId')
+      let getUrl = `/role/${this.companyId}/${this.roleName}/${
+        this.roleState
+      }/${this.pageIndex}/${this.pageSize}`
+      // let getUrl = `/company/${this.companyName}/${this.pageIndex}/${
+      //   this.pageSize
+      // }`
+      // if (this.companyName.length === 0) {
+      //   getUrl = `/company/{companyName}/${this.pageIndex}/${this.pageSize}`
+      // }
+      let res = await this.axios.get(getUrl)
       console.log(res.data)
       let {
         code,
@@ -256,6 +244,9 @@ export default {
       if (code === 0) {
         this.tableData = list
         this.total = total
+      }
+      if (code === -9999) {
+        this.$message.error(`Exception Message`)
       }
     },
     add(formName) {
@@ -275,20 +266,30 @@ export default {
             this.addForm = {}
           }
         } else {
-          console.log('error submit!!')
           return false
         }
       })
     },
     output() {
       this.addForm.adminLoginName = this.addForm.companyCode + 'admin'
-      console.log(this.addForm.adminLoginName.length)
       if (!this.addForm.companyCode) {
         this.addForm.adminLoginName = ''
       }
     },
-    resetAdmin() {
-      this.resetDalogVisible = true
+    async changeStatus(row) {
+      let { roleId, enable } = row
+      let status = enable ? '1' : '0'
+      console.log(enable, status)
+      let res = await this.axios.put(`/role/${roleId}/${status}`)
+      console.log(res)
+      let { code } = res.data.content
+      if (code === +-9999) {
+        this.$message.error(`Exception Message`)
+      }
+      if (code === +0) {
+        this.$message.success(`修改角色状态成功`)
+        this.roleState = status
+      }
     }
   },
   created() {

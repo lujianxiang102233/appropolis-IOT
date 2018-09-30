@@ -40,7 +40,6 @@ export default {
   },
   methods: {
     login(formName) {
-      console.log(formName)
       this.$refs[formName].validate(async valid => {
         if (valid) {
           let res = await this.axios.post(`/employee/login`, {
@@ -55,6 +54,7 @@ export default {
           if (code === +0) {
             localStorage.setItem('token', data.token)
             localStorage.setItem('points', JSON.stringify(data.functionPoints))
+            localStorage.setItem('companyId', data.companyId)
             this.$router.push('/')
           }
         } else {

@@ -307,14 +307,13 @@ export default {
           console.log(res)
           let { code } = res.data.content
           if (code === +0) {
-            console.log(this.resetForm.companyName)
             this.$message.success(this.retForm.companyName + '超管账号重置成功')
           }
-          if (code === +-999) {
-            this.$message.success(`Exception Message`)
+          if (code === +-9999) {
+            this.$message.error(`Exception Message`)
           }
           if (code === +-3007) {
-            this.$message.success(`重置密码与原密码一样`)
+            this.$message.error(`重置密码与原密码一样`)
           }
           this.resetDalogVisible = false
         } else {

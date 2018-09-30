@@ -21,41 +21,35 @@
     </el-form>
      <el-button type="primary" style="margin-top: 10px;" size="medium" @click="addDalogVisible = true" v-if="coList.indexOf('permission_co_func_add')>-1">+ 新建一级功能点</el-button>
      <el-button type="primary" style="margin:0px 40px;" size="medium" @click="addDalogVisible = true" v-if="coList.indexOf('permission_co_func_addsub')>-1">复制其他公司权限</el-button>
-     <el-table
-      :data="tableData"
+      <el-table
+      :data="perList"
       style="width: 100%">
+      <el-table-tree-column
+        tree-key="cat_id"
+        level-key="cat_level"
+        parent-key="cat_pid"
+        :indent-size="30"
+        prop="cat_name"
+        label="功能点名称">
+      </el-table-tree-column>
       <el-table-column
-        type="index"
-        width="50">
+        prop="cat_deleted"
+        label="是否删除">
+        <template slot-scope="scope">
+          {{scope.row.cat_deleted?'是':'否'}}
+        </template>
       </el-table-column>
       <el-table-column
-        prop="companyName"
-        label="公司名称"
-        width="160">
+        prop="cat_level"
+        label="排序">
       </el-table-column>
       <el-table-column
-        prop="adminLoginName"
-        label="超管用户名"
-        width="160">
-      </el-table-column>
-      <el-table-column
-        prop="companyCode"
-        label="公司内码"
-        width="130">
-      </el-table-column>
-      <el-table-column
-        width="160"
-        label="创建时间">
-          <template slot-scope="scope">
-            {{ scope.row.createDate | time}}
-          </template>
-      </el-table-column>
-      <el-table-column
+        prop="address"
         label="操作">
-          <template slot-scope="scope">
-            <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_resetAdmin')>-1" plain @click="resetAdmin(scope.row)">重置超管</el-button>
-            <el-button type="success" size="mini" v-if="coList.indexOf('permission_co_func')>-1" plain >权限</el-button>
-          </template>
+        <template slot-scope="scope">
+          <el-button type="primary" icon="el-icon-edit" size="small" plain ></el-button>
+          <el-button type="danger" icon="el-icon-delete" size="small" plain ></el-button>
+        </template>
       </el-table-column>
     </el-table>
     <el-dialog
@@ -110,46 +104,9 @@
   </div>
 </template>
 <script>
+let ElTreeGrid = require('element-tree-grid')
 export default {
   data() {
-    var validatePass1 = (rule, value, callback) => {
-      if (value === '') {
-        callback(new Error('请输入密码'))
-      } else {
-        if (this.addForm.checkAdminPassword !== '') {
-          this.$refs.addForm.validateField('checkAdminPassword')
-        }
-        callback()
-      }
-    }
-    var validatePass2 = (rule, value, callback) => {
-      if (value === '') {
-        callback(new Error('请再次输入密码'))
-      } else if (value !== this.addForm.adminPassword) {
-        callback(new Error('呵呵,两次输入密码不一致!'))
-      } else {
-        callback()
-      }
-    }
-    var validatePass3 = (rule, value, callback) => {
-      if (value === '') {
-        callback(new Error('请输入密码'))
-      } else {
-        if (this.retForm.retCheckAdminPassword !== '') {
-          this.$refs.retForm.validateField('retCheckAdminPassword')
-        }
-        callback()
-      }
-    }
-    var validatePass4 = (rule, value, callback) => {
-      if (value === '') {
-        callback(new Error('请再次输入密码'))
-      } else if (value !== this.retForm.retAdminPassword) {
-        callback(new Error('亲，两次输入密码不一致!'))
-      } else {
-        callback()
-      }
-    }
     return {
       tableData: [],
       dialogVisible: false,
@@ -185,36 +142,11 @@ export default {
             message: '最长20个英文字符，仅英文',
             trigger: 'change'
           }
-        ],
-        adminPassword: [
-          { required: true, message: '请输入密码', trigger: 'blur' },
-          {
-            pattern: /^([a-zA-Z0-9]){6,16}$/,
-            message: '仅英文及数字，6-16位。至少包括1位数字、大小写英文字符',
-            trigger: 'change'
-          },
-          { validator: validatePass1, trigger: 'blur' }
-        ],
-        checkAdminPassword: [
-          { required: true, message: '请再次输入密码', trigger: 'blur' },
-          { validator: validatePass2, trigger: 'blur' }
-        ],
-        retAdminPassword: [
-          { required: true, message: '请输入密码111', trigger: 'blur' },
-          {
-            pattern: /^([a-zA-Z0-9]){6,16}$/,
-            message: '仅英文及数字，6-16位。至少包括1位数字、大小写英文字符',
-            trigger: 'change'
-          },
-          { validator: validatePass3, trigger: 'blur' }
-        ],
-        retCheckAdminPassword: [
-          { required: true, message: '请再次输入密码222', trigger: 'blur' },
-          { validator: validatePass4, trigger: 'blur' }
         ]
       },
       companyName: '',
-      coList: []
+      coList: [],
+      perList: []
     }
   },
   methods: {
@@ -248,15 +180,8 @@ export default {
       }
       if (code === 0) {
         console.log(permissionTree)
+        this.perList = permissionTree
       }
-      // let {
-      //   code,
-      //   data: { list, total }
-      // } = res.data.content
-      // if (code === 0) {
-      //   this.tableData = list
-      //   this.total = total
-      // }
     },
     add(formName) {
       this.$refs[formName].validate(async valid => {
@@ -325,6 +250,9 @@ export default {
       this.retForm = {}
     }
   },
+  components: {
+    'el-table-tree-column': ElTreeGrid
+  },
   created() {
     // ok
     this.getList()
@@ -362,10 +290,6 @@ export default {
       }
     }
   }
-}
-.el-pagination {
-  float: right;
-  margin-top: 40px;
 }
 .el-input {
   /deep/ .el-input__inner {

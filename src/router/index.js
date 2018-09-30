@@ -3,7 +3,7 @@ import Router from 'vue-router'
 import login from '@/components/login'
 import home from '@/components/home'
 import companies from '@/components/companies/companies'
-// import role from '@/components/companies/role'
+import role from '@/components/companies/role'
 import companyaccess from '@/components/companies/companyaccess'
 Vue.use(Router)
 
@@ -28,6 +28,10 @@ export default new Router({
       path: '/companyaccess',
       name: 'companyaccess',
       component: companyaccess
+    }, {
+      path: '/role',
+      name: 'role',
+      component: role
     }]
   }]
 })

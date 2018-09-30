@@ -2,13 +2,16 @@
   <div class="companyaccess" style="padding-left: 34px;">
     <el-breadcrumb separator="/">
       <el-breadcrumb-item>权限管理</el-breadcrumb-item>
-      <el-breadcrumb-item>公司管理</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{ path: '/companies' }">公司管理</el-breadcrumb-item>
       <el-breadcrumb-item>公司权限</el-breadcrumb-item>
     </el-breadcrumb>
     <div class="editCom"><p>编辑【蒙羊牧业有限公司】权限</p></div>
-    <el-form :inline="true" class="demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_co_query')>-1">
+    <el-form :inline="true" class="demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_co_func_query')>-1">
       <div class="filter">筛选</div>
-      <el-form-item label="公司名称">
+      <el-form-item label="功能点名称">
+        <el-input v-model="companyName" placeholder="请输入" class="filter-ipt"></el-input>
+      </el-form-item>
+      <el-form-item label="FUNCID">
         <el-input v-model="companyName" placeholder="请输入" class="filter-ipt"></el-input>
       </el-form-item>
       <el-form-item class="fr">
@@ -16,7 +19,8 @@
         <el-button @click="resetForm('ruleForm')" size="medium">重置</el-button>
       </el-form-item>
     </el-form>
-     <el-button type="primary" style="margin-top: 10px;" size="medium" @click="addDalogVisible = true" v-if="coList.indexOf('permission_co_add')>-1">+ 新建</el-button>
+     <el-button type="primary" style="margin-top: 10px;" size="medium" @click="addDalogVisible = true" v-if="coList.indexOf('permission_co_func_add')>-1">+ 新建一级功能点</el-button>
+     <el-button type="primary" style="margin:0px 40px;" size="medium" @click="addDalogVisible = true" v-if="coList.indexOf('permission_co_func_addsub')>-1">复制其他公司权限</el-button>
      <el-table
       :data="tableData"
       style="width: 100%">
@@ -50,19 +54,10 @@
         label="操作">
           <template slot-scope="scope">
             <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_resetAdmin')>-1" plain @click="resetAdmin(scope.row)">重置超管</el-button>
-            <el-button type="success" size="mini" v-if="coList.indexOf('permission_co_func')>-1" plain @click="$router.push('/companyaccess')">权限</el-button>
+            <el-button type="success" size="mini" v-if="coList.indexOf('permission_co_func')>-1" plain >权限</el-button>
           </template>
       </el-table-column>
     </el-table>
-    <el-pagination
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-      :currentPage="pageIndex"
-      :page-sizes="[5, 10, 15, 20]"
-      :page-size="pageSize"
-      layout="total, sizes, prev, pager, next, jumper"
-      :total="total">
-    </el-pagination>
     <el-dialog
       title="新建公司"
       :visible.sync="addDalogVisible"
@@ -219,9 +214,6 @@ export default {
         ]
       },
       companyName: '',
-      pageIndex: 1,
-      pageSize: 5,
-      total: 1,
       coList: []
     }
   },
@@ -243,22 +235,28 @@ export default {
     },
     async getList() {
       this.coList = JSON.parse(localStorage.getItem('points'))
-      let getUrl = `/company/${this.companyName}/${this.pageIndex}/${
-        this.pageSize
-      }`
-      if (this.companyName.length === 0) {
-        getUrl = `/company/{companyName}/${this.pageIndex}/${this.pageSize}`
-      }
-      let res = await this.axios.get(getUrl)
-      console.log(res.data)
+      // console.log(this.coList)
+      let res = await this.axios.get(
+        `/company/permission/${this.$route.query.id}`
+      )
       let {
         code,
-        data: { list, total }
+        data: { permissionTree }
       } = res.data.content
-      if (code === 0) {
-        this.tableData = list
-        this.total = total
+      if (code === -9999) {
+        this.$message.error(`Exception Message`)
       }
+      if (code === 0) {
+        console.log(permissionTree)
+      }
+      // let {
+      //   code,
+      //   data: { list, total }
+      // } = res.data.content
+      // if (code === 0) {
+      //   this.tableData = list
+      //   this.total = total
+      // }
     },
     add(formName) {
       this.$refs[formName].validate(async valid => {
@@ -328,6 +326,7 @@ export default {
     }
   },
   created() {
+    // ok
     this.getList()
   }
 }

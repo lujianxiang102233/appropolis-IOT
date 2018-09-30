@@ -49,7 +49,7 @@
           <template slot-scope="scope">
             <!-- @click="$router.push('/companyaccess')" -->
             <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_resetAdmin')>-1" plain @click="resetAdmin(scope.row)">重置超管</el-button>
-            <el-button type="success" size="mini" v-if="coList.indexOf('permission_co_func')>-1" plain @click="$router.push('/companyaccess')">权限</el-button>
+            <el-button type="success" size="mini" v-if="coList.indexOf('permission_co_func')>-1" plain @click="jump(scope.row)">权限</el-button>
           </template>
       </el-table-column>
     </el-table>
@@ -316,6 +316,7 @@ export default {
           if (code === +-3007) {
             this.$message.success(`重置密码与原密码一样`)
           }
+          this.resetDalogVisible = false
         } else {
           return false
         }
@@ -324,6 +325,9 @@ export default {
     retCancel() {
       this.resetDalogVisible = false
       this.retForm = {}
+    },
+    jump(row) {
+      this.$router.push({ path: `/companyaccess?id=${row.companyId}` })
     }
   },
   created() {

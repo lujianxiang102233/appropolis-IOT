@@ -7,7 +7,7 @@
     <el-form :inline="true" class="demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_role_query')>-1">
       <div class="filter">筛选</div>
       <el-form-item label="角色名称">
-        <el-input v-model="companyName" placeholder="请输入" class="filter-ipt"></el-input>
+        <el-input v-model="roleName" placeholder="请输入" class="filter-ipt"></el-input>
       </el-form-item>
       <el-form-item label="角色状态">
         <el-select v-model="value" placeholder="请选择">
@@ -51,9 +51,10 @@
             v-model="scope.row.enable"
             active-color="#13ce66"
             inactive-color="#ff4949"
+            v-if="scope.row.enable !== -1"
             @change="changeStatus(scope.row)">
           </el-switch>
-          <span v-if="scope.row.enable === 0">---</span>
+          <span v-if="scope.row.enable === -1">---</span>
         </template>
       </el-table-column>
       <el-table-column
@@ -236,7 +237,15 @@ export default {
       //   getUrl = `/company/{companyName}/${this.pageIndex}/${this.pageSize}`
       // }
       let res = await this.axios.get(getUrl)
-      console.log(res.data)
+      res.data.content.data.list.forEach(function(v, i) {
+        if (v.enable === 1) {
+          v.enable = true
+        }
+        if (v.enable === 0) {
+          v.enable = false
+        }
+      })
+      console.log(res.data.content.data.list)
       let {
         code,
         data: { list, total }

@@ -47,7 +47,6 @@
       <el-table-column
         label="操作">
           <template slot-scope="scope">
-            <!-- @click="$router.push('/companyaccess')" -->
             <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_resetAdmin')>-1" plain @click="resetAdmin(scope.row)">重置超管</el-button>
             <el-button type="success" size="mini" v-if="coList.indexOf('permission_co_func')>-1" plain @click="jump(scope.row)">权限</el-button>
           </template>
@@ -242,6 +241,7 @@ export default {
     },
     async getList() {
       this.coList = JSON.parse(localStorage.getItem('points'))
+      // console.log(this.coList)
       let getUrl = `/company/${this.companyName}/${this.pageIndex}/${
         this.pageSize
       }`

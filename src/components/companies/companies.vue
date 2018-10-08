@@ -4,10 +4,10 @@
       <el-breadcrumb-item>权限管理</el-breadcrumb-item>
       <el-breadcrumb-item>公司管理</el-breadcrumb-item>
     </el-breadcrumb>
-    <el-form :inline="true" class="demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_co_query')>-1">
+    <el-form :model="ruleForm" :inline="true" class="demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_co_query')>-1">
       <div class="filter">筛选</div>
       <el-form-item label="公司名称">
-        <el-input v-model="companyName" placeholder="请输入" class="filter-ipt"></el-input>
+        <el-input v-model="ruleForm.companyName" placeholder="请输入" class="filter-ipt"></el-input>
       </el-form-item>
       <el-form-item class="fr">
         <el-button type="primary" @click="onSubmit" size="medium">查询</el-button>
@@ -216,7 +216,9 @@ export default {
           { validator: validatePass4, trigger: 'blur' }
         ]
       },
-      companyName: '',
+      ruleForm: {
+        companyName: ''
+      },
       pageIndex: 1,
       pageSize: 5,
       total: 1,
@@ -228,7 +230,8 @@ export default {
       this.getList()
     },
     resetForm(formName) {
-      this.$refs[formName].resetFields()
+      this.ruleForm.companyName = ''
+      this.getList()
     },
     handleSizeChange(val) {
       this.pageSize = val
@@ -241,11 +244,11 @@ export default {
     },
     async getList() {
       this.coList = JSON.parse(localStorage.getItem('points'))
-      // console.log(this.coList)
-      let getUrl = `/company/${this.companyName}/${this.pageIndex}/${
+      console.log(this.coList)
+      let getUrl = `/company/${this.ruleForm.companyName}/${this.pageIndex}/${
         this.pageSize
       }`
-      if (this.companyName.length === 0) {
+      if (this.ruleForm.companyName.length === 0) {
         getUrl = `/company/{companyName}/${this.pageIndex}/${this.pageSize}`
       }
       let res = await this.axios.get(getUrl)

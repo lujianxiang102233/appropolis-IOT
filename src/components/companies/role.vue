@@ -188,7 +188,7 @@ export default {
       pageSize: 5,
       total: 1,
       roleName: '',
-      roleState: '2',
+      roleState: '',
       coList: [],
       options: [
         {
@@ -212,7 +212,9 @@ export default {
       this.getList()
     },
     resetForm(formName) {
-      this.$refs[formName].resetFields()
+      this.roleName = ''
+      this.roleState = ''
+      this.getList()
     },
     handleSizeChange(val) {
       this.pageSize = val
@@ -230,9 +232,9 @@ export default {
         this.roleState
       }/${this.pageIndex}/${this.pageSize}`
       if (this.roleName.length === 0) {
-        getUrl = `/role/${this.companyId}/{roleName}/${this.roleState}/${
-          this.pageIndex
-        }/${this.pageSize}`
+        getUrl = `/role/${this.companyId}/{roleName}/2/${this.pageIndex}/${
+          this.pageSize
+        }`
       }
       let res = await this.axios.get(getUrl)
       res.data.content.data.list.forEach(function(v, i) {

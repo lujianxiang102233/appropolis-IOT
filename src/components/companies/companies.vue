@@ -155,7 +155,6 @@ export default {
     }
     return {
       tableData: [],
-      dialogVisible: false,
       addDalogVisible: false,
       resetDalogVisible: false,
       addForm: {
@@ -281,7 +280,7 @@ export default {
         }
       })
     },
-    addCancel(){
+    addCancel() {
       this.addDalogVisible = false
       this.addForm = {}
     },

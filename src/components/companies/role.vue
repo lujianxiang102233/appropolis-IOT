@@ -84,24 +84,19 @@
       :total="total">
     </el-pagination>
     <el-dialog
-      title="新建公司"
+      title="新增/编辑角色"
       :visible.sync="addDalogVisible"
       width="40%">
       <el-form :model="addForm" :rules="rules" ref="addForm" label-width="120px" class="demo-ruleForm">
-        <el-form-item label="公司名称" prop="companyName">
-          <el-input v-model="addForm.companyName" placeholder="请输入"></el-input>
+        <el-form-item label="角色名称" prop="roleName">
+          <el-input v-model="addForm.roleName" placeholder="请输入"></el-input>
         </el-form-item>
-        <el-form-item label="公司内码" prop="companyCode">
-          <el-input v-model="addForm.companyCode" placeholder="请输入" @blur="output"></el-input>
+        <el-form-item label="角色描述" prop="remark">
+          <el-input type="textarea" v-model="addForm.remark"></el-input>
         </el-form-item>
-        <el-form-item label="超管用户名" prop="adminLoginName">
-          <el-input v-model="addForm.adminLoginName" placeholder="请输入"></el-input>
-        </el-form-item>
-        <el-form-item label="超管登录密码" prop="adminPassword">
-          <el-input type="password" v-model="addForm.adminPassword" autocomplete="off" placeholder="请输入"></el-input>
-        </el-form-item>
-        <el-form-item label="请重复密码" prop="checkAdminPassword">
-          <el-input type="password" v-model="addForm.checkAdminPassword" autocomplete="off" placeholder="请输入"></el-input>
+        <el-form-item label="角色状态" prop="adminLoginName">
+          <el-radio v-model="addForm.enable" :label="1">开启</el-radio>
+          <el-radio v-model="addForm.enable" :label="0">关闭</el-radio>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -135,15 +130,12 @@ export default {
     }
     return {
       tableData: [],
-      dialogVisible: false,
       addDalogVisible: false,
       resetDalogVisible: false,
       addForm: {
-        adminLoginName: '',
-        adminPassword: '',
-        checkAdminPassword: '',
-        companyCode: '',
-        companyName: ''
+        roleName: '',
+        remark: '',
+        enable: 1
       },
       retForm: {
         adminLoginName: '',
@@ -153,19 +145,19 @@ export default {
         companyId: ''
       },
       rules: {
-        companyName: [
-          { required: true, message: '请输入公司名称', trigger: 'blur' },
+        roleName: [
+          { required: true, message: '请输入', trigger: 'blur' },
           {
-            pattern: /^([\u2E80-\u9FFF]|[a-zA-Z0-9]){1,100}$/,
-            message: '最长100个中文字符',
+            pattern: /^([\u2E80-\u9FFF]|[a-zA-Z0-9]){1,50}$/,
+            message: '最长50个中文字符',
             trigger: 'change'
           }
         ],
-        companyCode: [
-          { required: true, message: '请输入公司内码', trigger: 'blur' },
+        remark: [
+          { required: true, message: '请输入', trigger: 'blur' },
           {
-            pattern: /^([a-zA-Z]){1,100}$/,
-            message: '最长20个英文字符，仅英文',
+            pattern: /^([\u2E80-\u9FFF]|[a-zA-Z0-9]){1,50}$/,
+            message: '最长50个中文字符',
             trigger: 'change'
           }
         ],
@@ -245,7 +237,6 @@ export default {
           v.enable = false
         }
       })
-      console.log(res.data.content.data.list)
       let {
         code,
         data: { list, total }
@@ -261,15 +252,16 @@ export default {
     add(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
-          let res = await this.axios.post(`/company`, this.addForm)
+          let res = await this.axios.post(`/role`, this.addForm)
           let { code } = res.data.content
-          if (code === +-3006) {
-            this.$message.error(`公司内码重复`)
+          if (code === +-3015) {
+            this.$message.error(`角色已存在`)
           }
           if (code === +-9999) {
             this.$message.error(`Exception Message`)
           }
           if (code === +0) {
+            this.$message.success(`新建角色成功`)
             this.getList()
             this.addDalogVisible = false
             this.addForm = {}
@@ -278,12 +270,6 @@ export default {
           return false
         }
       })
-    },
-    output() {
-      this.addForm.adminLoginName = this.addForm.companyCode + 'admin'
-      if (!this.addForm.companyCode) {
-        this.addForm.adminLoginName = ''
-      }
     },
     async changeStatus(row) {
       let { roleId, enable } = row

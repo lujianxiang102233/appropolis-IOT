@@ -10,7 +10,7 @@
         <el-input v-model="roleName" placeholder="请输入" class="filter-ipt"></el-input>
       </el-form-item>
       <el-form-item label="角色状态">
-        <el-select v-model="value" placeholder="请选择">
+        <el-select v-model="roleState" placeholder="请选择">
           <el-option
             v-for="item in options"
             :key="item.value"
@@ -187,24 +187,23 @@ export default {
       pageIndex: 1,
       pageSize: 5,
       total: 1,
-      roleName: '{roleName}',
-      roleState: 2,
+      roleName: '',
+      roleState: '2',
       coList: [],
       options: [
         {
-          value: '选项1',
+          value: '2',
           label: '全部'
         },
         {
-          value: '选项2',
+          value: '1',
           label: '开启'
         },
         {
-          value: '选项3',
+          value: '0',
           label: '关闭'
         }
       ],
-      value: '',
       companyId: ''
     }
   },
@@ -230,12 +229,11 @@ export default {
       let getUrl = `/role/${this.companyId}/${this.roleName}/${
         this.roleState
       }/${this.pageIndex}/${this.pageSize}`
-      // let getUrl = `/company/${this.companyName}/${this.pageIndex}/${
-      //   this.pageSize
-      // }`
-      // if (this.companyName.length === 0) {
-      //   getUrl = `/company/{companyName}/${this.pageIndex}/${this.pageSize}`
-      // }
+      if (this.roleName.length === 0) {
+        getUrl = `/role/${this.companyId}/{roleName}/${this.roleState}/${
+          this.pageIndex
+        }/${this.pageSize}`
+      }
       let res = await this.axios.get(getUrl)
       res.data.content.data.list.forEach(function(v, i) {
         if (v.enable === 1) {
@@ -288,9 +286,7 @@ export default {
     async changeStatus(row) {
       let { roleId, enable } = row
       let status = enable ? '1' : '0'
-      console.log(enable, status)
       let res = await this.axios.put(`/role/${roleId}/${status}`)
-      console.log(res)
       let { code } = res.data.content
       if (code === +-9999) {
         this.$message.error(`Exception Message`)

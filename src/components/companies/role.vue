@@ -100,13 +100,13 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="cancel">取 消</el-button>
+        <el-button @click="addCancel">取 消</el-button>
         <el-button type="primary" @click="add('addForm')">确 定</el-button>
       </span>
     </el-dialog>
     <el-dialog
       title="新增/编辑角色"
-      :visible.sync="addDalogVisible"
+      :visible.sync="editDalogVisible"
       width="40%">
       <el-form :model="addForm" :rules="rules" ref="addForm" label-width="120px" class="demo-ruleForm">
         <el-form-item label="角色名称" prop="roleName">
@@ -121,7 +121,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="cancel">取 消</el-button>
+        <el-button @click="editCancel">取 消</el-button>
         <el-button type="primary" @click="edit('addForm')">确 定</el-button>
       </span>
     </el-dialog>
@@ -140,30 +140,12 @@
 <script>
 export default {
   data() {
-    var validatePass1 = (rule, value, callback) => {
-      if (value === '') {
-        callback(new Error('请输入密码'))
-      } else {
-        if (this.addForm.checkAdminPassword !== '') {
-          this.$refs.addForm.validateField('checkAdminPassword')
-        }
-        callback()
-      }
-    }
-    var validatePass2 = (rule, value, callback) => {
-      if (value === '') {
-        callback(new Error('请再次输入密码'))
-      } else if (value !== this.addForm.adminPassword) {
-        callback(new Error('呵呵,两次输入密码不一致!'))
-      } else {
-        callback()
-      }
-    }
     return {
       tableData: [],
       addDalogVisible: false,
       resetDalogVisible: false,
       dialogVisible: false,
+      editDalogVisible: false,
       addForm: {
         roleName: '',
         remark: '',
@@ -193,19 +175,6 @@ export default {
             message: '最长50个中文字符',
             trigger: 'change'
           }
-        ],
-        adminPassword: [
-          { required: true, message: '请输入密码', trigger: 'blur' },
-          {
-            pattern: /^([a-zA-Z0-9]){6,16}$/,
-            message: '仅英文及数字，6-16位。至少包括1位数字、大小写英文字符',
-            trigger: 'change'
-          },
-          { validator: validatePass1, trigger: 'blur' }
-        ],
-        checkAdminPassword: [
-          { required: true, message: '请再次输入密码', trigger: 'blur' },
-          { validator: validatePass2, trigger: 'blur' }
         ]
       },
       companyName: '',
@@ -331,7 +300,7 @@ export default {
       this.enable = enable
     },
     editAdmin(row) {
-      this.addDalogVisible = true
+      this.editDalogVisible = true
       console.log(row)
       let { enable, remark, roleId, roleName } = row
       this.addForm.enable = Number(enable ? '1' : '0')
@@ -339,7 +308,15 @@ export default {
       this.addForm.roleId = roleId
       this.addForm.remark = remark
     },
-    cancel() {
+    editCancel() {
+      this.editDalogVisible = false
+      this.addForm.enable = 1
+      this.addForm.roleName = ''
+      this.addForm.roleId = ''
+      this.addForm.remark = ''
+      this.addDalogVisible = false
+    },
+    addCancel() {
       this.addDalogVisible = false
       this.addForm.enable = 1
       this.addForm.roleName = ''
@@ -362,9 +339,9 @@ export default {
             this.$message.error(`Exception Message`)
           }
           if (code === +0) {
-            this.$message.success(`修改角色成功`)
+            this.$message.success(`新建角色成功`)
             this.getList()
-            this.addDalogVisible = false
+            this.editDalogVisible = false
             this.addForm.roleName = ''
             this.addForm.remark = ''
           }

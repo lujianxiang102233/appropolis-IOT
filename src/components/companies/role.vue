@@ -104,6 +104,16 @@
         <el-button type="primary" @click="add('addForm')">确 定</el-button>
       </span>
     </el-dialog>
+    <el-dialog
+      title="提示"
+      :visible.sync="dialogVisible"
+      width="30%">
+      <span>确认要停用{{ tableData.roleName }}吗？</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="addFa">取 消</el-button>
+        <el-button type="primary" @click="addTrue">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -132,6 +142,7 @@ export default {
       tableData: [],
       addDalogVisible: false,
       resetDalogVisible: false,
+      dialogVisible: false,
       addForm: {
         roleName: '',
         remark: '',
@@ -196,7 +207,9 @@ export default {
           label: '关闭'
         }
       ],
-      companyId: ''
+      companyId: '',
+      roleId: '',
+      enable: ''
     }
   },
   methods: {
@@ -271,10 +284,9 @@ export default {
         }
       })
     },
-    async changeStatus(row) {
-      let { roleId, enable } = row
-      let status = enable ? '1' : '0'
-      let res = await this.axios.put(`/role/${roleId}/${status}`)
+    async addTrue() {
+      let status = this.enable ? '1' : '0'
+      let res = await this.axios.put(`/role/${this.roleId}/${status}`)
       let { code } = res.data.content
       if (code === +-9999) {
         this.$message.error(`Exception Message`)
@@ -283,6 +295,17 @@ export default {
         this.$message.success(`修改角色状态成功`)
         this.roleState = status
       }
+      this.dialogVisible = false
+    },
+    addFa() {
+      this.dialogVisible = false
+      this.getList()
+    },
+    changeStatus(row) {
+      this.dialogVisible = true
+      let { roleId, enable } = row
+      this.roleId = roleId
+      this.enable = enable
     }
   },
   created() {

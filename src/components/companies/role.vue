@@ -70,7 +70,7 @@
             <el-button type="primary" size="mini" v-if="coList.indexOf('permission_role_edit')>-1" plain @click="editAdmin(scope.row)">编辑</el-button>
             <el-button type="success" size="mini" v-if="coList.indexOf('permission_role_user')>-1" plain @click="jump(scope.row)">成员</el-button>
             <el-button type="success" size="mini" v-if="coList.indexOf('permission_role_auth')>-1" plain @click="jump(scope.row)">权限</el-button>
-            <el-button type="success" size="mini" v-if="coList.indexOf('permission_role_del')>-1" plain @click="jump(scope.row)">删除</el-button>
+            <el-button type="success" size="mini" v-if="coList.indexOf('permission_role_del')>-1" plain @click="del(scope.row)">删除</el-button>
           </template>
       </el-table-column>
     </el-table>
@@ -349,6 +349,60 @@ export default {
           return false
         }
       })
+    },
+    del(row) {
+      console.log(row)
+      let { roleId, roleName, roleCount } = row
+      // console.log(roleId, roleName, roleCount)
+      if (roleCount === 0) {
+        this.$confirm('确定要删除【' + roleName + '】吗?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
+          .then(async () => {
+            let res = await this.axios.delete(`/role/${roleId}/${roleName}`)
+            let { code } = res.data.content
+            if (code === +0) {
+              this.$message.success('【' + roleName + '】' + '已删除')
+              this.getList()
+            }
+          })
+          .catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消删除'
+            })
+          })
+      } else {
+        this.$confirm(
+          '【' +
+            roleName +
+            '】下共有【' +
+            roleCount +
+            '】名用户，删除角色后用户将取消相应角色及其授权，是否继续',
+          '提示',
+          {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }
+        )
+          .then(async () => {
+            let res = await this.axios.delete(`/role/${roleId}/${roleName}`)
+            let { code } = res.data.content
+            if (code === +0) {
+              this.$message.success('【' + roleName + '】' + '已删除')
+              this.getList()
+            }
+          })
+          .catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消删除'
+            })
+          })
+      }
     }
   },
   created() {

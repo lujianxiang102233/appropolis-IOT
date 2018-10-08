@@ -67,7 +67,7 @@
       <el-table-column
         label="操作">
           <template slot-scope="scope">
-            <el-button type="primary" size="mini" v-if="coList.indexOf('permission_role_edit')>-1" plain @click="resetAdmin(scope.row)">编辑</el-button>
+            <el-button type="primary" size="mini" v-if="coList.indexOf('permission_role_edit')>-1" plain @click="editAdmin(scope.row)">编辑</el-button>
             <el-button type="success" size="mini" v-if="coList.indexOf('permission_role_user')>-1" plain @click="jump(scope.row)">成员</el-button>
             <el-button type="success" size="mini" v-if="coList.indexOf('permission_role_auth')>-1" plain @click="jump(scope.row)">权限</el-button>
             <el-button type="success" size="mini" v-if="coList.indexOf('permission_role_del')>-1" plain @click="jump(scope.row)">删除</el-button>
@@ -100,8 +100,29 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="addDalogVisible = false">取 消</el-button>
+        <el-button @click="cancel">取 消</el-button>
         <el-button type="primary" @click="add('addForm')">确 定</el-button>
+      </span>
+    </el-dialog>
+    <el-dialog
+      title="新增/编辑角色"
+      :visible.sync="addDalogVisible"
+      width="40%">
+      <el-form :model="addForm" :rules="rules" ref="addForm" label-width="120px" class="demo-ruleForm">
+        <el-form-item label="角色名称" prop="roleName">
+          <el-input v-model="addForm.roleName" placeholder="请输入"></el-input>
+        </el-form-item>
+        <el-form-item label="角色描述" prop="remark">
+          <el-input type="textarea" v-model="addForm.remark"></el-input>
+        </el-form-item>
+        <el-form-item label="角色状态" prop="adminLoginName">
+          <el-radio v-model="addForm.enable" :label="1">开启</el-radio>
+          <el-radio v-model="addForm.enable" :label="0">关闭</el-radio>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="cancel">取 消</el-button>
+        <el-button type="primary" @click="edit('addForm')">确 定</el-button>
       </span>
     </el-dialog>
     <el-dialog
@@ -110,8 +131,8 @@
       width="30%">
       <span>确认要停用{{ tableData.roleName }}吗？</span>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="addFa">取 消</el-button>
-        <el-button type="primary" @click="addTrue">确 定</el-button>
+        <el-button @click="stateCancel">取 消</el-button>
+        <el-button type="primary" @click="stateTrue">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -146,7 +167,8 @@ export default {
       addForm: {
         roleName: '',
         remark: '',
-        enable: 1
+        enable: 1,
+        roleId: ''
       },
       retForm: {
         adminLoginName: '',
@@ -277,14 +299,15 @@ export default {
             this.$message.success(`新建角色成功`)
             this.getList()
             this.addDalogVisible = false
-            this.addForm = {}
+            this.addForm.roleName = ''
+            this.addForm.remark = ''
           }
         } else {
           return false
         }
       })
     },
-    async addTrue() {
+    async stateTrue() {
       let status = this.enable ? '1' : '0'
       let res = await this.axios.put(`/role/${this.roleId}/${status}`)
       let { code } = res.data.content
@@ -297,7 +320,7 @@ export default {
       }
       this.dialogVisible = false
     },
-    addFa() {
+    stateCancel() {
       this.dialogVisible = false
       this.getList()
     },
@@ -306,6 +329,49 @@ export default {
       let { roleId, enable } = row
       this.roleId = roleId
       this.enable = enable
+    },
+    editAdmin(row) {
+      this.addDalogVisible = true
+      console.log(row)
+      let { enable, remark, roleId, roleName } = row
+      this.addForm.enable = Number(enable ? '1' : '0')
+      this.addForm.roleName = roleName
+      this.addForm.roleId = roleId
+      this.addForm.remark = remark
+    },
+    cancel() {
+      this.addDalogVisible = false
+      this.addForm.enable = 1
+      this.addForm.roleName = ''
+      this.addForm.roleId = ''
+      this.addForm.remark = ''
+      this.addDalogVisible = false
+    },
+    edit(formName) {
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          let res = await this.axios.put(
+            `/role/${this.addForm.roleId}`,
+            this.addForm
+          )
+          let { code } = res.data.content
+          if (code === +-3015) {
+            this.$message.error(`角色已存在`)
+          }
+          if (code === +-9999) {
+            this.$message.error(`Exception Message`)
+          }
+          if (code === +0) {
+            this.$message.success(`修改角色成功`)
+            this.getList()
+            this.addDalogVisible = false
+            this.addForm.roleName = ''
+            this.addForm.remark = ''
+          }
+        } else {
+          return false
+        }
+      })
     }
   },
   created() {

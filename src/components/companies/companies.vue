@@ -83,7 +83,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="addDalogVisible = false">取 消</el-button>
+        <el-button @click="addCancel">取 消</el-button>
         <el-button type="primary" @click="add('addForm')">确 定</el-button>
       </span>
     </el-dialog>
@@ -244,7 +244,6 @@ export default {
     },
     async getList() {
       this.coList = JSON.parse(localStorage.getItem('points'))
-      console.log(this.coList)
       let getUrl = `/company/${this.ruleForm.companyName}/${this.pageIndex}/${
         this.pageSize
       }`
@@ -252,7 +251,6 @@ export default {
         getUrl = `/company/{companyName}/${this.pageIndex}/${this.pageSize}`
       }
       let res = await this.axios.get(getUrl)
-      console.log(res.data)
       let {
         code,
         data: { list, total }
@@ -282,6 +280,10 @@ export default {
           return false
         }
       })
+    },
+    addCancel(){
+      this.addDalogVisible = false
+      this.addForm = {}
     },
     output() {
       this.addForm.adminLoginName = this.addForm.companyCode + 'admin'

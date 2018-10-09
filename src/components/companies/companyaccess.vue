@@ -6,7 +6,7 @@
       <el-breadcrumb-item>公司权限</el-breadcrumb-item>
     </el-breadcrumb>
     <div class="editCom"><p>编辑【蒙羊牧业有限公司】权限</p></div>
-    <el-form :inline="true" class="demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_co_func_query')>-1">
+    <el-form :inline="true" class="demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_co_func_query')>-1" :model="queryTable">
       <div class="filter">筛选</div>
       <el-form-item label="功能点名称">
         <el-input v-model="companyName" placeholder="请输入" class="filter-ipt"></el-input>
@@ -20,35 +20,46 @@
       </el-form-item>
     </el-form>
      <el-button type="primary" style="margin-top: 10px;" size="medium" @click="addDalogVisible = true" v-if="coList.indexOf('permission_co_func_add')>-1">+ 新建一级功能点</el-button>
-     <el-button type="primary" style="margin:0px 40px;" size="medium" @click="addDalogVisible = true" v-if="coList.indexOf('permission_co_func_addsub')>-1">复制其他公司权限</el-button>
+     <el-button type="primary" style="margin:0px 40px;" size="medium" @click="addDalogVisible = true" v-if="coList.indexOf('permission_co_func_copy')>-1">复制其他公司权限</el-button>
       <el-table
-      :data="perList"
+      :data="funcTable"
+      height="350"
       style="width: 100%">
       <el-table-tree-column
-        tree-key="cat_id"
-        level-key="cat_level"
-        parent-key="cat_pid"
         :indent-size="30"
-        prop="cat_name"
+        parent-key="parentId"
+        prop="permissionName"
+        width="170"
         label="功能点名称">
       </el-table-tree-column>
       <el-table-column
-        prop="cat_deleted"
-        label="是否删除">
-        <template slot-scope="scope">
-          {{scope.row.cat_deleted?'是':'否'}}
+        prop="permissionCode"
+        width="150"
+        label="FUNCID">
+      </el-table-column>
+      <el-table-column
+        prop="menu"
+        width="120"
+        label="菜单栏（权重）">
+       <template slot-scope="scope">
+          {{scope.row.menu?'是':'否'}}
         </template>
       </el-table-column>
       <el-table-column
-        prop="cat_level"
-        label="排序">
+        prop="url"
+        width="180"
+        label="url">
       </el-table-column>
       <el-table-column
-        prop="address"
+        prop="url"
+        label="功能描述">
+      </el-table-column>
+      <el-table-column
         label="操作">
         <template slot-scope="scope">
-          <el-button type="primary" icon="el-icon-edit" size="small" plain ></el-button>
-          <el-button type="danger" icon="el-icon-delete" size="small" plain ></el-button>
+          <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_addsub')>-1"  plain>添加</el-button>
+          <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_edit')>-1"  plain>编辑</el-button>
+          <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_del')>-1"  plain>删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -146,7 +157,11 @@ export default {
       },
       companyName: '',
       coList: [],
-      perList: []
+      funcTable: [],
+      queryTable: {
+        func: '',
+        permissionCode: ''
+      }
     }
   },
   methods: {
@@ -166,6 +181,22 @@ export default {
       this.getList()
     },
     async getList() {
+      let indexi = 0
+      function getArray(data, depth, parentId) {
+        for (var i in data) {
+          if (data[i].permissionCode !== undefined) {
+            data[i].id = ++indexi
+            // data[i].label = data[i].permissionName
+            data[i].depth = depth
+            data[i].parentId = parentId
+            data[i].child_num = data[i].children.length
+          }
+          if (data[i].children.length > 0) {
+            let tempDept = depth + 1
+            getArray(data[i].children, tempDept, data[i].id)
+          }
+        }
+      }
       this.coList = JSON.parse(localStorage.getItem('points'))
       // console.log(this.coList)
       let res = await this.axios.get(
@@ -179,8 +210,9 @@ export default {
         this.$message.error(`Exception Message`)
       }
       if (code === 0) {
-        console.log(permissionTree)
-        this.perList = permissionTree
+        getArray(permissionTree, 0, null)
+        this.funcTable = permissionTree
+        console.log(this.funcTable)
       }
     },
     add(formName) {
@@ -308,6 +340,27 @@ export default {
     font-weight: 700;
     line-height: 28px;
     color: rgba(0, 0, 0, 0.847058823529412);
+  }
+}
+.el-table {
+  /deep/ .el-table_1_column_2 .cell {
+    display: inline-block;
+    *display: inline;
+    *zoom: 1;
+    width: 10em;
+    height: 23px;
+    line-height: 23px;
+    // font-size: 12px;
+    overflow: hidden;
+    -ms-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  /deep/ .el-table_1_column_2 .cell:hover {
+    height: auto;
+    word-break: break-all;
+    white-space: pre-wrap;
+    text-decoration: none;
   }
 }
 </style>

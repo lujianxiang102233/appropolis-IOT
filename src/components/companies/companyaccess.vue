@@ -222,6 +222,7 @@ export default {
       this.$refs[formName].resetFields()
     },
     async getList() {
+      console.log(223)
       let indexi = 0
       function getArray(data, depth, parentId) {
         for (var i in data) {
@@ -243,6 +244,7 @@ export default {
       let res = await this.axios.get(
         `/company/permission/${this.$route.query.id}`
       )
+      console.log(res)
       let {
         code,
         data: { permissionTree, version }
@@ -256,6 +258,7 @@ export default {
         this.funcTable = permissionTree
         this.version = version
         // console.log(this.funcTable)
+        console.log(123)
       }
     },
     add(formName) {

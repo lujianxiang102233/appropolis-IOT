@@ -31,11 +31,17 @@
         prop="permissionName"
         width="170"
         label="功能点名称">
+        <template slot-scope="scope">
+          <span class="elliSpan" :title="scope.row.permissionName">{{scope.row.permissionName}}</span>
+        </template>
       </el-table-tree-column>
       <el-table-column
         prop="permissionCode"
         width="150"
         label="FUNCID">
+         <template slot-scope="scope">
+          <div class="elli" :title="scope.row.permissionCode">{{scope.row.permissionCode}}</div>
+        </template>
       </el-table-column>
       <el-table-column
         prop="menu"
@@ -51,7 +57,8 @@
         label="url">
       </el-table-column>
       <el-table-column
-        prop="url"
+        prop="remark"
+        width="150"
         label="功能描述">
       </el-table-column>
       <el-table-column
@@ -64,7 +71,7 @@
       </el-table-column>
     </el-table>
     <el-dialog
-      title="新建公司"
+      title="新建一级功能点"
       :visible.sync="addDalogVisible"
       width="40%">
       <el-form :model="addForm" :rules="rules" ref="addForm" label-width="120px" class="demo-ruleForm">
@@ -343,7 +350,7 @@ export default {
   }
 }
 .el-table {
-  /deep/ .el-table_1_column_2 .cell {
+  /deep/ .el-table_1_column_2 .cell .elli {
     display: inline-block;
     *display: inline;
     *zoom: 1;
@@ -356,11 +363,19 @@ export default {
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  /deep/ .el-table_1_column_2 .cell:hover {
-    height: auto;
-    word-break: break-all;
-    white-space: pre-wrap;
-    text-decoration: none;
-  }
+  // .elliSpan {
+  //   color: red;
+  //   // display: inline-block;
+  //   *display: inline;
+  //   *zoom: 1;
+  //   width: 10em;
+  //   height: 23px;
+  //   line-height: 23px;
+  //   // font-size: 12px;
+  //   overflow: hidden;
+  //   -ms-text-overflow: ellipsis;
+  //   text-overflow: ellipsis;
+  //   white-space: nowrap;
+  // }
 }
 </style>

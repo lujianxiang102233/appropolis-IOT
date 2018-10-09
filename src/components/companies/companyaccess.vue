@@ -53,13 +53,20 @@
       </el-table-column>
       <el-table-column
         prop="url"
-        width="180"
+        width="140"
         label="url">
+        <template slot-scope="scope">
+          <a href="scope.row.url" class="elli" target="_blank"  :title="scope.row.url">{{scope.row.url}}</a>
+          <!-- <div class="elli" :title="scope.row.url">{{scope.row.url}}</div> -->
+        </template>
       </el-table-column>
       <el-table-column
         prop="remark"
         width="150"
         label="功能描述">
+        <template slot-scope="scope">
+          <div class="elli" :title="scope.row.remark">{{scope.row.remark}}</div>
+        </template>
       </el-table-column>
       <el-table-column
         label="操作">
@@ -75,20 +82,28 @@
       :visible.sync="addDalogVisible"
       width="40%">
       <el-form :model="addForm" :rules="rules" ref="addForm" label-width="120px" class="demo-ruleForm">
-        <el-form-item label="公司名称" prop="companyName">
-          <el-input v-model="addForm.companyName" placeholder="请输入"></el-input>
+        <el-form-item label="功能点名称" prop="permissionName">
+          <el-input v-model="addForm.permissionName" placeholder="请输入"></el-input>
         </el-form-item>
-        <el-form-item label="公司内码" prop="companyCode">
-          <el-input v-model="addForm.companyCode" placeholder="请输入" @blur="output"></el-input>
+        <el-form-item label="FUNCID" prop="permissionCode">
+          <el-input v-model="addForm.permissionCode" placeholder="请输入"></el-input>
         </el-form-item>
-        <el-form-item label="超管用户名" prop="adminLoginName">
-          <el-input v-model="addForm.adminLoginName" placeholder="请输入"></el-input>
+        <el-form-item label="是否菜单栏" prop="menu">
+          <el-radio v-model="addForm.menu" label="true">是</el-radio>
+          <el-radio v-model="addForm.menu" label="false">否</el-radio>
         </el-form-item>
-        <el-form-item label="超管登录密码" prop="adminPassword">
-          <el-input type="password" v-model="addForm.adminPassword" autocomplete="off" placeholder="请输入"></el-input>
+        <el-form-item label="URL" prop="url">
+          <el-input  v-model="addForm.url"  placeholder="请输入"></el-input>
         </el-form-item>
-        <el-form-item label="请重复密码" prop="checkAdminPassword">
-          <el-input type="password" v-model="addForm.checkAdminPassword" autocomplete="off" placeholder="请输入"></el-input>
+        <el-form-item label="页面内打开" prop="newTab">
+          <el-radio v-model="addForm.newTab" label="true">是</el-radio>
+          <el-radio v-model="addForm.newTab" label="false">否</el-radio>
+        </el-form-item>
+        <el-form-item v-if="addForm.menu =='true'" label="权重" prop="weight">
+          <el-input  v-model="addForm.weight"  placeholder="请输入"></el-input>
+        </el-form-item>
+        <el-form-item label="功能点描述" prop="remark">
+          <el-input type="textarea" v-model="addForm.remark"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -131,11 +146,14 @@ export default {
       addDalogVisible: false,
       resetDalogVisible: false,
       addForm: {
-        adminLoginName: '',
-        adminPassword: '',
-        checkAdminPassword: '',
-        companyCode: '',
-        companyName: ''
+        permissionName: '',
+        permissionCode: '',
+        url: '',
+        weight: '',
+        menu: 'true',
+        newTab: 'true',
+        remark: '',
+        children: []
       },
       retForm: {
         adminLoginName: '',
@@ -145,19 +163,43 @@ export default {
         companyId: ''
       },
       rules: {
-        companyName: [
-          { required: true, message: '请输入公司名称', trigger: 'blur' },
+        permissionName: [
+          { required: true, message: '请输入功能点名称', trigger: 'blur' },
+          {
+            pattern: /^([\u2E80-\u9FFF]|[a-zA-Z0-9]){1,50}$/,
+            message: '最长50个中文字符',
+            trigger: 'change'
+          }
+        ],
+        permissionCode: [
+          { required: true, message: '请输入FUNCID', trigger: 'blur' },
           {
             pattern: /^([\u2E80-\u9FFF]|[a-zA-Z0-9]){1,100}$/,
             message: '最长100个中文字符',
             trigger: 'change'
           }
         ],
-        companyCode: [
-          { required: true, message: '请输入公司内码', trigger: 'blur' },
+        remark: [
+          { required: false, message: '请输入功能点描述', trigger: 'blur' },
           {
-            pattern: /^([a-zA-Z]){1,100}$/,
-            message: '最长20个英文字符，仅英文',
+            pattern: /^([\u2E80-\u9FFF]|[a-zA-Z0-9]){1,1000}$/,
+            message: '最长50个中文字符',
+            trigger: 'change'
+          }
+        ],
+        weight: [
+          { required: true, message: '请输入公司名称', trigger: 'blur' },
+          {
+            pattern: /^[1-9]\d{0,9}$/,
+            message: '10位以内正整数',
+            trigger: 'change'
+          }
+        ],
+        url: [
+          { required: true, message: '请输入公司名称', trigger: 'blur' },
+          {
+            pattern: /^\w{0,1000}$/,
+            message: '最长1000个中文字符',
             trigger: 'change'
           }
         ]
@@ -168,7 +210,8 @@ export default {
       queryTable: {
         func: '',
         permissionCode: ''
-      }
+      },
+      version: ''
     }
   },
   methods: {
@@ -177,15 +220,6 @@ export default {
     },
     resetForm(formName) {
       this.$refs[formName].resetFields()
-    },
-    handleSizeChange(val) {
-      this.pageSize = val
-      this.pageIndex = 1
-      this.getList()
-    },
-    handleCurrentChange(val) {
-      this.pageIndex = val
-      this.getList()
     },
     async getList() {
       let indexi = 0
@@ -205,49 +239,66 @@ export default {
         }
       }
       this.coList = JSON.parse(localStorage.getItem('points'))
-      // console.log(this.coList)
+      this.companyId = `${this.$route.query.id}`
       let res = await this.axios.get(
         `/company/permission/${this.$route.query.id}`
       )
       let {
         code,
-        data: { permissionTree }
+        data: { permissionTree, version }
       } = res.data.content
       if (code === -9999) {
         this.$message.error(`Exception Message`)
       }
       if (code === 0) {
+        // console.log(permissionTree)
         getArray(permissionTree, 0, null)
         this.funcTable = permissionTree
-        console.log(this.funcTable)
+        this.version = version
+        // console.log(this.funcTable)
       }
     },
     add(formName) {
+      // console.log(`${this.$route.query.id}`)
+      // console.log(this.companyId)
+      // console.log(this.addForm)
       this.$refs[formName].validate(async valid => {
         if (valid) {
-          let res = await this.axios.post(`/company`, this.addForm)
-          let { code } = res.data.content
-          if (code === +-3006) {
-            this.$message.error(`公司内码重复`)
-          }
-          if (code === +-9999) {
-            this.$message.error(`Exception Message`)
-          }
-          if (code === +0) {
-            this.getList()
-            this.addDalogVisible = false
-            this.addForm = {}
-          }
+          // let form = JSON.stringify(this.addForm)
+          let obj = { permissionTree: [] }
+          obj.permissionTree.push(this.addForm)
+          // console.log(obj.permissionTree)
+          console.log(obj)
+          // console.log(permissionTree)
+          // console.log(`${this.$route.query.id}`)
+          // console.log(this.version)
+          let res = await this.axios.post(
+            `/company/permission/${this.$route.query.id}/${
+              this.addForm.permissionName
+            }`,
+            {
+              permissionTree: obj.permissionTree,
+              version: this.version
+            },
+            this.addForm
+          )
+          console.log(res)
+          // let { code } = res.data.content
+          // if (code === +-3006) {
+          //   this.$message.error(`公司内码重复`)
+          // }
+          // if (code === +-9999) {
+          //   this.$message.error(`Exception Message`)
+          // }
+          // if (code === +0) {
+          //   this.getList()
+          //   this.addDalogVisible = false
+          //   this.addForm = {}
+          // }
         } else {
           return false
         }
       })
-    },
-    output() {
-      this.addForm.adminLoginName = this.addForm.companyCode + 'admin'
-      if (!this.addForm.companyCode) {
-        this.addForm.adminLoginName = ''
-      }
     },
     resetAdmin(row) {
       this.resetDalogVisible = true
@@ -350,7 +401,9 @@ export default {
   }
 }
 .el-table {
-  /deep/ .el-table_1_column_2 .cell .elli {
+  /deep/ .el-table_1_column_2 .cell .elli,
+  /deep/ .el-table_1_column_5 .cell .elli,
+  /deep/ .el-table_1_column_4 .cell .elli {
     display: inline-block;
     *display: inline;
     *zoom: 1;

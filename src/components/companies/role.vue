@@ -94,7 +94,7 @@
         <el-form-item label="角色描述" prop="remark">
           <el-input type="textarea" v-model="addForm.remark"></el-input>
         </el-form-item>
-        <el-form-item label="角色状态" prop="adminLoginName">
+        <el-form-item label="角色状态" prop="enable">
           <el-radio v-model="addForm.enable" :label="1">开启</el-radio>
           <el-radio v-model="addForm.enable" :label="0">关闭</el-radio>
         </el-form-item>

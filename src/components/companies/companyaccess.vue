@@ -254,14 +254,14 @@ export default {
             this.getList()
             this.addDalogVisible = false
             this.$message.success('新建一级功能点成功')
-            // this.addForm.permissionName = ''
-            // this.addForm.permissionCode = ''
-            // this.addForm.url = ''
-            // this.addForm.weight = ''
-            // this.addForm.menu = 'true'
-            // this.addForm.newTab = 'true'
-            // this.addForm.remark = ''
-            // this.addForm.children = []
+            this.addForm.permissionName = ''
+            this.addForm.permissionCode = ''
+            this.addForm.url = ''
+            this.addForm.weight = ''
+            this.addForm.menu = 'true'
+            this.addForm.newTab = 'true'
+            this.addForm.remark = ''
+            this.addForm.children = []
           }
         } else {
           return false

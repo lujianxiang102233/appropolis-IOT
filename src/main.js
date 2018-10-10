@@ -14,7 +14,7 @@ Vue.use(ElementUI)
 
 axios.interceptors.request.use(
   function (config) {
-    config.baseURL = 'http://192.168.210.1:8888'
+    config.baseURL = 'http://192.168.210.66:8085/api-employee'
     config.headers.token = localStorage.getItem('token')
     return config
   },

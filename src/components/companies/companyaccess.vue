@@ -71,7 +71,8 @@
       <el-table-column
         label="操作">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_addsub')>-1"  plain>添加</el-button>
+          <!-- addsub(scope.row) -->
+          <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_addsub')>-1"  plain @click="addsub(scope.row)" >添加</el-button>
           <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_edit')>-1"  plain>编辑</el-button>
           <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_del')>-1"  plain>删除</el-button>
         </template>
@@ -111,6 +112,80 @@
         <el-button type="primary" @click="add('addForm')">确 定</el-button>
       </span>
     </el-dialog>
+    <el-dialog
+      title="新建一级功能点"
+      :visible.sync="addsubDalogVisible"
+      width="40%">
+      <el-form :model="addsubForm" :rules="rules" ref="addsubForm" label-width="120px" class="demo-ruleForm">
+        <el-form-item label="功能点名称" prop="permissionName">
+          <el-input v-model="addsubForm.permissionName" placeholder="请输入"></el-input>
+        </el-form-item>
+        <el-form-item label="FUNCID" prop="permissionCode">
+          <el-input v-model="addsubForm.permissionCode" placeholder="请输入"></el-input>
+        </el-form-item>
+        <el-form-item label="是否菜单栏" prop="menu">
+          <el-radio v-model="addForm.menu" label="true">是</el-radio>
+          <el-radio v-model="addsubForm.menu" label="false">否</el-radio>
+        </el-form-item>
+        <el-form-item label="URL" prop="url">
+          <el-input  v-model="addsubForm.url"  placeholder="请输入"></el-input>
+        </el-form-item>
+        <el-form-item label="页面内打开" prop="newTab">
+          <el-radio v-model="addsubForm.newTab" label="true">是</el-radio>
+          <el-radio v-model="addsubForm.newTab" label="false">否</el-radio>
+        </el-form-item>
+        <el-form-item v-if="addsubForm.menu =='true'" label="权重" prop="weight">
+          <el-input  v-model="addsubForm.weight"  placeholder="请输入"></el-input>
+        </el-form-item>
+        <el-form-item label="功能点描述" prop="remark">
+          <el-input type="textarea" v-model="addsubForm.remark"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="addCancel">取 消</el-button>
+        <el-button type="primary" @click="add('addForm')">确 定</el-button>
+      </span>
+    </el-dialog>
+    <!-- <el-dialog
+      title="新建一级功能点"
+      :visible.sync="addsubDalogVisible"
+      width="40%">
+      <el-form :model="addsubForm" :rules="rules" ref="addsubForm" label-width="140px" class="demo-ruleForm">
+        <el-form-item label="父级功能点名称" prop="paiName">
+          <el-input v-model="paiName" placeholder="请输入"></el-input>
+        </el-form-item>
+        <el-form-item label="父级FUNCID" prop="paiId">
+          <el-input v-model="paiId" placeholder="请输入"></el-input>
+        </el-form-item>
+        <el-form-item label="功能点名称" prop="permissionName">
+          <el-input v-model="addsubForm.permissionName" placeholder="请输入"></el-input>
+        </el-form-item>
+        <el-form-item label="FUNCID" prop="permissionCode">
+          <el-input v-model="addsubForm.permissionCode" placeholder="请输入"></el-input>
+        </el-form-item>
+        <el-form-item label="是否菜单栏" prop="menu">
+          <el-radio v-model="addsubForm.menu" label="true">是</el-radio>
+          <el-radio v-model="addsubForm.menu" label="false">否</el-radio>
+        </el-form-item>
+        <el-form-item label="URL" prop="url">
+          <el-input  v-model="addsubForm.url"  placeholder="请输入"></el-input>
+        </el-form-item>
+        <el-form-item label="页面内打开" prop="newTab">
+          <el-radio v-model="addsubForm.newTab" label="true">是</el-radio>
+          <el-radio v-model="addsubForm.newTab" label="false">否</el-radio>
+        </el-form-item>
+        <el-form-item v-if="addsubForm.menu =='true'" label="权重" prop="weight">
+          <el-input  v-model="addsubForm.weight"  placeholder="请输入"></el-input>
+        </el-form-item>
+        <el-form-item label="功能点描述" prop="remark">
+          <el-input type="textarea" v-model="addsubForm.remark"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="addCancel">取 消</el-button>
+        <el-button type="primary" @click="addSubTrue('addForm')">确 定</el-button>
+      </span>
+    </el-dialog> -->
   </div>
 </template>
 <script>
@@ -118,11 +193,20 @@ let ElTreeGrid = require('element-tree-grid')
 export default {
   data() {
     return {
-      tableData: [],
       dialogVisible: false,
       addDalogVisible: false,
-      resetDalogVisible: false,
+      addsubDalogVisible: false,
       addForm: {
+        permissionName: '',
+        permissionCode: '',
+        url: '',
+        weight: '',
+        menu: 'true',
+        newTab: 'true',
+        remark: '',
+        children: []
+      },
+      addsubForm: {
         permissionName: '',
         permissionCode: '',
         url: '',
@@ -181,7 +265,9 @@ export default {
         func: '',
         permissionCode: ''
       },
-      treeList: {}
+      treeList: {},
+      paiName: '',
+      paiId: ''
     }
   },
   methods: {
@@ -213,14 +299,16 @@ export default {
       let res = await this.axios.get(
         `/company/permission/${this.$route.query.id}`
       )
+
       let { code, data } = res.data.content
       if (code === -9999) {
         this.$message.error(`Exception Message`)
       }
       if (code === 0) {
-        getArray(data.permissionTree, 0, null)
-        this.funcTable = data.permissionTree
-        this.treeList = data
+        let newdata = JSON.parse(data)
+        getArray(newdata.permissionTree, 0, null)
+        this.funcTable = newdata.permissionTree
+        this.treeList = newdata
       }
     },
     add(formName) {
@@ -236,7 +324,6 @@ export default {
               version: this.treeList.version
             }
           )
-          console.log(res)
           let { code } = res.data.content
           if (code === +-3009) {
             this.$message.error(`权限已存在`)
@@ -278,13 +365,65 @@ export default {
       this.addForm.newTab = 'true'
       this.addForm.remark = ''
       this.addForm.children = []
+    },
+    addsub(row) {
+      this.addsubDalogVisible = true
+      console.log(row)
+      this.paiName = row.permissionName
+      this.paiId = row.permissionCode
+    },
+    addSubTrue(formName) {
+      console.log(formName)
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          // this.treeList.permissionTree.push(this.addForm)
+          // console.log(this.addForm)
+          // console.log(this.treeList.permissionTree)
+          // let res = await this.axios.post(
+          //   `/company/permission/${this.$route.query.id}/${
+          //     this.addForm.permissionName
+          //   }`,
+          //   {
+          //     permissionTree: this.treeList.permissionTree,
+          //     version: this.treeList.version
+          //   }
+          // )
+          // let { code } = res.data.content
+          // if (code === +-3009) {
+          //   this.$message.error(`权限已存在`)
+          // }
+          // if (code === +-3010) {
+          //   this.$message.error(`权限已授权`)
+          // }
+          // if (code === +-3009) {
+          //   this.$message.error(`权限树版本问题`)
+          // }
+          // if (code === +-9999) {
+          //   this.$message.error(`Exception Message`)
+          // }
+          // if (code === +0) {
+          //   this.getList()
+          //   this.addDalogVisible = false
+          //   this.$message.success('新建一级功能点成功')
+          //   this.addForm.permissionName = ''
+          //   this.addForm.permissionCode = ''
+          //   this.addForm.url = ''
+          //   this.addForm.weight = ''
+          //   this.addForm.menu = 'true'
+          //   this.addForm.newTab = 'true'
+          //   this.addForm.remark = ''
+          //   this.addForm.children = []
+          // }
+        } else {
+          return false
+        }
+      })
     }
   },
   components: {
     'el-table-tree-column': ElTreeGrid
   },
   created() {
-    // ok
     this.getList()
   }
 }

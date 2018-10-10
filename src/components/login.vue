@@ -46,7 +46,6 @@ export default {
             ...this.form,
             ...this.code
           })
-          console.log(res.data)
           let { code, data } = res.data.content
           if (code === +-3017 || code === +-3016) {
             this.$message.error(`用户名或者密码错误`)

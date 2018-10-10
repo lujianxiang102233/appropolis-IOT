@@ -116,40 +116,6 @@
       title="新建一级功能点"
       :visible.sync="addsubDalogVisible"
       width="40%">
-      <el-form :model="addsubForm" :rules="rules" ref="addsubForm" label-width="120px" class="demo-ruleForm">
-        <el-form-item label="功能点名称" prop="permissionName">
-          <el-input v-model="addsubForm.permissionName" placeholder="请输入"></el-input>
-        </el-form-item>
-        <el-form-item label="FUNCID" prop="permissionCode">
-          <el-input v-model="addsubForm.permissionCode" placeholder="请输入"></el-input>
-        </el-form-item>
-        <el-form-item label="是否菜单栏" prop="menu">
-          <el-radio v-model="addForm.menu" label="true">是</el-radio>
-          <el-radio v-model="addsubForm.menu" label="false">否</el-radio>
-        </el-form-item>
-        <el-form-item label="URL" prop="url">
-          <el-input  v-model="addsubForm.url"  placeholder="请输入"></el-input>
-        </el-form-item>
-        <el-form-item label="页面内打开" prop="newTab">
-          <el-radio v-model="addsubForm.newTab" label="true">是</el-radio>
-          <el-radio v-model="addsubForm.newTab" label="false">否</el-radio>
-        </el-form-item>
-        <el-form-item v-if="addsubForm.menu =='true'" label="权重" prop="weight">
-          <el-input  v-model="addsubForm.weight"  placeholder="请输入"></el-input>
-        </el-form-item>
-        <el-form-item label="功能点描述" prop="remark">
-          <el-input type="textarea" v-model="addsubForm.remark"></el-input>
-        </el-form-item>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="addCancel">取 消</el-button>
-        <el-button type="primary" @click="add('addForm')">确 定</el-button>
-      </span>
-    </el-dialog>
-    <!-- <el-dialog
-      title="新建一级功能点"
-      :visible.sync="addsubDalogVisible"
-      width="40%">
       <el-form :model="addsubForm" :rules="rules" ref="addsubForm" label-width="140px" class="demo-ruleForm">
         <el-form-item label="父级功能点名称" prop="paiName">
           <el-input v-model="paiName" placeholder="请输入"></el-input>
@@ -182,10 +148,10 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="addCancel">取 消</el-button>
-        <el-button type="primary" @click="addSubTrue('addForm')">确 定</el-button>
+        <el-button @click="addsubCancel">取 消</el-button>
+        <el-button type="primary" @click="addSubTrue('addsubForm')">确 定</el-button>
       </span>
-    </el-dialog> -->
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -236,7 +202,7 @@ export default {
         remark: [
           { required: false, message: '请输入功能点描述', trigger: 'blur' },
           {
-            pattern: /^([\u2E80-\u9FFF]|[a-zA-Z0-9]){1,1000}$/,
+            pattern: /^([\u2E80-\u9FFF]|[a-zA-Z0-9]){1,50}$/,
             message: '最长50个中文字符',
             trigger: 'change'
           }
@@ -373,9 +339,9 @@ export default {
       this.paiId = row.permissionCode
     },
     addSubTrue(formName) {
-      console.log(formName)
       this.$refs[formName].validate(async valid => {
         if (valid) {
+          console.log(this.addsubForm)
           // this.treeList.permissionTree.push(this.addForm)
           // console.log(this.addForm)
           // console.log(this.treeList.permissionTree)
@@ -418,6 +384,9 @@ export default {
           return false
         }
       })
+    },
+    addsubCancel() {
+      this.addsubDalogVisible = false
     }
   },
   components: {

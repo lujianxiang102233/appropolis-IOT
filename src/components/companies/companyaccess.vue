@@ -107,31 +107,8 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="addDalogVisible = false">取 消</el-button>
+        <el-button @click="addCancel">取 消</el-button>
         <el-button type="primary" @click="add('addForm')">确 定</el-button>
-      </span>
-    </el-dialog>
-    <el-dialog
-      title="重置超管密码"
-      :visible.sync="resetDalogVisible"
-      width="40%">
-      <el-form :model="retForm" :rules="rules" ref="retForm" label-width="120px" class="demo-ruleForm">
-        <el-form-item label="公司名称">
-          <el-input v-model="retForm.companyName" placeholder="请输入"></el-input>
-        </el-form-item>
-        <el-form-item label="超管用户名" prop="adminLoginName">
-          <el-input v-model="retForm.adminLoginName" placeholder="请输入"></el-input>
-        </el-form-item>
-        <el-form-item label="超管登录密码" prop="retAdminPassword">
-          <el-input type="password" v-model="retForm.retAdminPassword" autocomplete="off" placeholder="请输入"></el-input>
-        </el-form-item>
-        <el-form-item label="请重复密码" prop="retCheckAdminPassword">
-          <el-input type="password" v-model="retForm.retCheckAdminPassword" autocomplete="off" placeholder="请输入"></el-input>
-        </el-form-item>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="retCancel">取 消</el-button>
-        <el-button type="primary" @click="reset('retForm')">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -154,13 +131,6 @@ export default {
         newTab: 'true',
         remark: '',
         children: []
-      },
-      retForm: {
-        adminLoginName: '',
-        retAdminPassword: '',
-        retCheckAdminPassword: '',
-        companyName: '',
-        companyId: ''
       },
       rules: {
         permissionName: [
@@ -211,7 +181,7 @@ export default {
         func: '',
         permissionCode: ''
       },
-      version: ''
+      treeList: {}
     }
   },
   methods: {
@@ -222,7 +192,6 @@ export default {
       this.$refs[formName].resetFields()
     },
     async getList() {
-      console.log(223)
       let indexi = 0
       function getArray(data, depth, parentId) {
         for (var i in data) {
@@ -244,103 +213,71 @@ export default {
       let res = await this.axios.get(
         `/company/permission/${this.$route.query.id}`
       )
-      console.log(res)
-      let {
-        code,
-        data: { permissionTree, version }
-      } = res.data.content
+      let { code, data } = res.data.content
       if (code === -9999) {
         this.$message.error(`Exception Message`)
       }
       if (code === 0) {
-        // console.log(permissionTree)
-        getArray(permissionTree, 0, null)
-        this.funcTable = permissionTree
-        this.version = version
-        // console.log(this.funcTable)
-        console.log(123)
+        getArray(data.permissionTree, 0, null)
+        this.funcTable = data.permissionTree
+        this.treeList = data
       }
     },
     add(formName) {
-      // console.log(`${this.$route.query.id}`)
-      // console.log(this.companyId)
-      // console.log(this.addForm)
       this.$refs[formName].validate(async valid => {
         if (valid) {
-          // let form = JSON.stringify(this.addForm)
-          let obj = { permissionTree: [] }
-          obj.permissionTree.push(this.addForm)
-          // console.log(obj.permissionTree)
-          console.log(obj)
-          // console.log(permissionTree)
-          // console.log(`${this.$route.query.id}`)
-          // console.log(this.version)
+          this.treeList.permissionTree.push(this.addForm)
           let res = await this.axios.post(
             `/company/permission/${this.$route.query.id}/${
               this.addForm.permissionName
             }`,
             {
-              permissionTree: obj.permissionTree,
-              version: this.version
-            },
-            this.addForm
-          )
-          console.log(res)
-          // let { code } = res.data.content
-          // if (code === +-3006) {
-          //   this.$message.error(`公司内码重复`)
-          // }
-          // if (code === +-9999) {
-          //   this.$message.error(`Exception Message`)
-          // }
-          // if (code === +0) {
-          //   this.getList()
-          //   this.addDalogVisible = false
-          //   this.addForm = {}
-          // }
-        } else {
-          return false
-        }
-      })
-    },
-    resetAdmin(row) {
-      this.resetDalogVisible = true
-      // console.log(row)
-      let { companyName, adminLoginName, companyId } = row
-      this.retForm.companyName = companyName
-      this.retForm.adminLoginName = adminLoginName
-      this.retForm.companyId = String(companyId)
-    },
-    reset(formName) {
-      console.log(formName)
-      this.$refs[formName].validate(async valid => {
-        if (valid) {
-          let res = await this.axios.put(
-            `/company/password/${this.retForm.companyId}`,
-            {
-              password: this.retForm.retCheckAdminPassword
+              permissionTree: this.treeList.permissionTree,
+              version: this.treeList.version
             }
           )
           console.log(res)
           let { code } = res.data.content
+          if (code === +-3009) {
+            this.$message.error(`权限已存在`)
+          }
+          if (code === +-3010) {
+            this.$message.error(`权限已授权`)
+          }
+          if (code === +-3009) {
+            this.$message.error(`权限树版本问题`)
+          }
+          if (code === +-9999) {
+            this.$message.error(`Exception Message`)
+          }
           if (code === +0) {
-            console.log(this.resetForm.companyName)
-            this.$message.success(this.retForm.companyName + '超管账号重置成功')
-          }
-          if (code === +-999) {
-            this.$message.success(`Exception Message`)
-          }
-          if (code === +-3007) {
-            this.$message.success(`重置密码与原密码一样`)
+            this.getList()
+            this.addDalogVisible = false
+            this.$message.success('新建一级功能点成功')
+            // this.addForm.permissionName = ''
+            // this.addForm.permissionCode = ''
+            // this.addForm.url = ''
+            // this.addForm.weight = ''
+            // this.addForm.menu = 'true'
+            // this.addForm.newTab = 'true'
+            // this.addForm.remark = ''
+            // this.addForm.children = []
           }
         } else {
           return false
         }
       })
     },
-    retCancel() {
-      this.resetDalogVisible = false
-      this.retForm = {}
+    addCancel() {
+      this.addDalogVisible = false
+      this.addForm.permissionName = ''
+      this.addForm.permissionCode = ''
+      this.addForm.url = ''
+      this.addForm.weight = ''
+      this.addForm.menu = 'true'
+      this.addForm.newTab = 'true'
+      this.addForm.remark = ''
+      this.addForm.children = []
     }
   },
   components: {
@@ -404,9 +341,7 @@ export default {
   }
 }
 .el-table {
-  /deep/ .el-table_1_column_2 .cell .elli,
-  /deep/ .el-table_1_column_5 .cell .elli,
-  /deep/ .el-table_1_column_4 .cell .elli {
+  /deep/ .cell .elli {
     display: inline-block;
     *display: inline;
     *zoom: 1;

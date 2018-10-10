@@ -372,7 +372,7 @@ export default {
 }
 .el-pagination {
   float: right;
-  margin-top: 40px;
+  margin-top: 10px;
 }
 .el-input {
   /deep/ .el-input__inner {

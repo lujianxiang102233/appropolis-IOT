@@ -5,6 +5,7 @@ import home from '@/components/home'
 import companies from '@/components/companies/companies'
 import role from '@/components/companies/role'
 import companyaccess from '@/components/companies/companyaccess'
+import user from '@/components/companies/user'
 Vue.use(Router)
 
 export default new Router({
@@ -32,6 +33,10 @@ export default new Router({
       path: '/role',
       name: 'role',
       component: role
+    }, {
+      path: '/user',
+      name: 'user',
+      component: user
     }]
   }]
 })

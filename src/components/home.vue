@@ -18,7 +18,7 @@
             </template>
             <el-menu-item index="/companies" style="padding-left: 48px;" v-if="menusList.indexOf('permission_co')>-1">公司管理</el-menu-item>
             <el-menu-item index="/role" style="padding-left: 48px;" v-if="menusList.indexOf('permission_role')>-1">角色管理</el-menu-item>
-            <el-menu-item index="1-3" style="padding-left: 48px;" v-if="menusList.indexOf('permission_user')>-1">用户管理</el-menu-item>
+            <el-menu-item index="/user" style="padding-left: 48px;" v-if="menusList.indexOf('permission_user')>-1">用户管理</el-menu-item>
             <el-menu-item index="1-4" style="padding-left: 48px;" v-if="menusList.indexOf('permission_log')>-1">操作日志</el-menu-item>
         </el-submenu>
     </el-menu>
@@ -28,7 +28,7 @@
              <img src="../assets/images/u67.png" @click="collapse">
             </div>
             <span class="text">APPROPOLIS</span>
-            <span id="edit">变更</span>
+            <span id="edit" v-if="$route.name == 'companies'">变更</span>
             <div class="user" @click="logout">
              <img src="../assets/images/u70.png" @click="collapse">
              <span>admin</span>

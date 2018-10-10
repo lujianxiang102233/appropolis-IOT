@@ -159,6 +159,7 @@ export default {
   }
   .el-menu-vertical-demo:not(.el-menu--collapse) {
     width: 256px;
+    min-width: 265px;
     min-height: 400px;
     .logo {
       padding: 19px;

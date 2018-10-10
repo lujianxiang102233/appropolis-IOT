@@ -2,14 +2,14 @@
   <div class="compaines" style="padding-left: 34px;">
     <el-breadcrumb separator="/">
       <el-breadcrumb-item>权限管理</el-breadcrumb-item>
-      <el-breadcrumb-item>角色管理</el-breadcrumb-item>
+      <el-breadcrumb-item>用户管理</el-breadcrumb-item>
     </el-breadcrumb>
     <el-form :inline="true" class="demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_role_query')>-1">
       <div class="filter">筛选</div>
-      <el-form-item label="角色名称">
+      <el-form-item label="用户名">
         <el-input v-model="roleName" placeholder="请输入" class="filter-ipt"></el-input>
       </el-form-item>
-      <el-form-item label="角色状态">
+      <el-form-item label="状态">
         <el-select v-model="roleState" placeholder="请选择">
           <el-option
             v-for="item in options"
@@ -19,42 +19,57 @@
           </el-option>
         </el-select>
       </el-form-item>
+      <el-form-item label="用户名">
+        <el-input v-model="roleName" placeholder="请输入" class="filter-ipt"></el-input>
+      </el-form-item>
       <el-form-item class="fr">
         <el-button type="primary" @click="onSubmit" size="medium">查询</el-button>
         <el-button @click="resetForm('ruleForm')" size="medium">重置</el-button>
       </el-form-item>
     </el-form>
-     <el-button type="primary" style="margin-top: 10px;" size="medium" @click="addDalogVisible = true" v-if="coList.indexOf('permission_role_add')>-1">+ 新建角色</el-button>
+     <el-button type="primary" style="margin-top: 10px;" size="medium" @click="addDalogVisible = true" v-if="coList.indexOf('permission_user_add')>-1">+ 新增用户</el-button>
      <el-table
       :data="tableData"
+      height="310"
       style="width: 100%">
       <el-table-column
-        prop="roleName"
-        label="角色名称"
+        prop="loginName"
+        label="用户名"
         width="140">
       </el-table-column>
       <el-table-column
-        prop="remark"
-        label="角色描述"
+        prop="name"
+        label="真实姓名"
         width="160">
       </el-table-column>
       <el-table-column
-        prop="roleCount"
-        label="角色人数"
+        prop="roleList"
+        label="角色"
         width="130">
+        <template lot-scope="scope">
+        </template>
+      </el-table-column>
+      <el-table-column
+        label="电话/电子邮箱"
+        width="130">
+        <template slot-scope="scope">
+          <div class="elli" :title="[scope.row.phone+'/'+scope.row.email]">{{scope.row.phone}}/{{scope.row.email}}</div>
+        </template>
       </el-table-column>
       <el-table-column
         label="状态"
         width="130">
         <template slot-scope="scope">
-            <el-switch
+            <!-- <el-switch
             v-model="scope.row.enable"
             active-color="#409EFF"
             inactive-color="#C0C0C0"
             v-if="scope.row.enable !== -1"
             @change="changeStatus(scope.row)">
-          </el-switch>
-          <span v-if="scope.row.enable === -1">---</span>
+          </el-switch> -->
+          <span v-if="scope.row.enable === 1">开启</span>
+          <!-- <span v-else-if="scope.row.enable === 0">锁定</span> -->
+          <!-- <span>---</span> -->
         </template>
       </el-table-column>
       <el-table-column
@@ -65,12 +80,19 @@
           </template>
       </el-table-column>
       <el-table-column
+        width="160"
+        label="创建最后登录时间">
+          <template slot-scope="scope">
+            {{ scope.row.createDate | time}}
+          </template>
+      </el-table-column>
+      <el-table-column
+       width="180"
         label="操作">
           <template slot-scope="scope">
-            <el-button type="primary" size="mini" v-if="coList.indexOf('permission_role_edit')>-1" plain @click="editAdmin(scope.row)">编辑</el-button>
-            <el-button type="success" size="mini" v-if="coList.indexOf('permission_role_user')>-1" plain @click="jump(scope.row)">成员</el-button>
-            <el-button type="success" size="mini" v-if="coList.indexOf('permission_role_auth')>-1" plain @click="jump(scope.row)">权限</el-button>
-            <el-button type="success" size="mini" v-if="coList.indexOf('permission_role_del')>-1" plain @click="del(scope.row)">删除</el-button>
+            <el-button type="primary" size="mini" v-if="coList.indexOf('permission_user_edit')>-1" plain @click="editAdmin(scope.row)">编辑</el-button>
+            <el-button type="success" size="mini" v-if="coList.indexOf('permission_user_auth')>-1" plain @click="jump(scope.row)">授权管理</el-button>
+            <el-button type="success" size="mini" v-if="coList.indexOf('permission_user_reset')>-1" plain @click="jump(scope.row)">成员重置</el-button>
           </template>
       </el-table-column>
     </el-table>
@@ -224,14 +246,14 @@ export default {
     async getList() {
       this.coList = JSON.parse(localStorage.getItem('points'))
       this.companyId = localStorage.getItem('companyId')
-      let getUrl = `/role/${this.companyId}/${this.roleName}/${
-        this.roleState
-      }/${this.pageIndex}/${this.pageSize}`
-      if (this.roleName.length === 0) {
-        getUrl = `/role/${this.companyId}/{roleName}/2/${this.pageIndex}/${
-          this.pageSize
-        }`
-      }
+      let getUrl = `/employee/${this.companyId}/{loginName}/2/{role}/${
+        this.pageIndex
+      }/${this.pageSize}`
+      //   if (this.roleName.length === 0) {
+      //     getUrl = `/role/${this.companyId}/{roleName}/2/${this.pageIndex}/${
+      //       this.pageSize
+      //     }`
+      //   }
       let res = await this.axios.get(getUrl)
       res.data.content.data.list.forEach(function(v, i) {
         if (v.enable === 1) {
@@ -248,9 +270,26 @@ export default {
       if (code === 0) {
         this.tableData = list
         this.total = total
+        console.log(this.tableData)
+        // let roleList = []
+        // let result = ''
+        // this.tableData.forEach(function(v, i) {
+        //   // console.log(v.roleList)
+        //   // console.log(i)
+        //   v.roleList.forEach(function(k, index) {
+        //     // console.log(k)
+        //     console.log(v.roleList[index].roleName)
+        //     result += v.roleList[index].roleName + '、'
+        //     roleList.push(result)
+        //   })
+        // })
+        // console.log(roleList)
       }
       if (code === -9999) {
         this.$message.error(`Exception Message`)
+      }
+      if (code === -3005) {
+        this.$message.error(`执行权限异常`)
       }
     },
     add(formName) {
@@ -454,6 +493,29 @@ export default {
 .el-input.filter-ipt {
   /deep/ .el-input__inner {
     height: 30px;
+  }
+}
+.el-table {
+  /deep/ .cell .elli {
+    display: inline-block;
+    *display: inline;
+    *zoom: 1;
+    width: 10em;
+    height: 23px;
+    line-height: 23px;
+    // font-size: 12px;
+    overflow: hidden;
+    -ms-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  /deep/ .el-table__row {
+    height: 20px;
+    line-height: 20px;
+  }
+  /deep/ .cell {
+    height: 23px;
+    line-height: 23px;
   }
 }
 </style>

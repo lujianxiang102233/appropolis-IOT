@@ -27,6 +27,7 @@
      <el-button type="primary" style="margin-top: 10px;" size="medium" @click="addDalogVisible = true" v-if="coList.indexOf('permission_role_add')>-1">+ 新建角色</el-button>
      <el-table
       :data="tableData"
+       height="310"
       style="width: 100%">
       <el-table-column
         prop="roleName"

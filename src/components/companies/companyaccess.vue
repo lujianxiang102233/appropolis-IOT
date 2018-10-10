@@ -334,7 +334,7 @@ export default {
     },
     addsub(row) {
       this.addsubDalogVisible = true
-      console.log(row)
+      // console.log(row)
       this.paiName = row.permissionName
       this.paiId = row.permissionCode
     },

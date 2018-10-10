@@ -17,6 +17,7 @@
      <el-button type="primary" style="margin-top: 10px;" size="medium" @click="addDalogVisible = true" v-if="coList.indexOf('permission_co_add')>-1">+ 新建</el-button>
      <el-table
       :data="tableData"
+       height="310"
       style="width: 100%">
       <el-table-column
         type="index"

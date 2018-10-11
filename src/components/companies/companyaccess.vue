@@ -48,7 +48,7 @@
         width="120"
         label="菜单栏（权重）">
        <template slot-scope="scope">
-          {{scope.row.menu?'是':'否'}}
+          <div>{{scope.row.menu?'是':'否'}}&nbsp;&nbsp;&nbsp;<span v-show="scope.row.weight>-1">(</span>{{scope.row.weight}}<span v-show="scope.row.weight >-1">)</span></div>
         </template>
       </el-table-column>
       <el-table-column
@@ -117,11 +117,11 @@
       :visible.sync="addsubDalogVisible"
       width="40%">
       <el-form :model="addsubForm" :rules="rules" ref="addsubForm" label-width="140px" class="demo-ruleForm">
-        <el-form-item label="父级功能点名称" prop="paiName">
-          <el-input v-model="paiName" placeholder="请输入"></el-input>
+        <el-form-item label="父级功能点名称" prop="paipermissionName">
+          <el-input v-model="paipermissionName" placeholder="请输入"></el-input>
         </el-form-item>
-        <el-form-item label="父级FUNCID" prop="paiId">
-          <el-input v-model="paiId" placeholder="请输入"></el-input>
+        <el-form-item label="父级FUNCID" prop="paipermissionCode">
+          <el-input v-model="paipermissionCode" placeholder="请输入"></el-input>
         </el-form-item>
         <el-form-item label="功能点名称" prop="permissionName">
           <el-input v-model="addsubForm.permissionName" placeholder="请输入"></el-input>
@@ -232,7 +232,8 @@ export default {
         permissionCode: ''
       },
       treeList: {},
-      paiName: '',
+      paipermissionName: '',
+      paipermissionCode: '',
       paiId: ''
     }
   },
@@ -272,9 +273,11 @@ export default {
       }
       if (code === 0) {
         let newdata = JSON.parse(data)
+        console.log(newdata.permissionTree)
         getArray(newdata.permissionTree, 0, null)
         this.funcTable = newdata.permissionTree
         this.treeList = newdata
+        console.log(this.treeList.permissionTree)
       }
     },
     add(formName) {
@@ -334,52 +337,61 @@ export default {
     },
     addsub(row) {
       this.addsubDalogVisible = true
-      // console.log(row)
-      this.paiName = row.permissionName
-      this.paiId = row.permissionCode
+      this.paipermissionName = row.permissionName
+      this.paipermissionCode = row.permissionCode
+      this.paiId = row.id
     },
     addSubTrue(formName) {
+      function getAddArray(data, id, child) {
+        for (var i in data) {
+          if (data[i].id === id) {
+            data[i].children.push(child)
+          }
+          if (data[i].children.length > 0) {
+            getAddArray(data[i].children, id, child)
+          }
+        }
+      }
+      console.log(this.treeList.permissionTree)
       this.$refs[formName].validate(async valid => {
         if (valid) {
-          console.log(this.addsubForm)
-          // this.treeList.permissionTree.push(this.addForm)
-          // console.log(this.addForm)
-          // console.log(this.treeList.permissionTree)
-          // let res = await this.axios.post(
-          //   `/company/permission/${this.$route.query.id}/${
-          //     this.addForm.permissionName
-          //   }`,
-          //   {
-          //     permissionTree: this.treeList.permissionTree,
-          //     version: this.treeList.version
-          //   }
-          // )
-          // let { code } = res.data.content
-          // if (code === +-3009) {
-          //   this.$message.error(`权限已存在`)
-          // }
-          // if (code === +-3010) {
-          //   this.$message.error(`权限已授权`)
-          // }
-          // if (code === +-3009) {
-          //   this.$message.error(`权限树版本问题`)
-          // }
-          // if (code === +-9999) {
-          //   this.$message.error(`Exception Message`)
-          // }
-          // if (code === +0) {
-          //   this.getList()
-          //   this.addDalogVisible = false
-          //   this.$message.success('新建一级功能点成功')
-          //   this.addForm.permissionName = ''
-          //   this.addForm.permissionCode = ''
-          //   this.addForm.url = ''
-          //   this.addForm.weight = ''
-          //   this.addForm.menu = 'true'
-          //   this.addForm.newTab = 'true'
-          //   this.addForm.remark = ''
-          //   this.addForm.children = []
-          // }
+          getAddArray(this.treeList.permissionTree, this.paiId, this.addsubForm)
+          console.log(this.treeList.permissionTree)
+          let res = await this.axios.post(
+            `/company/permission/${this.$route.query.id}/${
+              this.addsubForm.permissionName
+            }`,
+            {
+              permissionTree: this.treeList.permissionTree,
+              version: this.treeList.version
+            }
+          )
+          let { code } = res.data.content
+          if (code === +-3009) {
+            this.$message.error(`权限已存在`)
+          }
+          if (code === +-3010) {
+            this.$message.error(`权限已授权`)
+          }
+          if (code === +-3009) {
+            this.$message.error(`权限树版本问题`)
+          }
+          if (code === +-9999) {
+            this.$message.error(`Exception Message`)
+          }
+          if (code === +0) {
+            this.getList()
+            this.addsubDalogVisible = false
+            this.$message.success('添加功能点成功')
+            this.addsubForm.permissionName = ''
+            this.addsubForm.permissionCode = ''
+            this.addsubForm.url = ''
+            this.addsubForm.weight = ''
+            this.addsubForm.menu = 'true'
+            this.addsubForm.newTab = 'true'
+            this.addsubForm.remark = ''
+            this.addsubForm.children = []
+          }
         } else {
           return false
         }
@@ -387,6 +399,14 @@ export default {
     },
     addsubCancel() {
       this.addsubDalogVisible = false
+      this.addsubForm.permissionName = ''
+      this.addsubForm.permissionCode = ''
+      this.addsubForm.url = ''
+      this.addsubForm.weight = ''
+      this.addsubForm.menu = 'true'
+      this.addsubForm.newTab = 'true'
+      this.addsubForm.remark = ''
+      this.addsubForm.children = []
     }
   },
   components: {

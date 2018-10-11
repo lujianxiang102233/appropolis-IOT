@@ -43,11 +43,11 @@
         width="160">
       </el-table-column>
       <el-table-column
-        prop="roleList"
-        label="角色"
-        width="130">
-        <template lot-scope="scope">
-        </template>
+        width="130"
+        label="角色">
+          <template slot-scope="scope">
+            <div class="elli" :title="scope.row.newRoleList">{{ scope.row.newRoleList}}</div>
+          </template>
       </el-table-column>
       <el-table-column
         label="电话/电子邮箱"
@@ -60,16 +60,10 @@
         label="状态"
         width="130">
         <template slot-scope="scope">
-            <!-- <el-switch
-            v-model="scope.row.enable"
-            active-color="#409EFF"
-            inactive-color="#C0C0C0"
-            v-if="scope.row.enable !== -1"
-            @change="changeStatus(scope.row)">
-          </el-switch> -->
-          <span v-if="scope.row.enable === 1">开启</span>
-          <!-- <span v-else-if="scope.row.enable === 0">锁定</span> -->
-          <!-- <span>---</span> -->
+          <span v-if="scope.row.enable == 1" style="color:red;">开启</span>
+          <span v-else-if="scope.row.enable == 0">关闭</span>
+          <span v-else-if="scope.row.enable == 2">锁定</span>
+          <span v-else>--</span>
         </template>
       </el-table-column>
       <el-table-column
@@ -87,7 +81,7 @@
           </template>
       </el-table-column>
       <el-table-column
-       width="180"
+       width="280"
         label="操作">
           <template slot-scope="scope">
             <el-button type="primary" size="mini" v-if="coList.indexOf('permission_user_edit')>-1" plain @click="editAdmin(scope.row)">编辑</el-button>
@@ -270,20 +264,14 @@ export default {
       if (code === 0) {
         this.tableData = list
         this.total = total
-        console.log(this.tableData)
-        // let roleList = []
-        // let result = ''
-        // this.tableData.forEach(function(v, i) {
-        //   // console.log(v.roleList)
-        //   // console.log(i)
-        //   v.roleList.forEach(function(k, index) {
-        //     // console.log(k)
-        //     console.log(v.roleList[index].roleName)
-        //     result += v.roleList[index].roleName + '、'
-        //     roleList.push(result)
-        //   })
-        // })
-        // console.log(roleList)
+        list.forEach(function(item) {
+          let roleList = item.roleList
+          if (roleList.length === 0) return '暂无数据'
+          let newData = roleList.map(function(sub) {
+            return sub.roleName
+          })
+          return (item.newRoleList = newData.join(','))
+        })
       }
       if (code === -9999) {
         this.$message.error(`Exception Message`)

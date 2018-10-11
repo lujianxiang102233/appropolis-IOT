@@ -11,23 +11,23 @@ Vue.use(Router)
 export default new Router({
   routes: [{
     path: '/login',
-    name: 'login',
+    // name: 'login',
     component: login
   }, {
     path: '/',
-    name: 'home',
+    // name: 'home',
     redirect: '/home'
   }, {
     path: '/home',
-    name: 'home',
+    // name: 'home',
     component: home,
     children: [{
       path: '/companies',
-      name: 'companies',
+      // name: 'companies',
       component: companies
     }, {
       path: '/companyaccess',
-      name: 'companyaccess',
+      // name: 'companyaccess',
       component: companyaccess
     }, {
       path: '/role',
@@ -35,7 +35,7 @@ export default new Router({
       component: role
     }, {
       path: '/user',
-      name: 'user',
+      // name: 'user',
       component: user
     }]
   }]

@@ -189,17 +189,17 @@
       :visible.sync="copyDalogVisible"
       width="40%">
       <el-form :model="copyForm" :rules="rules" ref="copyForm" label-width="120px" class="demo-ruleForm">
-        <el-form-item label="功能点名称" prop="companyName">
+        <el-form-item label="公司名称" prop="state">
            <el-autocomplete
           class="inline-input"
-          v-model="state"
+          v-model="copyForm.state"
           :fetch-suggestions="querySearch"
           placeholder="请输入内容"
-          @select="handleSelect"
           style="width:360px;"
+          @select="handleSelect"
         >
         </el-autocomplete>
-         <i class="el-icon-circle-close" @click="clear" style="position:absolute; top:13px; right:31px;"></i>
+         <i class="el-icon-circle-close" v-show="copyForm.state.length > 0" @click="clear" style="position:absolute; top:13px; right:31px;"></i>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -248,7 +248,10 @@ export default {
         remark: '',
         children: []
       },
-      copyForm: {},
+      copyForm: {
+        state: ''
+      },
+      companyId: '',
       rules: {
         permissionName: [
           { required: true, message: '请输入功能点名称', trigger: 'blur' },
@@ -289,6 +292,14 @@ export default {
             message: '最长1000个中文字符',
             trigger: 'change'
           }
+        ],
+        state: [
+          { required: true, message: '请输入公司名称', trigger: 'blur' },
+          {
+            pattern: /[\s\S]/,
+            message: '最长1000个中文字符',
+            trigger: 'change'
+          }
         ]
       },
       coList: [],
@@ -302,7 +313,6 @@ export default {
       paipermissionCode: '',
       paiId: '',
       restaurants: [],
-      state: '',
       copyList: []
     }
   },
@@ -547,7 +557,7 @@ export default {
       //     })
       // }
     },
-    async copy() {
+    async render() {
       let res = await this.axios.get(
         `/company/${this.$route.query.companyName}/1/50`
       )
@@ -555,14 +565,19 @@ export default {
         code,
         data: { list }
       } = res.data.content
-      console.log(code)
-      this.copyList = list.map(function(item) {
-        return {
-          value: '【' + item.companyName + '（' + item.companyCode + '）】'
-          // value: item.companyName + '（' + item.companyCode + '）'
-        }
-      })
+      console.log(list)
+      if (code === +0) {
+        this.copyList = list.map(function(item) {
+          return {
+            value: '【' + item.companyName + '（' + item.companyCode + '）】',
+            companyId: item.companyId
+          }
+        })
+      }
       console.log(this.copyList)
+      if (code === -9999) {
+        this.$message.error(`Exception Message`)
+      }
     },
     querySearch(queryString, cb) {
       var restaurants = this.copyList
@@ -580,11 +595,60 @@ export default {
         )
       }
     },
-    handleSelect(item) {
-      console.log(item)
-    },
     clear() {
-      this.state = ''
+      this.copyForm.state = ''
+    },
+    copy(formName) {
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          console.log(this.copyForm)
+          console.log(this.companyId)
+          // this.copyList.map(function(item){
+
+          // })
+          // this.treeList.permissionTree.push(this.addForm)
+          // let res = await this.axios.post(
+          //   `/company/permission/${this.$route.query.id}/${
+          //     this.addForm.permissionName
+          //   }`,
+          //   {
+          //     permissionTree: this.treeList.permissionTree,
+          //     version: this.treeList.version
+          //   }
+          // )
+          // let { code } = res.data.content
+          // if (code === +-3009) {
+          //   this.$message.error(`权限已存在`)
+          // }
+          // if (code === +-3010) {
+          //   this.$message.error(`权限已授权`)
+          // }
+          // if (code === +-3009) {
+          //   this.$message.error(`权限树版本问题`)
+          // }
+          // if (code === +-9999) {
+          //   this.$message.error(`Exception Message`)
+          // }
+          // if (code === +0) {
+          //   this.getList()
+          //   this.addDalogVisible = false
+          //   this.$message.success('新建一级功能点成功')
+          //   this.addForm.permissionName = ''
+          //   this.addForm.permissionCode = ''
+          //   this.addForm.url = ''
+          //   this.addForm.weight = ''
+          //   this.addForm.menu = 'true'
+          //   this.addForm.newTab = 'true'
+          //   this.addForm.remark = ''
+          //   this.addForm.children = []
+          // }
+        } else {
+          return false
+        }
+      })
+    },
+    handleSelect(item) {
+      this.companyId = item.companyId
     }
   },
   components: {
@@ -594,7 +658,7 @@ export default {
     this.getList()
   },
   mounted() {
-    this.copy()
+    this.render()
   }
 }
 </script>

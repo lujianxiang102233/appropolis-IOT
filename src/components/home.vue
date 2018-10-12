@@ -28,7 +28,7 @@
              <img src="../assets/images/u67.png" @click="collapse">
             </div>
             <span class="text">APPROPOLIS</span>
-            <span id="edit" v-if="$route.name == 'companies'">变更</span>
+            <span id="edit" v-if="$route.path.slice(1) == 'companies'">变更</span>
             <div class="user" @click="logout">
              <img src="../assets/images/u70.png" @click="collapse">
              <span>admin</span>

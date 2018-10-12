@@ -71,9 +71,8 @@
       <el-table-column
         label="操作">
         <template slot-scope="scope">
-          <!-- addsub(scope.row) -->
           <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_addsub')>-1"  plain @click="addsub(scope.row)" >添加</el-button>
-          <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_edit')>-1"  plain>编辑</el-button>
+          <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_edit')>-1"  plain @click="edit(scope.row)">编辑</el-button>
           <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_del')>-1"  plain>删除</el-button>
         </template>
       </el-table-column>
@@ -113,7 +112,7 @@
       </span>
     </el-dialog>
     <el-dialog
-      title="新建一级功能点"
+      title="新建功能点"
       :visible.sync="addsubDalogVisible"
       width="40%">
       <el-form :model="addsubForm" :rules="rules" ref="addsubForm" label-width="140px" class="demo-ruleForm">
@@ -152,6 +151,40 @@
         <el-button type="primary" @click="addSubTrue('addsubForm')">确 定</el-button>
       </span>
     </el-dialog>
+     <el-dialog
+      title="编辑功能点"
+      :visible.sync="editDalogVisible"
+      width="40%">
+      <el-form :model="editForm" :rules="rules" ref="editForm" label-width="120px" class="demo-ruleForm">
+        <el-form-item label="功能点名称" prop="permissionName">
+          <el-input v-model="editForm.permissionName" placeholder="请输入"></el-input>
+        </el-form-item>
+        <el-form-item label="FUNCID" prop="permissionCode">
+          <el-input v-model="editForm.permissionCode" placeholder="请输入"></el-input>
+        </el-form-item>
+        <el-form-item label="是否菜单栏" prop="menu">
+          <el-radio v-model="editForm.menu" label="true">是</el-radio>
+          <el-radio v-model="editForm.menu" label="false">否</el-radio>
+        </el-form-item>
+        <el-form-item label="URL" prop="url">
+          <el-input  v-model="editForm.url"  placeholder="请输入"></el-input>
+        </el-form-item>
+        <el-form-item label="页面内打开" prop="newTab">
+          <el-radio v-model="editForm.newTab" label="true">是</el-radio>
+          <el-radio v-model="editForm.newTab" label="false">否</el-radio>
+        </el-form-item>
+        <el-form-item v-if="editForm.menu =='true'" label="权重" prop="weight">
+          <el-input  v-model="editForm.weight"  placeholder="请输入"></el-input>
+        </el-form-item>
+        <el-form-item label="功能点描述" prop="remark">
+          <el-input type="textarea" v-model="editForm.remark"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="addCancel">取 消</el-button>
+        <el-button type="primary" @click="edit('editForm')">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -162,7 +195,18 @@ export default {
       dialogVisible: false,
       addDalogVisible: false,
       addsubDalogVisible: false,
+      editDalogVisible: false,
       addForm: {
+        permissionName: '',
+        permissionCode: '',
+        url: '',
+        weight: '',
+        menu: 'true',
+        newTab: 'true',
+        remark: '',
+        children: []
+      },
+      editForm: {
         permissionName: '',
         permissionCode: '',
         url: '',
@@ -273,11 +317,11 @@ export default {
       }
       if (code === 0) {
         let newdata = JSON.parse(data)
-        console.log(newdata.permissionTree)
+        // console.log(newdata.permissionTree)
         getArray(newdata.permissionTree, 0, null)
         this.funcTable = newdata.permissionTree
         this.treeList = newdata
-        console.log(this.treeList.permissionTree)
+        // console.log(this.treeList.permissionTree)
       }
     },
     add(formName) {
@@ -407,6 +451,9 @@ export default {
       this.addsubForm.newTab = 'true'
       this.addsubForm.remark = ''
       this.addsubForm.children = []
+    },
+    edit(row) {
+      console.log(row)
     }
   },
   components: {

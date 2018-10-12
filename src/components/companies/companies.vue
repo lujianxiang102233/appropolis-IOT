@@ -293,7 +293,6 @@ export default {
     },
     resetAdmin(row) {
       this.resetDalogVisible = true
-      // console.log(row)
       let { companyName, adminLoginName, companyId } = row
       this.retForm.companyName = companyName
       this.retForm.adminLoginName = adminLoginName
@@ -331,7 +330,11 @@ export default {
       this.retForm = {}
     },
     jump(row) {
-      this.$router.push({ path: `/companyaccess?id=${row.companyId}` })
+      this.$router.push({
+        path: `/companyaccess?id=${row.companyId}&companyName=${
+          row.companyName
+        }`
+      })
     }
   },
   created() {

@@ -190,7 +190,16 @@
       width="40%">
       <el-form :model="copyForm" :rules="rules" ref="copyForm" label-width="120px" class="demo-ruleForm">
         <el-form-item label="功能点名称" prop="companyName">
-          <el-input v-model="copyForm.companyName" placeholder="请输入"></el-input>
+           <el-autocomplete
+          class="inline-input"
+          v-model="state"
+          :fetch-suggestions="querySearch"
+          placeholder="请输入内容"
+          @select="handleSelect"
+          style="width:360px;"
+        >
+        </el-autocomplete>
+         <i class="el-icon-circle-close" @click="clear" style="position:absolute; top:13px; right:31px;"></i>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -239,9 +248,7 @@ export default {
         remark: '',
         children: []
       },
-      copyForm: {
-        companyName: ''
-      },
+      copyForm: {},
       rules: {
         permissionName: [
           { required: true, message: '请输入功能点名称', trigger: 'blur' },
@@ -293,7 +300,10 @@ export default {
       treeList: {},
       paipermissionName: '',
       paipermissionCode: '',
-      paiId: ''
+      paiId: '',
+      restaurants: [],
+      state: '',
+      copyList: []
     }
   },
   methods: {
@@ -321,7 +331,6 @@ export default {
         }
       }
       this.coList = JSON.parse(localStorage.getItem('points'))
-      this.companyId = `${this.$route.query.id}`
       let res = await this.axios.get(
         `/company/permission/${this.$route.query.id}`
       )
@@ -332,11 +341,9 @@ export default {
       }
       if (code === 0) {
         let newdata = JSON.parse(data)
-        // console.log(newdata.permissionTree)
         getArray(newdata.permissionTree, 0, null)
         this.funcTable = newdata.permissionTree
         this.treeList = newdata
-        // console.log(this.treeList.permissionTree)
       }
     },
     add(formName) {
@@ -411,7 +418,6 @@ export default {
           }
         }
       }
-      console.log(this.treeList.permissionTree)
       this.$refs[formName].validate(async valid => {
         if (valid) {
           getAddArray(this.treeList.permissionTree, this.paiId, this.addsubForm)
@@ -540,6 +546,45 @@ export default {
       //       })
       //     })
       // }
+    },
+    async copy() {
+      let res = await this.axios.get(
+        `/company/${this.$route.query.companyName}/1/50`
+      )
+      let {
+        code,
+        data: { list }
+      } = res.data.content
+      console.log(code)
+      this.copyList = list.map(function(item) {
+        return {
+          value: '【' + item.companyName + '（' + item.companyCode + '）】'
+          // value: item.companyName + '（' + item.companyCode + '）'
+        }
+      })
+      console.log(this.copyList)
+    },
+    querySearch(queryString, cb) {
+      var restaurants = this.copyList
+      var results = queryString
+        ? restaurants.filter(this.createFilter(queryString))
+        : restaurants
+      // 调用 callback 返回建议列表的数据
+      cb(results)
+    },
+    createFilter(queryString) {
+      return restaurant => {
+        return (
+          restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) !==
+          -1
+        )
+      }
+    },
+    handleSelect(item) {
+      console.log(item)
+    },
+    clear() {
+      this.state = ''
     }
   },
   components: {
@@ -547,6 +592,9 @@ export default {
   },
   created() {
     this.getList()
+  },
+  mounted() {
+    this.copy()
   }
 }
 </script>
@@ -615,6 +663,16 @@ export default {
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+  .el-form-item {
+    /deep/ .el-autocomplete {
+      width: 360px;
+    }
+  }
+
+  // .el-autocomplete {
+  //   position: relative;
+  // }
+
   // .elliSpan {
   //   color: red;
   //   // display: inline-block;

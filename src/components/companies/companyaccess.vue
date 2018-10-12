@@ -9,10 +9,10 @@
     <el-form :inline="true" class="demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_co_func_query')>-1" :model="queryTable">
       <div class="filter">筛选</div>
       <el-form-item label="功能点名称">
-        <el-input v-model="companyName" placeholder="请输入" class="filter-ipt"></el-input>
+        <el-input v-model="queryTable.permissionName" placeholder="请输入" class="filter-ipt"></el-input>
       </el-form-item>
       <el-form-item label="FUNCID">
-        <el-input v-model="companyName" placeholder="请输入" class="filter-ipt"></el-input>
+        <el-input v-model="queryTable.permissionCode" placeholder="请输入" class="filter-ipt"></el-input>
       </el-form-item>
       <el-form-item class="fr">
         <el-button type="primary" @click="onSubmit" size="medium">查询</el-button>
@@ -20,7 +20,7 @@
       </el-form-item>
     </el-form>
      <el-button type="primary" style="margin-top: 10px;" size="medium" @click="addDalogVisible = true" v-if="coList.indexOf('permission_co_func_add')>-1">+ 新建一级功能点</el-button>
-     <el-button type="primary" style="margin:0px 40px;" size="medium" @click="addDalogVisible = true" v-if="coList.indexOf('permission_co_func_copy')>-1">复制其他公司权限</el-button>
+     <el-button type="primary" style="margin:0px 40px;" size="medium" @click="copyDalogVisible = true" v-if="coList.indexOf('permission_co_func_copy')>-1">复制其他公司权限</el-button>
       <el-table
       :data="funcTable"
       height="350"
@@ -57,7 +57,6 @@
         label="url">
         <template slot-scope="scope">
           <a href="scope.row.url" class="elli" target="_blank"  :title="scope.row.url">{{scope.row.url}}</a>
-          <!-- <div class="elli" :title="scope.row.url">{{scope.row.url}}</div> -->
         </template>
       </el-table-column>
       <el-table-column
@@ -73,7 +72,7 @@
         <template slot-scope="scope">
           <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_addsub')>-1"  plain @click="addsub(scope.row)" >添加</el-button>
           <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_edit')>-1"  plain @click="edit(scope.row)">编辑</el-button>
-          <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_del')>-1"  plain>删除</el-button>
+          <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_del')>-1"  plain @click="del(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -185,6 +184,20 @@
         <el-button type="primary" @click="edit('editForm')">确 定</el-button>
       </span>
     </el-dialog>
+     <el-dialog
+      title="请选择模板公司"
+      :visible.sync="copyDalogVisible"
+      width="40%">
+      <el-form :model="copyForm" :rules="rules" ref="copyForm" label-width="120px" class="demo-ruleForm">
+        <el-form-item label="功能点名称" prop="companyName">
+          <el-input v-model="copyForm.companyName" placeholder="请输入"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="addCancel">取 消</el-button>
+        <el-button type="primary" @click="copy('copyForm')">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -192,10 +205,10 @@ let ElTreeGrid = require('element-tree-grid')
 export default {
   data() {
     return {
-      dialogVisible: false,
       addDalogVisible: false,
       addsubDalogVisible: false,
       editDalogVisible: false,
+      copyDalogVisible: false,
       addForm: {
         permissionName: '',
         permissionCode: '',
@@ -225,6 +238,9 @@ export default {
         newTab: 'true',
         remark: '',
         children: []
+      },
+      copyForm: {
+        companyName: ''
       },
       rules: {
         permissionName: [
@@ -268,11 +284,10 @@ export default {
           }
         ]
       },
-      companyName: '',
       coList: [],
       funcTable: [],
       queryTable: {
-        func: '',
+        permissionName: '',
         permissionCode: ''
       },
       treeList: {},
@@ -453,7 +468,78 @@ export default {
       this.addsubForm.children = []
     },
     edit(row) {
-      console.log(row)
+      let {
+        permissionName,
+        permissionCode,
+        url,
+        menu,
+        weight,
+        newTab,
+        remark,
+        children
+      } = row
+      this.editDalogVisible = true
+      this.editForm.permissionName = permissionName
+      this.editForm.permissionCode = permissionCode
+      this.editForm.url = url
+      this.editForm.weight = weight
+      this.editForm.menu = String(menu)
+      this.editForm.newTab = String(newTab)
+      this.editForm.remark = remark
+      this.editForm.children = children
+      console.log(this.editForm)
+    },
+    del(row) {
+      // console.log(row)
+      //  if (roleCount === 0) {
+      //   this.$confirm('确定要删除【' + roleName + '】吗?', '提示', {
+      //     confirmButtonText: '确定',
+      //     cancelButtonText: '取消',
+      //     type: 'warning'
+      //   })
+      //     .then(async () => {
+      //       let res = await this.axios.delete(`/role/${roleId}/${roleName}`)
+      //       let { code } = res.data.content
+      //       if (code === +0) {
+      //         this.$message.success('【' + roleName + '】' + '已删除')
+      //         this.getList()
+      //       }
+      //     })
+      //     .catch(() => {
+      //       this.$message({
+      //         type: 'info',
+      //         message: '已取消删除'
+      //       })
+      //     })
+      // } else {
+      //   this.$confirm(
+      //     '【' +
+      //       roleName +
+      //       '】下共有【' +
+      //       roleCount +
+      //       '】名用户，删除角色后用户将取消相应角色及其授权，是否继续',
+      //     '提示',
+      //     {
+      //       confirmButtonText: '确定',
+      //       cancelButtonText: '取消',
+      //       type: 'warning'
+      //     }
+      //   )
+      //     .then(async () => {
+      //       let res = await this.axios.delete(`/role/${roleId}/${roleName}`)
+      //       let { code } = res.data.content
+      //       if (code === +0) {
+      //         this.$message.success('【' + roleName + '】' + '已删除')
+      //         this.getList()
+      //       }
+      //     })
+      //     .catch(() => {
+      //       this.$message({
+      //         type: 'info',
+      //         message: '已取消删除'
+      //       })
+      //     })
+      // }
     }
   },
   components: {

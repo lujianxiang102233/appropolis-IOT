@@ -252,6 +252,7 @@ export default {
         state: ''
       },
       companyId: '',
+      companyName: '',
       rules: {
         permissionName: [
           { required: true, message: '请输入功能点名称', trigger: 'blur' },
@@ -341,9 +342,7 @@ export default {
         }
       }
       this.coList = JSON.parse(localStorage.getItem('points'))
-      let res = await this.axios.get(
-        `/company/permission/${this.$route.query.id}`
-      )
+      let res = await this.axios.get(`/company/permission/${this.companyId}`)
 
       let { code, data } = res.data.content
       if (code === -9999) {
@@ -565,16 +564,15 @@ export default {
         code,
         data: { list }
       } = res.data.content
-      console.log(list)
       if (code === +0) {
         this.copyList = list.map(function(item) {
           return {
             value: '【' + item.companyName + '（' + item.companyCode + '）】',
-            companyId: item.companyId
+            companyId: item.companyId,
+            companyName: item.companyName
           }
         })
       }
-      console.log(this.copyList)
       if (code === -9999) {
         this.$message.error(`Exception Message`)
       }
@@ -599,49 +597,27 @@ export default {
       this.copyForm.state = ''
     },
     copy(formName) {
+      // console.log(this.companyId)
       this.$refs[formName].validate(async valid => {
         if (valid) {
-          console.log(this.copyForm)
-          console.log(this.companyId)
-          // this.copyList.map(function(item){
-
-          // })
-          // this.treeList.permissionTree.push(this.addForm)
-          // let res = await this.axios.post(
-          //   `/company/permission/${this.$route.query.id}/${
-          //     this.addForm.permissionName
-          //   }`,
-          //   {
-          //     permissionTree: this.treeList.permissionTree,
-          //     version: this.treeList.version
-          //   }
-          // )
-          // let { code } = res.data.content
-          // if (code === +-3009) {
-          //   this.$message.error(`权限已存在`)
-          // }
-          // if (code === +-3010) {
-          //   this.$message.error(`权限已授权`)
-          // }
-          // if (code === +-3009) {
-          //   this.$message.error(`权限树版本问题`)
-          // }
-          // if (code === +-9999) {
-          //   this.$message.error(`Exception Message`)
-          // }
-          // if (code === +0) {
-          //   this.getList()
-          //   this.addDalogVisible = false
-          //   this.$message.success('新建一级功能点成功')
-          //   this.addForm.permissionName = ''
-          //   this.addForm.permissionCode = ''
-          //   this.addForm.url = ''
-          //   this.addForm.weight = ''
-          //   this.addForm.menu = 'true'
-          //   this.addForm.newTab = 'true'
-          //   this.addForm.remark = ''
-          //   this.addForm.children = []
-          // }
+          // console.log(this.companyId)
+          this.$confirm('是否放弃已有权限配置?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          })
+            .then(async () => {
+              console.log(this.companyId)
+              this.getList()
+              this.$message.success(`已复制【${this.companyName}】配置权限`)
+              this.copyDalogVisible = false
+            })
+            .catch(() => {
+              this.$message({
+                type: 'info',
+                message: '已取消复制权限'
+              })
+            })
         } else {
           return false
         }
@@ -655,6 +631,7 @@ export default {
     'el-table-tree-column': ElTreeGrid
   },
   created() {
+    this.companyId = this.$route.query.id
     this.getList()
   },
   mounted() {

@@ -130,7 +130,23 @@
       title="提示"
       :visible.sync="dialogVisible"
       width="30%">
-      <span>确认要停用{{ tableData.roleName }}吗？</span>
+      <span>确认要停用【{{ stateName }}】吗？</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="stateCancel">取 消</el-button>
+        <el-button type="primary" @click="stateTrue">确 定</el-button>
+      </span>
+    </el-dialog>
+    <el-dialog
+      title="角色成员编辑"
+      :visible.sync="userDialogVisible"
+      width="50%">
+      <el-transfer
+        filterable
+        :filter-method="filterMethod"
+        filter-placeholder="请输入城市拼音"
+        v-model="value2"
+        :data="data2">
+      </el-transfer>
       <span slot="footer" class="dialog-footer">
         <el-button @click="stateCancel">取 消</el-button>
         <el-button type="primary" @click="stateTrue">确 定</el-button>
@@ -141,12 +157,39 @@
 <script>
 export default {
   data() {
+    const generateData2 = _ => {
+      const data = []
+      const cities = ['上海', '北京', '广州', '深圳', '南京', '西安', '成都']
+      const pinyin = [
+        'shanghai',
+        'beijing',
+        'guangzhou',
+        'shenzhen',
+        'nanjing',
+        'xian',
+        'chengdu'
+      ]
+      cities.forEach((city, index) => {
+        data.push({
+          label: city,
+          key: index,
+          pinyin: pinyin[index]
+        })
+      })
+      return data
+    }
     return {
+      data2: generateData2(),
+      value2: [],
+      filterMethod(query, item) {
+        return item.pinyin.indexOf(query) > -1
+      },
       tableData: [],
       addDalogVisible: false,
       resetDalogVisible: false,
       dialogVisible: false,
       editDalogVisible: false,
+      userDialogVisible: false,
       addForm: {
         roleName: '',
         remark: '',
@@ -162,18 +205,20 @@ export default {
       },
       rules: {
         roleName: [
-          { required: true, message: '请输入', trigger: 'blur' },
+          { required: true, message: '请输入角色名称', trigger: 'blur' },
           {
-            pattern: /^([\u2E80-\u9FFF]|[a-zA-Z0-9]){1,50}$/,
-            message: '最长50个中文字符',
+            min: 0,
+            max: 50,
+            message: '长度在 0 到 50 个字符',
             trigger: 'change'
           }
         ],
         remark: [
-          { required: true, message: '请输入', trigger: 'blur' },
+          { required: false, message: '请输入角色描述', trigger: 'blur' },
           {
-            pattern: /^([\u2E80-\u9FFF]|[a-zA-Z0-9]){1,50}$/,
-            message: '最长50个中文字符',
+            min: 0,
+            max: 50,
+            message: '长度在 0 到 50 个字符',
             trigger: 'change'
           }
         ]
@@ -201,7 +246,8 @@ export default {
       ],
       companyId: '',
       roleId: '',
-      enable: ''
+      enable: '',
+      stateName: ''
     }
   },
   methods: {
@@ -295,10 +341,12 @@ export default {
       this.getList()
     },
     changeStatus(row) {
+      console.log(row)
       this.dialogVisible = true
-      let { roleId, enable } = row
+      let { roleId, enable, roleName } = row
       this.roleId = roleId
       this.enable = enable
+      this.stateName = roleName
     },
     editAdmin(row) {
       this.editDalogVisible = true
@@ -352,9 +400,7 @@ export default {
       })
     },
     del(row) {
-      console.log(row)
       let { roleId, roleName, roleCount } = row
-      // console.log(roleId, roleName, roleCount)
       if (roleCount === 0) {
         this.$confirm('确定要删除【' + roleName + '】吗?', '提示', {
           confirmButtonText: '确定',
@@ -406,7 +452,7 @@ export default {
       }
     },
     userBtn() {
-      console.log(123)
+      this.userDialogVisible = true
     }
   },
   created() {

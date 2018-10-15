@@ -10,15 +10,16 @@ Vue.prototype.axios = axios
 Vue.filter('time', (input, value = 'YYYY-MM-DD HH:mm:ss') => {
   return moment(input).format(value)
 })
+
 Vue.use(ElementUI)
 
 axios.interceptors.request.use(
-  function (config) {
+  function(config) {
     config.baseURL = 'http://192.168.210.66:8085/api-employee'
     config.headers.token = localStorage.getItem('token')
     return config
   },
-  function (error) {
+  function(error) {
     return Promise.reject(error)
   }
 )

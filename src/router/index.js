@@ -6,6 +6,8 @@ import companies from '@/components/companies/companies'
 import role from '@/components/companies/role'
 import companyaccess from '@/components/companies/companyaccess'
 import user from '@/components/companies/user'
+import logs from '@/components/companies/logs'
+
 import roleaccess from '@/components/companies/roleaccess'
 Vue.use(Router)
 
@@ -23,28 +25,33 @@ let router = new Router({
     // name: 'home',
     component: home,
     children: [{
-      path: '/companies',
-      // name: 'companies',
-      component: companies
-    }, {
-      path: '/companyaccess',
-      // name: 'companyaccess',
-      component: companyaccess
-    }, {
-      path: '/role',
-      name: 'role',
-      component: role
-    }, {
-      path: '/user',
-      // name: 'user',
-      component: user
-    }, {
-      path: '/roleaccess',
-      component: roleaccess
-    }]
+        path: '/companies',
+        // name: 'companies',
+        component: companies
+      }, {
+        path: '/companyaccess',
+        // name: 'companyaccess',
+        component: companyaccess
+      }, {
+        path: '/role',
+        name: 'role',
+        component: role
+      }, {
+        path: '/user',
+        // name: 'user',
+        component: user
+      }, {
+        path: '/roleaccess',
+        component: roleaccess
+      },
+      {
+        path: '/logs',
+        name: 'logs',
+        component: logs
+      }
+    ]
   }]
 })
-
 router.beforeEach((to, from, next) => {
   let token = localStorage.getItem('token')
   if (token || to.path === '/login') {

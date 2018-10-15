@@ -35,7 +35,7 @@
              <div class="logout" v-show="isShow">
                <ul>
                  <li>修改密码</li>
-                 <li>注销</li>
+                 <li @click="layout">注销</li>
                </ul>
              </div>
             </div>
@@ -60,6 +60,25 @@ export default {
     },
     logout() {
       this.isShow = !this.isShow
+    },
+    layout() {
+      this.$confirm('你确定要退出吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          localStorage.removeItem('token')
+          localStorage.removeItem('companyId')
+          localStorage.removeItem('points')
+          this.$router.push('./login')
+        })
+        .catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          })
+        })
     }
   },
   created() {

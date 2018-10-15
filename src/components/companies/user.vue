@@ -27,7 +27,7 @@
         <el-button @click="resetForm('ruleForm')" size="medium">重置</el-button>
       </el-form-item>
     </el-form>
-     <el-button type="primary" style="margin-top: 10px;" size="medium" @click="addDalogVisible = true" v-if="coList.indexOf('permission_user_add')>-1">+ 新增用户</el-button>
+     <el-button type="primary" style="margin-top: 10px;" size="medium" @click="addClick" v-if="coList.indexOf('permission_user_add')>-1">+ 新增用户</el-button>
      <el-table
       :data="tableData"
       height="310"
@@ -77,7 +77,7 @@
         width="160"
         label="创建最后登录时间">
           <template slot-scope="scope">
-            {{ scope.row.createDate | time}}
+            {{ scope.row.lastLoginDate | time}}
           </template>
       </el-table-column>
       <el-table-column
@@ -100,19 +100,35 @@
       :total="total">
     </el-pagination>
     <el-dialog
-      title="新增/编辑角色"
+      title="新建用户"
       :visible.sync="addDalogVisible"
       width="40%">
       <el-form :model="addForm" :rules="rules" ref="addForm" label-width="120px" class="demo-ruleForm">
-        <el-form-item label="角色名称" prop="roleName">
-          <el-input v-model="addForm.roleName" placeholder="请输入"></el-input>
+        <el-form-item label="用户名" prop="loginName">
+          <el-input  :disabled="disabled" v-model="addForm.loginName" placeholder="请输入" @blur="output"></el-input>
         </el-form-item>
-        <el-form-item label="角色描述" prop="remark">
-          <el-input type="textarea" v-model="addForm.remark"></el-input>
+        <el-form-item label="真实姓名" prop="name">
+          <el-input v-model="addForm.name"></el-input>
         </el-form-item>
-        <el-form-item label="角色状态" prop="enable">
-          <el-radio v-model="addForm.enable" :label="1">开启</el-radio>
-          <el-radio v-model="addForm.enable" :label="0">关闭</el-radio>
+        <el-form-item label="用户密码" prop="password">
+          <el-input  v-model="addForm.password"></el-input>
+        </el-form-item>
+        <el-form-item label="电话" prop="phone">
+          <el-input  v-model="addForm.phone"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input  v-model="addForm.email"></el-input>
+        </el-form-item>
+        <el-form-item label="角色" prop="RoleList">
+          <!-- <el-input  v-model="addForm.RoleList"></el-input> -->
+          <el-select v-model="value5" multiple placeholder="请选择">
+            <el-option
+              v-for="item in addOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -124,21 +140,21 @@
       title="新增/编辑角色"
       :visible.sync="editDalogVisible"
       width="40%">
-      <el-form :model="addForm" :rules="rules" ref="addForm" label-width="120px" class="demo-ruleForm">
+      <el-form :model="editForm" :rules="rules" ref="editForm" label-width="120px" class="demo-ruleForm">
         <el-form-item label="角色名称" prop="roleName">
-          <el-input v-model="addForm.roleName" placeholder="请输入"></el-input>
+          <el-input v-model="editForm.roleName" placeholder="请输入"></el-input>
         </el-form-item>
         <el-form-item label="角色描述" prop="remark">
-          <el-input type="textarea" v-model="addForm.remark"></el-input>
+          <el-input type="textarea" v-model="editForm.remark"></el-input>
         </el-form-item>
         <el-form-item label="角色状态" prop="adminLoginName">
-          <el-radio v-model="addForm.enable" :label="1">开启</el-radio>
-          <el-radio v-model="addForm.enable" :label="0">关闭</el-radio>
+          <el-radio v-model="editForm.enable" :label="1">开启</el-radio>
+          <el-radio v-model="editForm.enable" :label="0">关闭</el-radio>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="editCancel">取 消</el-button>
-        <el-button type="primary" @click="edit('addForm')">确 定</el-button>
+        <el-button type="primary" @click="edit('editForm')">确 定</el-button>
       </span>
     </el-dialog>
     <el-dialog
@@ -162,33 +178,64 @@ export default {
       resetDalogVisible: false,
       dialogVisible: false,
       editDalogVisible: false,
+      disabled: false,
       addForm: {
+        loginName: '',
+        name: '',
+        password: '',
+        phone: '',
+        email: '',
+        RoleList: ''
+      },
+      editForm: {
         roleName: '',
         remark: '',
         enable: 1,
         roleId: ''
       },
-      retForm: {
-        adminLoginName: '',
-        retAdminPassword: '',
-        retCheckAdminPassword: '',
-        companyName: '',
-        companyId: ''
-      },
       rules: {
-        roleName: [
+        loginName: [
           { required: true, message: '请输入', trigger: 'blur' },
           {
-            pattern: /^([\u2E80-\u9FFF]|[a-zA-Z0-9]){1,50}$/,
-            message: '最长50个中文字符',
+            pattern: /^[\u4E00-\u9FA5a-zA-Z0-9_-]*$/,
+            message:
+              '仅限中英文字符及英文下划线”_”、中划线”-“。最长50个中文字符',
             trigger: 'change'
           }
         ],
-        remark: [
+        name: [
           { required: true, message: '请输入', trigger: 'blur' },
           {
-            pattern: /^([\u2E80-\u9FFF]|[a-zA-Z0-9]){1,50}$/,
-            message: '最长50个中文字符',
+            min: 0,
+            max: 50,
+            message: '长度在 0 到 50 个字符',
+            trigger: 'change'
+          }
+        ],
+        password: [
+          { required: true, message: '请输入', trigger: 'blur' },
+          {
+            pattern: /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,16}$/,
+            message:
+              '仅限中英文字符及英文下划线”_”、中划线”-“。最长50个中文字符',
+            trigger: 'change'
+          }
+        ],
+        phone: [
+          { required: false, message: '请输入', trigger: 'blur' },
+          {
+            min: 0,
+            max: 50,
+            message: '长度在 0 到 50 个字符',
+            trigger: 'change'
+          }
+        ],
+        email: [
+          { required: false, message: '请输入', trigger: 'blur' },
+          {
+            min: 0,
+            max: 50,
+            message: '长度在 0 到 50 个字符',
             trigger: 'change'
           }
         ]
@@ -214,6 +261,8 @@ export default {
           label: '关闭'
         }
       ],
+      addOptions: [],
+      value5: [],
       companyId: '',
       roleId: '',
       enable: ''
@@ -283,21 +332,22 @@ export default {
     add(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
-          let res = await this.axios.post(`/role`, this.addForm)
-          let { code } = res.data.content
-          if (code === +-3015) {
-            this.$message.error(`角色已存在`)
-          }
-          if (code === +-9999) {
-            this.$message.error(`Exception Message`)
-          }
-          if (code === +0) {
-            this.$message.success(`新建角色成功`)
-            this.getList()
-            this.addDalogVisible = false
-            this.addForm.roleName = ''
-            this.addForm.remark = ''
-          }
+          console.log(123)
+          // let res = await this.axios.post(`/role`, this.addForm)
+          // let { code } = res.data.content
+          // if (code === +-3015) {
+          //   this.$message.error(`角色已存在`)
+          // }
+          // if (code === +-9999) {
+          //   this.$message.error(`Exception Message`)
+          // }
+          // if (code === +0) {
+          //   this.$message.success(`新建角色成功`)
+          //   this.getList()
+          //   this.addDalogVisible = false
+          //   this.addForm.roleName = ''
+          //   this.addForm.remark = ''
+          // }
         } else {
           return false
         }
@@ -327,13 +377,14 @@ export default {
       this.enable = enable
     },
     editAdmin(row) {
-      this.editDalogVisible = true
       console.log(row)
+      this.editDalogVisible = true
       let { enable, remark, roleId, roleName } = row
-      this.addForm.enable = Number(enable ? '1' : '0')
-      this.addForm.roleName = roleName
-      this.addForm.roleId = roleId
-      this.addForm.remark = remark
+      this.editForm.enable = Number(enable ? '1' : '0')
+      this.editForm.roleName = roleName
+      this.editForm.roleId = roleId
+      this.editForm.remark = remark
+      console.log(this.editForm)
     },
     editCancel() {
       this.editDalogVisible = false
@@ -430,6 +481,22 @@ export default {
             })
           })
       }
+    },
+    output() {
+      if (this.addForm.loginName.length > 0) {
+        this.disabled = true
+      }
+    },
+    async addClick() {
+      this.addDalogVisible = true
+      let res = await this.axios.get(
+        `/role/${localStorage.getItem('companyId')}/{roleName}/2/1/100`
+      )
+      let { list } = res.data.content.data
+      let hh = list.map(function(item, index) {
+        return { value: index, label: item.roleName }
+      })
+      this.addOptions = hh
     }
   },
   created() {

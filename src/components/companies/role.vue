@@ -143,8 +143,10 @@
       <el-transfer
         filterable
         :filter-method="filterMethod"
-        filter-placeholder="请输入城市拼音"
+        :left-default-checked="[2, 3]"
+        :right-default-checked="[1]"
         v-model="value2"
+        :titles="['公司成员', '角色成员(角色名称)']"
         :data="data2">
       </el-transfer>
       <span slot="footer" class="dialog-footer">
@@ -157,20 +159,8 @@
 <script>
 export default {
   data() {
-    const generateData2 = _ => {
-      const data = []
-      const cities = ['上海', '北京', '广州', '深圳', '南京', '西安', '成都']
-      cities.forEach((city, index) => {
-        data.push({
-          label: city,
-          key: index,
-          cities: cities[index]
-        })
-      })
-      return data
-    }
     return {
-      data2: generateData2(),
+      data2: [],
       value2: [],
       filterMethod(query, item) {
         return item.cities.indexOf(query) > -1
@@ -238,7 +228,9 @@ export default {
       companyId: '',
       roleId: '',
       enable: '',
-      stateName: ''
+      stateName: '',
+      epyPageIndex: 1,
+      epyPageSize: 1000
     }
   },
   methods: {
@@ -442,8 +434,57 @@ export default {
           })
       }
     },
-    userBtn() {
+    async userBtn(row) {
       this.userDialogVisible = true
+      let getUrl = `/employee/${this.companyId}/{loginName}/2/{role}/${
+        this.epyPageIndex
+      }/${this.epyPageSize}`
+      let res = await this.axios.get(getUrl)
+      let { list } = res.data.content.data
+      let newData = list.map(function(item) {
+        return item.name + '(' + item.loginName + ')'
+      })
+      let datas = []
+      newData.forEach((item, index) => {
+        datas.push({
+          label: item,
+          key: index,
+          cities: newData[index]
+        })
+      })
+      // console.log(datas)
+      this.data2 = datas
+      let res2 = await this.axios.get(`/role/members/1`)
+      let { data } = res2.data.content
+      let newData2 = data.map(function(item) {
+        return item.name + '(' + item.loginName + ')'
+      })
+      let hh = datas.map(function(item) {
+        return item.key + '-' + item.cities
+      })
+      let ff = []
+      hh.forEach(function(item) {
+        if (item.indexOf(newData2[0]) > 0) {
+          ff.push(+item.split('-')[0])
+        }
+        if (item.indexOf(newData2[1]) > 0) {
+          ff.push(+item.split('-')[0])
+        }
+        if (item.indexOf(newData2[2]) > 0) {
+          ff.push(+item.split('-')[0])
+        }
+        if (item.indexOf(newData2[3]) > 0) {
+          ff.push(+item.split('-')[0])
+        }
+      })
+
+      this.value2 = ff
+    },
+    jump(row) {
+      console.log(row)
+      this.$router.push({
+        path: `/roleaccess?roleId=${row.roleId}`
+      })
     }
   },
   created() {
@@ -495,6 +536,11 @@ export default {
 .el-input.filter-ipt {
   /deep/ .el-input__inner {
     height: 30px;
+  }
+}
+.el-transfer {
+  /deep/ .el-transfer-panel {
+    width: 230px;
   }
 }
 </style>

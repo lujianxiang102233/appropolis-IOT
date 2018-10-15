@@ -6,9 +6,10 @@ import companies from '@/components/companies/companies'
 import role from '@/components/companies/role'
 import companyaccess from '@/components/companies/companyaccess'
 import user from '@/components/companies/user'
+import roleaccess from '@/components/companies/roleaccess'
 Vue.use(Router)
 
-export default new Router({
+let router = new Router({
   routes: [{
     path: '/login',
     // name: 'login',
@@ -37,6 +38,19 @@ export default new Router({
       path: '/user',
       // name: 'user',
       component: user
+    }, {
+      path: '/roleaccess',
+      component: roleaccess
     }]
   }]
 })
+
+router.beforeEach((to, from, next) => {
+  let token = localStorage.getItem('token')
+  if (token || to.path === '/login') {
+    next()
+  } else {
+    next('/login')
+  }
+})
+export default router

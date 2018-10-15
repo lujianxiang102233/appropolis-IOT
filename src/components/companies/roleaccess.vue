@@ -2,11 +2,11 @@
   <div class="companyaccess" style="padding-left: 34px;">
     <el-breadcrumb separator="/">
       <el-breadcrumb-item>权限管理</el-breadcrumb-item>
-      <el-breadcrumb-item :to="{ path: '/companies' }">公司管理</el-breadcrumb-item>
-      <el-breadcrumb-item>公司权限</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{ path: '/role' }">角色管理</el-breadcrumb-item>
+      <el-breadcrumb-item>角色权限</el-breadcrumb-item>
     </el-breadcrumb>
     <div class="editCom"><p>编辑【蒙羊牧业有限公司】权限</p></div>
-    <el-form :inline="true" class="demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_co_func_query')>-1" :model="queryTable">
+    <el-form :inline="true" class="demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_role_auth_query')>-1" :model="queryTable">
       <div class="filter">筛选</div>
       <el-form-item label="功能点名称">
         <el-input v-model="queryTable.permissionName" placeholder="请输入" class="filter-ipt"></el-input>
@@ -19,18 +19,15 @@
         <el-button @click="resetForm('ruleForm')" size="medium">重置</el-button>
       </el-form-item>
     </el-form>
-     <el-button type="primary" style="margin-top: 10px;" size="medium" @click="addDalogVisible = true" v-if="coList.indexOf('permission_co_func_add')>-1">+ 新建一级功能点</el-button>
-     <el-button type="primary" style="margin:0px 40px;" size="medium" @click="copyDalogVisible = true" v-if="coList.indexOf('permission_co_func_copy')>-1">复制其他公司权限</el-button>
       <el-table
       :data="funcTable"
       height="350"
       style="width: 100%">
       <el-table-tree-column
-        fixed :expand-all="!1"
         :indent-size="30"
         parent-key="parentId"
         prop="permissionName"
-        width="170"
+        width="370"
         label="功能点名称">
         <template slot-scope="scope">
           <span class="elliSpan" :title="scope.row.permissionName">{{scope.row.permissionName}}</span>
@@ -38,42 +35,18 @@
       </el-table-tree-column>
       <el-table-column
         prop="permissionCode"
-        width="150"
+        width="350"
         label="FUNCID">
          <template slot-scope="scope">
           <div class="elli" :title="scope.row.permissionCode">{{scope.row.permissionCode}}</div>
         </template>
       </el-table-column>
       <el-table-column
-        prop="menu"
-        width="120"
-        label="菜单栏（权重）">
-       <template slot-scope="scope">
-          <div>{{scope.row.menu?'是':'否'}}&nbsp;&nbsp;&nbsp;<span v-show="scope.row.weight>-1">(</span>{{scope.row.weight}}<span v-show="scope.row.weight >-1">)</span></div>
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="url"
-        width="140"
-        label="url">
-        <template slot-scope="scope">
-          <a href="scope.row.url" class="elli" target="_blank"  :title="scope.row.url">{{scope.row.url}}</a>
-        </template>
-      </el-table-column>
-      <el-table-column
         prop="remark"
-        width="150"
+        width="350"
         label="功能描述">
         <template slot-scope="scope">
           <div class="elli" :title="scope.row.remark">{{scope.row.remark}}</div>
-        </template>
-      </el-table-column>
-      <el-table-column
-        label="操作">
-        <template slot-scope="scope">
-          <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_addsub')>-1"  plain @click="addsub(scope.row)" >添加</el-button>
-          <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_edit')>-1"  plain @click="edit(scope.row)">编辑</el-button>
-          <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_del')>-1"  plain @click="del(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -326,35 +299,36 @@ export default {
       this.$refs[formName].resetFields()
     },
     async getList() {
-      let indexi = 0
-      function getArray(data, depth, parentId) {
-        for (var i in data) {
-          if (data[i].permissionCode !== undefined) {
-            data[i].id = ++indexi
-            // data[i].label = data[i].permissionName
-            data[i].depth = depth
-            data[i].parentId = parentId
-            data[i].child_num = data[i].children.length
-          }
-          if (data[i].children.length > 0) {
-            let tempDept = depth + 1
-            getArray(data[i].children, tempDept, data[i].id)
-          }
-        }
-      }
+      //   let indexi = 0
+      //   function getArray(data, depth, parentId) {
+      //     for (var i in data) {
+      //       if (data[i].permissionCode !== undefined) {
+      //         data[i].id = ++indexi
+      //         data[i].depth = depth
+      //         data[i].parentId = parentId
+      //         data[i].child_num = data[i].children.length
+      //       }
+      //       if (data[i].children.length > 0) {
+      //         let tempDept = depth + 1
+      //         getArray(data[i].children, tempDept, data[i].id)
+      //       }
+      //     }
+      //   }
       this.coList = JSON.parse(localStorage.getItem('points'))
-      let res = await this.axios.get(`/company/permission/${this.companyId}`)
-
-      let { code, data } = res.data.content
-      if (code === -9999) {
-        this.$message.error(`Exception Message`)
-      }
-      if (code === 0) {
-        let newdata = JSON.parse(data)
-        getArray(newdata.permissionTree, 0, null)
-        this.funcTable = newdata.permissionTree
-        this.treeList = newdata
-      }
+      let res = await this.axios.get(
+        `/role/permission/${this.$route.query.roleId}`
+      )
+      console.log(res)
+      //   let { code, data } = res.data.content
+      //   if (code === -9999) {
+      //     this.$message.error(`Exception Message`)
+      //   }
+      //   if (code === 0) {
+      //     let newdata = JSON.parse(data)
+      //     getArray(newdata.permissionTree, 0, null)
+      //     this.funcTable = newdata.permissionTree
+      //     this.treeList = newdata
+      //   }
     },
     add(formName) {
       this.$refs[formName].validate(async valid => {

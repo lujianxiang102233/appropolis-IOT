@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    var json1 = [{
+      key: 1,
+      label: '一'
+    }, {
+      label: '二',
+      key: 2
+    }, {
+      key: 3,
+      label: '三'
+    }, {
+      key: 3,
+      label: '二'
+    }, {
+      key: 4,
+      label: '二'
+    }]
+
+
+    var json2 = [{
+      label: '一',
+      key: 1
+    }, {
+      key: 2,
+      label: '二'
+    }]
+
+
+    function mergeArr(json1, json2) {
+      var keyArr = [];
+      for (var i = 0; i < json1.length; i++) {
+        // if (JSON.stringify(json2).indexOf(JSON.stringify(json1[i])) == -1) {
+        //   keyArr.push(i);
+        // }
+        for (k = 0; k < json2.length; k++) {
+          if (JSON.stringify(json2[k].indexOf(JSON.stringify(json1[i]) == -1))) {
+            keyArr.push(i);
+          }
+        }
+      }
+      return keyArr;
+    }
+    console.log(mergeArr(json1, json2));
+    // console.log(JSON.stringify(json2))
+    // console.log(JSON.stringify(json1[1]))
+    // console.log(JSON.stringify(json2).indexOf(JSON.stringify(json1[0])))
+    // console.log(JSON.stringify(json2).indexOf(JSON.stringify(json1[1])))
+    // console.log(JSON.stringify(json2).indexOf(JSON.stringify(json1[2])))
+    // console.log(JSON.stringify(json2).indexOf(JSON.stringify(json1[3])))
+    // console.log([1, 2, 3].indexOf(2))
+
+  </script>
+</body>
+
+</html>

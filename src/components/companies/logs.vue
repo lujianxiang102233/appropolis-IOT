@@ -1,6 +1,6 @@
 <template>
     <div class="logs">
-        <div>
+        
             <el-checkbox v-model="checked">
                 <el-breadcrumb separator = "/">
                     <el-breadcrumb-item>权限管理</el-breadcrumb-item>
@@ -22,7 +22,7 @@
                         @select="handleSelect"></el-autocomplete>
                 </el-form-item>
                 <el-form-item label = "操作时间" >
-                    <el-date-picker 
+                    <el-date-picker
                         size="mini"
                         v-model="formInline.date"
                         type="datetimerange"
@@ -36,23 +36,23 @@
                     <el-button size="mini" @click = "onSubmit">重置</el-button>
                 </el-form-item>
             </el-form>
-            <el-table class="table" 
+            <el-table class="table"
                 :data="tableData"
                 :header-row-class-name="headerColor"
                 style="100%">
-                <el-table-column 
+                <el-table-column
                     prop="loginName"
                     label="操作人"
                     align="center"
                     width="180">
                 </el-table-column>
-                <el-table-column 
+                <el-table-column
                     prop="operationType"
                     label="行为分类"
                     align="center"
                     width="180">
                 </el-table-column>
-                <el-table-column 
+                <el-table-column
                     prop="operateDate"
                     label="操作时间"
                     align="center"
@@ -61,13 +61,13 @@
                       {{ scope.row.operateDate | time}}
                     </template>
                 </el-table-column>
-                <el-table-column 
+                <el-table-column
                     prop="loginIp"
                     label="IP地址"
                     align="center"
                     width="180">
                 </el-table-column>
-                <el-table-column 
+                <el-table-column
                     prop="remark"
                     align="center"
                     label="行为描述"
@@ -83,7 +83,7 @@
                 layout="total,prev,pager,next,sizes,jumper"
                 :total="totalAll">
             </el-pagination>
-        </div>
+        
     </div>
 </template>
 <script>

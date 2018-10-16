@@ -204,7 +204,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="addCancel">取 消</el-button>
+        <el-button @click="copyCancel">取 消</el-button>
         <el-button type="primary" @click="copy('copyForm')">确 定</el-button>
       </span>
     </el-dialog>
@@ -573,10 +573,15 @@ export default {
             companyName: item.companyName
           }
         })
+        console.log(this.copyList)
       }
       if (code === -9999) {
         this.$message.error(`Exception Message`)
       }
+    },
+    copyCancel() {
+      this.copyDalogVisible = false
+      this.copyForm.state = ''
     },
     querySearch(queryString, cb) {
       var restaurants = this.copyList

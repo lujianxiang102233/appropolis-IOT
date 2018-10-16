@@ -13,23 +13,24 @@
                     <el-input size="mini" v-model = "formInline.userName" placeholder="请输入" class="user-form"></el-input>
                 </el-form-item>
                 <el-form-item label = "行为分类">
-                    <el-autocomplete
-                        size="mini"
-                        class="inline-input"
-                        v-model="formInline.type"
-                        :fetch-suggestions="querySearch"
-                        placeholder="请输入"
-                        @select="handleSelect"></el-autocomplete>
+                  <el-autocomplete
+                  size="mini"
+                  class="inline-input"
+                  v-model="formInline.type"
+                  :fetch-suggestions="querySearch"
+                  placeholder="请输入"
+                  @select="handleSelect">
+                  </el-autocomplete>
                 </el-form-item>
                 <el-form-item label = "操作时间" >
-                    <el-date-picker 
-                        size="mini"
-                        v-model="formInline.date"
-                        type="datetimerange"
-                        range-separator="至"
-                        start-placeholder="请选择"
-                        end-placeholder="请选择">
-                    </el-date-picker>
+                  <el-date-picker
+                  size="mini"
+                  v-model="formInline.date"
+                  type="datetimerange"
+                  range-separator="至"
+                  start-placeholder="请选择"
+                  end-placeholder="请选择">
+                  </el-date-picker>
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" size="mini" @click = "onSubmit">查询</el-button>
@@ -37,42 +38,42 @@
                 </el-form-item>
             </el-form>
             <el-table class="table" 
-                :data="tableData"
-                :header-row-class-name="headerColor"
-                style="100%">
-                <el-table-column 
-                    prop="loginName"
-                    label="操作人"
-                    align="center"
-                    width="180">
-                </el-table-column>
-                <el-table-column 
-                    prop="operationType"
-                    label="行为分类"
-                    align="center"
-                    width="180">
-                </el-table-column>
-                <el-table-column 
-                    prop="operateDate"
-                    label="操作时间"
-                    align="center"
-                    width="240">
-                    <template slot-scope="scope">
-                      {{ scope.row.operateDate | time}}
-                    </template>
-                </el-table-column>
-                <el-table-column 
-                    prop="loginIp"
-                    label="IP地址"
-                    align="center"
-                    width="180">
-                </el-table-column>
-                <el-table-column 
-                    prop="remark"
-                    align="center"
-                    label="行为描述"
-                    width="300">
-                </el-table-column>
+              :data="tableData"
+              :header-row-class-name="headerColor"
+              style="100%">
+              <el-table-column 
+                  prop="loginName"
+                  label="操作人"
+                  align="center"
+                  width="180">
+              </el-table-column>
+              <el-table-column 
+                  prop="operationType"
+                  label="行为分类"
+                  align="center"
+                  width="180">
+              </el-table-column>
+              <el-table-column 
+                  prop="operateDate"
+                  label="操作时间"
+                  align="center"
+                  width="240">
+                  <template slot-scope="scope">
+                    {{ scope.row.operateDate | time}}
+                  </template>
+              </el-table-column>
+              <el-table-column 
+                  prop="loginIp"
+                  label="IP地址"
+                  align="center"
+                  width="180">
+              </el-table-column>
+              <el-table-column 
+                  prop="remark"
+                  align="center"
+                  label="行为描述"
+                  width="300">
+              </el-table-column>
             </el-table>
             <el-pagination
                 @size-change="handleSizeChange"

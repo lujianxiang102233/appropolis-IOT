@@ -85,7 +85,7 @@
         label="操作">
           <template slot-scope="scope">
             <el-button type="primary" size="mini" v-if="coList.indexOf('permission_user_edit')>-1" plain @click="editAdmin(scope.row)">编辑</el-button>
-            <el-button type="success" size="mini" v-if="coList.indexOf('permission_user_auth')>-1" plain @click="jump(scope.row)">授权管理</el-button>
+            <el-button type="success" size="mini" v-if="coList.indexOf('permission_user_auth')>-1" plain @click="warrant(scope.row)">授权管理</el-button>
             <el-button type="success" size="mini" v-if="coList.indexOf('permission_user_reset')>-1" plain @click="jump(scope.row)">成员重置</el-button>
           </template>
       </el-table-column>
@@ -130,10 +130,6 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <!-- <el-form-item label="角色状态" prop="enable">
-          <el-radio v-model="addForm.enable" :label="1">开启</el-radio>
-          <el-radio v-model="addForm.enable" :label="0">关闭</el-radio>
-        </el-form-item> -->
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="addCancel">取 消</el-button>
@@ -182,10 +178,18 @@
       </span>
     </el-dialog>
     <el-dialog
-      title="提示"
-      :visible.sync="dialogVisible"
-      width="30%">
-      <span>确认要停用{{ tableData.roleName }}吗？</span>
+      title="编辑用户可查看公司"
+      :visible.sync="wrtDialogVisible"
+      width="50%">
+      <h2>请选择XXX拥有查看权限的公司</h2>
+        <el-transfer
+          filterable
+          :filter-method="filterMethod"
+          filter-placeholder="请输入城市拼音"
+          v-model="value2"
+          :titles="['平台公司', '可查看公司']"
+          :data="data2">
+        </el-transfer>
       <span slot="footer" class="dialog-footer">
         <el-button @click="stateCancel">取 消</el-button>
         <el-button type="primary" @click="stateTrue">确 定</el-button>
@@ -197,10 +201,15 @@
 export default {
   data() {
     return {
+      data2: [],
+      value2: [],
+      filterMethod(query, item) {
+        return item.cities.indexOf(query) > -1
+      },
       tableData: [],
       addDalogVisible: false,
       resetDalogVisible: false,
-      dialogVisible: false,
+      wrtDialogVisible: false,
       editDalogVisible: false,
       disabled: false,
       addForm: {
@@ -463,60 +472,6 @@ export default {
         }
       })
     },
-    del(row) {
-      console.log(row)
-      let { roleId, roleName, roleCount } = row
-      // console.log(roleId, roleName, roleCount)
-      if (roleCount === 0) {
-        this.$confirm('确定要删除【' + roleName + '】吗?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        })
-          .then(async () => {
-            let res = await this.axios.delete(`/role/${roleId}/${roleName}`)
-            let { code } = res.data.content
-            if (code === +0) {
-              this.$message.success('【' + roleName + '】' + '已删除')
-              this.getList()
-            }
-          })
-          .catch(() => {
-            this.$message({
-              type: 'info',
-              message: '已取消删除'
-            })
-          })
-      } else {
-        this.$confirm(
-          '【' +
-            roleName +
-            '】下共有【' +
-            roleCount +
-            '】名用户，删除角色后用户将取消相应角色及其授权，是否继续',
-          '提示',
-          {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }
-        )
-          .then(async () => {
-            let res = await this.axios.delete(`/role/${roleId}/${roleName}`)
-            let { code } = res.data.content
-            if (code === +0) {
-              this.$message.success('【' + roleName + '】' + '已删除')
-              this.getList()
-            }
-          })
-          .catch(() => {
-            this.$message({
-              type: 'info',
-              message: '已取消删除'
-            })
-          })
-      }
-    },
     output() {
       if (this.addForm.loginName.length > 0) {
         this.disabled = true
@@ -535,6 +490,23 @@ export default {
     addClick() {
       this.addDalogVisible = true
       this.render()
+    },
+    async warrant(row) {
+      console.log(row)
+      this.wrtDialogVisible = true
+      let res1 = await this.axios.get(`/company/{companyName}/1/100`)
+      let platformList = res1.data.content.data.list
+      // console.log(platformList)
+      let newPlatForm = platformList.map((item, index) => {
+        return {
+          label: item.companyName + '(' + item.companyCode + ')',
+          key: index,
+          cities: item.companyName + '(' + item.companyCode + ')'
+        }
+      })
+      this.data2 = newPlatForm
+      // console.log(newPlatForm)
+      // console.log(this.data2)
     }
   },
   created() {
@@ -617,6 +589,11 @@ export default {
   }
   /deep/ .el-dialog__body {
     padding: 10px 20px;
+  }
+}
+.el-transfer {
+  /deep/ .el-transfer-panel {
+    width: 268px;
   }
 }
 </style>

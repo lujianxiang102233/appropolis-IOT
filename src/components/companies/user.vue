@@ -100,6 +100,7 @@
       :total="total">
     </el-pagination>
     <el-dialog
+      id="add"
       title="新建用户"
       :visible.sync="addDalogVisible"
       width="40%">
@@ -140,19 +141,39 @@
       </span>
     </el-dialog>
     <el-dialog
-      title="新增/编辑角色"
+      title="编辑用户"
       :visible.sync="editDalogVisible"
       width="40%">
       <el-form :model="editForm" :rules="rules" ref="editForm" label-width="120px" class="demo-ruleForm">
-        <el-form-item label="角色名称" prop="roleName">
-          <el-input v-model="editForm.roleName" placeholder="请输入"></el-input>
+        <el-form-item label="用户名" prop="loginName">
+          <el-input  :disabled="true" v-model="editForm.loginName" placeholder="请输入" @blur="output"></el-input>
         </el-form-item>
-        <el-form-item label="角色描述" prop="remark">
-          <el-input type="textarea" v-model="editForm.remark"></el-input>
+        <el-form-item label="真实姓名" prop="name">
+          <el-input v-model="editForm.name"></el-input>
+        </el-form-item>
+        <el-form-item label="用户密码" prop="password">
+          <el-input :disabled="true" v-model="editForm.password"></el-input>
+        </el-form-item>
+        <el-form-item label="电话" prop="phone">
+          <el-input  v-model="editForm.phone"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input  v-model="editForm.email"></el-input>
+        </el-form-item>
+        <el-form-item label="角色" prop="roleList">
+          <el-select v-model="editForm.roleList" multiple filterable placeholder="请选择">
+            <el-option
+              v-for="item in addOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="角色状态" prop="enable">
           <el-radio v-model="editForm.enable" :label="1">开启</el-radio>
           <el-radio v-model="editForm.enable" :label="0">关闭</el-radio>
+          <el-radio v-model="editForm.enable" :label="2">锁定</el-radio>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -192,10 +213,14 @@ export default {
         enable: 1
       },
       editForm: {
-        roleName: '',
-        remark: '',
-        enable: 'true',
-        roleId: ''
+        loginName: '',
+        name: '',
+        password: '',
+        phone: '',
+        email: '',
+        roleList: [],
+        enable: 0,
+        employeeId: ''
       },
       rules: {
         loginName: [
@@ -306,14 +331,6 @@ export default {
       //     }`
       //   }
       let res = await this.axios.get(getUrl)
-      res.data.content.data.list.forEach(function(v, i) {
-        if (v.enable === 1) {
-          v.enable = true
-        }
-        if (v.enable === 0) {
-          v.enable = false
-        }
-      })
       let {
         code,
         data: { list, total }
@@ -390,22 +407,22 @@ export default {
       this.enable = enable
     },
     editAdmin(row) {
-      console.log(row)
       this.editDalogVisible = true
-      let { enable, remark, roleId, roleName } = row
-      this.editForm.enable = Number(enable ? '1' : '0')
-      this.editForm.roleName = roleName
-      this.editForm.roleId = roleId
-      this.editForm.remark = remark
-      console.log(this.editForm)
+      this.render()
+      let { loginName, name, phone, email, enable, roleList, employeeId } = row
+      this.editForm.loginName = loginName
+      this.editForm.name = name
+      this.editForm.phone = phone
+      this.editForm.email = email
+      this.editForm.enable = enable
+      this.editForm.password = '.....'
+      this.editForm.employeeId = employeeId
+      this.editForm.roleList = roleList.map(item => {
+        return item.roleId
+      })
     },
     editCancel() {
       this.editDalogVisible = false
-      this.addForm.enable = 1
-      this.addForm.roleName = ''
-      this.addForm.roleId = ''
-      this.addForm.remark = ''
-      this.addDalogVisible = false
     },
     addCancel() {
       this.addDalogVisible = false
@@ -421,23 +438,25 @@ export default {
     edit(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
+          let newForm = {
+            email: this.editForm.email,
+            name: this.editForm.name,
+            phone: this.editForm.phone,
+            roleList: this.editForm.roleList,
+            enable: this.editForm.enable
+          }
           let res = await this.axios.put(
-            `/role/${this.addForm.roleId}`,
-            this.addForm
+            `/employee/${this.editForm.employeeId}`,
+            newForm
           )
           let { code } = res.data.content
-          if (code === +-3015) {
-            this.$message.error(`角色已存在`)
-          }
           if (code === +-9999) {
             this.$message.error(`Exception Message`)
           }
           if (code === +0) {
-            this.$message.success(`新建角色成功`)
+            this.$message.success(`编辑用户成功`)
             this.getList()
             this.editDalogVisible = false
-            this.addForm.roleName = ''
-            this.addForm.remark = ''
           }
         } else {
           return false
@@ -503,8 +522,7 @@ export default {
         this.disabled = true
       }
     },
-    async addClick() {
-      this.addDalogVisible = true
+    async render() {
       let res = await this.axios.get(
         `/role/${localStorage.getItem('companyId')}/{roleName}/2/1/100`
       )
@@ -513,6 +531,10 @@ export default {
         return { value: item.roleId, label: item.roleName }
       })
       this.addOptions = hh
+    },
+    addClick() {
+      this.addDalogVisible = true
+      this.render()
     }
   },
   created() {
@@ -572,8 +594,8 @@ export default {
     *display: inline;
     *zoom: 1;
     width: 10em;
-    height: 23px;
-    line-height: 23px;
+    height: 25px;
+    line-height: 25px;
     // font-size: 12px;
     overflow: hidden;
     -ms-text-overflow: ellipsis;
@@ -585,8 +607,16 @@ export default {
     line-height: 20px;
   }
   /deep/ .cell {
-    height: 23px;
-    line-height: 23px;
+    height: 25px;
+    line-height: 25px;
+  }
+}
+.el-dialog__wrapper {
+  /deep/ .el-dialog {
+    margin-top: 30px !important;
+  }
+  /deep/ .el-dialog__body {
+    padding: 10px 20px;
   }
 }
 </style>

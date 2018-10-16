@@ -573,7 +573,6 @@ export default {
             companyName: item.companyName
           }
         })
-        console.log(this.copyList)
       }
       if (code === -9999) {
         this.$message.error(`Exception Message`)

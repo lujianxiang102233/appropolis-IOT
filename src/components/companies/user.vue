@@ -119,9 +119,8 @@
         <el-form-item label="邮箱" prop="email">
           <el-input  v-model="addForm.email"></el-input>
         </el-form-item>
-        <el-form-item label="角色" prop="RoleList">
-          <!-- <el-input  v-model="addForm.RoleList"></el-input> -->
-          <el-select v-model="value5" multiple placeholder="请选择">
+        <el-form-item label="角色" prop="roleList">
+          <el-select v-model="addForm.roleList" multiple filterable placeholder="请选择">
             <el-option
               v-for="item in addOptions"
               :key="item.value"
@@ -130,6 +129,10 @@
             </el-option>
           </el-select>
         </el-form-item>
+        <!-- <el-form-item label="角色状态" prop="enable">
+          <el-radio v-model="addForm.enable" :label="1">开启</el-radio>
+          <el-radio v-model="addForm.enable" :label="0">关闭</el-radio>
+        </el-form-item> -->
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="addCancel">取 消</el-button>
@@ -147,7 +150,7 @@
         <el-form-item label="角色描述" prop="remark">
           <el-input type="textarea" v-model="editForm.remark"></el-input>
         </el-form-item>
-        <el-form-item label="角色状态" prop="adminLoginName">
+        <el-form-item label="角色状态" prop="enable">
           <el-radio v-model="editForm.enable" :label="1">开启</el-radio>
           <el-radio v-model="editForm.enable" :label="0">关闭</el-radio>
         </el-form-item>
@@ -185,12 +188,13 @@ export default {
         password: '',
         phone: '',
         email: '',
-        RoleList: ''
+        roleList: [],
+        enable: 1
       },
       editForm: {
         roleName: '',
         remark: '',
-        enable: 1,
+        enable: 'true',
         roleId: ''
       },
       rules: {
@@ -214,9 +218,15 @@ export default {
         ],
         password: [
           { required: true, message: '请输入', trigger: 'blur' },
+          // {
+          //   pattern: /^(?![0-9]+$)(?![a-z]+$)(?![A-Z]+$)(?![a-zA-Z]+$)(?![0-9a-z]+$)(?![0-9A-Z]+$)[0-9A-Za-z]{6,16}$/,
+          //   message: '仅英文及数字。6-16位，至少包括1位数字、大小写英文字符',
+          //   trigger: 'change'
+          // }
           {
-            pattern: /^(?![0-9]+$)(?![a-z]+$)(?![A-Z]+$)(?![a-zA-Z]+$)(?![0-9a-z]+$)(?![0-9A-Z]+$)[0-9A-Za-z]{6,16}$/,
-            message: '仅英文及数字。6-16位，至少包括1位数字、大小写英文字符',
+            min: 3,
+            max: 6,
+            message: '长度在 3 到 6 个字符',
             trigger: 'change'
           }
         ],
@@ -261,7 +271,6 @@ export default {
         }
       ],
       addOptions: [],
-      value5: [],
       companyId: '',
       roleId: '',
       enable: ''
@@ -331,22 +340,27 @@ export default {
     add(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
-          console.log(123)
-          // let res = await this.axios.post(`/role`, this.addForm)
-          // let { code } = res.data.content
-          // if (code === +-3015) {
-          //   this.$message.error(`角色已存在`)
-          // }
-          // if (code === +-9999) {
-          //   this.$message.error(`Exception Message`)
-          // }
-          // if (code === +0) {
-          //   this.$message.success(`新建角色成功`)
-          //   this.getList()
-          //   this.addDalogVisible = false
-          //   this.addForm.roleName = ''
-          //   this.addForm.remark = ''
-          // }
+          let res = await this.axios.post(`/employee`, this.addForm)
+          let { code } = res.data.content
+          if (code === +-3012) {
+            this.$message.error(`用户名已存在`)
+          }
+          if (code === +-9999) {
+            this.$message.error(`Exception Message`)
+          }
+          if (code === +0) {
+            this.$message.success(`新增用户成功`)
+            this.getList()
+            this.addDalogVisible = false
+            this.disabled = false
+            this.addForm.loginName = ''
+            this.addForm.name = ''
+            this.addForm.password = ''
+            this.addForm.phone = ''
+            this.addForm.email = ''
+            this.addForm.roleList = []
+            this.addForm.enable = 1
+          }
         } else {
           return false
         }
@@ -395,11 +409,14 @@ export default {
     },
     addCancel() {
       this.addDalogVisible = false
+      this.disabled = false
+      this.addForm.loginName = ''
+      this.addForm.name = ''
+      this.addForm.password = ''
+      this.addForm.phone = ''
+      this.addForm.email = ''
+      this.addForm.roleList = []
       this.addForm.enable = 1
-      this.addForm.roleName = ''
-      this.addForm.roleId = ''
-      this.addForm.remark = ''
-      this.addDalogVisible = false
     },
     edit(formName) {
       this.$refs[formName].validate(async valid => {
@@ -493,7 +510,7 @@ export default {
       )
       let { list } = res.data.content.data
       let hh = list.map(function(item, index) {
-        return { value: index, label: item.roleName }
+        return { value: item.roleId, label: item.roleName }
       })
       this.addOptions = hh
     }

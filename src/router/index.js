@@ -19,7 +19,7 @@ let router = new Router({
     path: '/',
     redirect: '/home'
   }, {
-    path: 'home',
+    path: '/home',
     component: home,
     children: [{
       path: '/companies',
@@ -28,16 +28,16 @@ let router = new Router({
       path: '/companyaccess',
       component: companyaccess
     }, {
-      path: 'role',
+      path: '/role',
       component: role
     }, {
-      path: 'user',
+      path: '/user',
       component: user
     }, {
-      path: 'roleaccess',
+      path: '/roleaccess',
       component: roleaccess
     }, {
-      path: 'logs',
+      path: '/logs',
       component: logs
     }]
   }]

@@ -130,7 +130,6 @@ export default {
           remark: ''
         }
       ],
-      myData: '这是一段内容,这是一段内容,这是一段内容,这是一段内容。',
       //   分页
       currentPage: 0,
       totalAll: 0

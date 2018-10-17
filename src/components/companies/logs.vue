@@ -13,15 +13,15 @@
           </el-form-item>
           <el-form-item label = "行为分类">
               <el-autocomplete
-                  :clearable = "true"
                   size="mini"
                   class="inline-input"
                   v-model="formInline.type"
                   :fetch-suggestions="querySearch"
-                  placeholder="请输入"
-                  @select="handleSelect"></el-autocomplete>
+                  placeholder="请选择"
+                  @select="handleSelect">
+              </el-autocomplete>
           </el-form-item>
-          <el-form-item label = "操作时间" >
+          <el-form-item label = "操作时间">
               <el-date-picker
                   size="mini"
                   @blur = "dateBlur"
@@ -32,7 +32,7 @@
                   end-placeholder="请选择">
               </el-date-picker>
           </el-form-item>
-          <el-form-item>
+          <el-form-item class="fr">
               <el-button type="primary" size="mini" @click = "onSubmit">查询</el-button>
               <el-button size="mini" @click = "onResetForm('formInline')">重置</el-button>
           </el-form-item>
@@ -72,22 +72,15 @@
             <el-table-column
                 prop="remark"
                 align="center"
-                label="行为描述"
-                >
+                label="行为描述">
                 <template slot-scope="scope">
-                  <el-tooltip placement="top" effect="light">
-                    <div slot="content">{{scope.row.remark}}</div>
-                    <div class="lastClass">{{scope.row.remark}}</div>
-                  </el-tooltip>
+                  <div class="lastClass" :title="scope.row.remark">{{scope.row.remark}}</div>
                 </template>
                 <!-- <template slot-scope="scope">
-                  <el-popover
-                    placement="top-start"
-                    width="200"
-                    trigger="hover">
-                      <div>{{scope.row.remark}}</div>
-                      <div slot="reference" class="lastClass">{{scope.row.remark}}</div>
-                  </el-popover>
+                  <el-tooltip placement="top" effect="light">
+                    <div slot="content" >{{scope.row.remark}}</div>
+                    <div class="lastClass">{{scope.row.remark}}</div>
+                  </el-tooltip>
                 </template> -->
             </el-table-column>
         </el-table>
@@ -139,7 +132,6 @@ export default {
   mounted() {
     this.getTypeData()
     this.getTableData()
-
     // this.getData()
     //   .then(data => {
     //     console.log(data)
@@ -157,8 +149,8 @@ export default {
   methods: {
     // from type
     querySearch(queryString, cb) {
-      var allOperationTypes = this.allOperationTypes
-      var results = queryString
+      let allOperationTypes = this.allOperationTypes
+      let results = queryString
         ? allOperationTypes.filter(this.createFilter(queryString))
         : allOperationTypes
       cb(results)
@@ -177,26 +169,13 @@ export default {
     },
     // form picker
     dateBlur() {
-      if (!this.formInline.date) return ''
+      if (!this.formInline.date) {
+        return ''
+      }
       let startTime = new Date(this.formInline.date[0])
       let endTime = new Date(this.formInline.date[1])
       this.formInline.date[0] = this.formatTime(startTime)
       this.formInline.date[1] = this.formatTime(endTime)
-    },
-    formatTime(t) {
-      let d =
-        t.getFullYear() +
-        '-' +
-        (t.getMonth() + 1) +
-        '-' +
-        (t.getDate() < 10 ? '0' + t.getDate() : t.getDate()) +
-        ' ' +
-        (t.getHours() < 10 ? '0' + t.getHours() : t.getHours()) +
-        ':' +
-        (t.getMinutes() < 10 ? '0' + t.getMinutes() : t.getMinutes()) +
-        ':' +
-        (t.getSeconds() < 10 ? '0' + t.getSeconds() : t.getSeconds())
-      return d
     },
     // from button
     onSubmit() {
@@ -228,7 +207,6 @@ export default {
     page() {
       return this.pageSize
     },
-
     // data
     getData() {
       let urlRest = '/logs/allOperationTypes'
@@ -246,7 +224,6 @@ export default {
           })
       })
     },
-
     getTypeData() {
       let urlRest = '/logs/allOperationTypes'
       this.axios(urlRest)
@@ -266,14 +243,18 @@ export default {
         ? `${this.formInline.userName}`
         : `{empUsername}`
       let type = this.formInline.type ? `${this.operationTypeId}` : '-1'
-      let start =
-        this.formInline.date.length > 0
-          ? `${this.formInline.date[0]}`
-          : `{startDate}`
-      let end =
-        this.formInline.date.length > 0
-          ? `${this.formInline.date[1]}`
-          : `{endDate}`
+      let start, end
+      if (
+        this.formInline.date &&
+        this.formInline.date.length > 0 &&
+        this.formInline.date[0]
+      ) {
+        start = `${this.formInline.date[0]}`
+        end = `${this.formInline.date[1]}`
+      } else {
+        start = `{startDate}`
+        end = `{endDate}`
+      }
       let urlRest = `/logs/employee/${
         this.companyId
       }/${userName}/${type}/${start}/${end}/${this.pageIndex}/${this.pageSize}`
@@ -296,6 +277,21 @@ export default {
         .catch(error => {
           console.log(error)
         })
+    },
+    formatTime(t) {
+      let d =
+        t.getFullYear() +
+        '-' +
+        (t.getMonth() + 1) +
+        '-' +
+        (t.getDate() < 10 ? '0' + t.getDate() : t.getDate()) +
+        ' ' +
+        (t.getHours() < 10 ? '0' + t.getHours() : t.getHours()) +
+        ':' +
+        (t.getMinutes() < 10 ? '0' + t.getMinutes() : t.getMinutes()) +
+        ':' +
+        (t.getSeconds() < 10 ? '0' + t.getSeconds() : t.getSeconds())
+      return d
     }
   }
 }

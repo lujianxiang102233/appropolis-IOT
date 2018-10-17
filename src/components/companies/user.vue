@@ -4,13 +4,13 @@
       <el-breadcrumb-item>权限管理</el-breadcrumb-item>
       <el-breadcrumb-item>用户管理</el-breadcrumb-item>
     </el-breadcrumb>
-    <el-form :inline="true" class="demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_role_query')>-1">
+    <el-form :inline="true" :model="queryForm"  class="demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_role_query')>-1">
       <div class="filter">筛选</div>
       <el-form-item label="用户名">
-        <el-input size="mini" v-model="roleName" placeholder="请输入" class="filter-ipt"></el-input>
+        <el-input size="mini" v-model="queryForm.loginName" placeholder="请输入" class="filter-ipt"></el-input>
       </el-form-item>
       <el-form-item label="状态">
-        <el-select v-model="roleState" placeholder="请选择" size="mini">
+        <el-select v-model="queryForm.queryState" placeholder="请选择" size="mini">
           <el-option
             v-for="item in options"
             :key="item.value"
@@ -20,7 +20,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="角色">
-        <el-input size="mini" v-model="roleName" placeholder="请输入" class="filter-ipt"></el-input>
+        <el-input size="mini" v-model="queryForm.roleName" placeholder="请输入" class="filter-ipt"></el-input>
       </el-form-item>
       <el-form-item class="fr">
         <el-button type="primary" @click="onSubmit" size="medium">查询</el-button>
@@ -354,7 +354,7 @@ export default {
       options: [
         {
           value: '2',
-          label: '全部'
+          label: '锁定'
         },
         {
           value: '1',
@@ -372,17 +372,22 @@ export default {
       employeeId: '',
       loginName: '',
       loginNameMy: '',
-      show: true
+      queryForm: {
+        loginName: '',
+        queryState: '',
+        roleName: ''
+      }
     }
   },
   methods: {
     onSubmit() {
+      console.log(123)
       this.getList()
     },
     resetForm(formName) {
-      this.roleName = ''
-      this.roleState = ''
-      this.getList()
+      // this.roleName = ''
+      // this.roleState = ''
+      // this.getList()
     },
     handleSizeChange(val) {
       this.pageSize = val
@@ -396,14 +401,28 @@ export default {
     async getList() {
       this.coList = JSON.parse(localStorage.getItem('points'))
       this.companyId = localStorage.getItem('companyId')
-      let getUrl = `/employee/${this.companyId}/{loginName}/2/{role}/${
-        this.pageIndex
-      }/${this.pageSize}`
-      if (this.roleName.length === 0) {
+      let getUrl = `/employee/${this.companyId}/${this.queryForm.loginName}/${
+        this.queryForm.queryState
+      }/${this.queryForm.roleName}/${this.pageIndex}/${this.pageSize}`
+      if (
+        this.queryForm.loginName.length === 0 &&
+        this.queryForm.roleName.length === 0 &&
+        this.queryForm.queryState.length === 0
+      ) {
         getUrl = `/employee/${this.companyId}/{loginName}/2/{role}/${
           this.pageIndex
         }/${this.pageSize}`
       }
+      if (
+        this.queryForm.loginName.length === 0 &&
+        this.queryForm.roleName.length === 0 &&
+        this.queryForm.queryState.length !== 0
+      ) {
+        getUrl = `/employee/${this.companyId}/{loginName}/${
+          this.queryForm.queryState
+        }/{role}/${this.pageIndex}/${this.pageSize}`
+      }
+      console.log(getUrl)
       let res = await this.axios.get(getUrl)
       let {
         code,

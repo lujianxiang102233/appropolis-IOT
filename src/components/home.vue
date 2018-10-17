@@ -1,4 +1,5 @@
 <template>
+  <div class="home">
     <el-container>
     <el-menu
         default-active="1"
@@ -34,7 +35,7 @@
              <span>admin</span>
              <div class="logout" v-show="isShow">
                <ul>
-                 <li>修改密码</li>
+                 <li @click="editPsd">修改密码</li>
                  <li @click="layout">注销</li>
                </ul>
              </div>
@@ -43,15 +44,75 @@
         <el-main><router-view/></el-main>
     </el-container>
     </el-container>
+    <el-dialog
+      title="重置用户密码"
+      :visible.sync="resetDialogVisible"
+      width="30%">
+      <el-form :model="retForm" status-icon :rules="rules" ref="retForm" label-width="100px" class="demo-ruleForm">
+        <el-form-item label="原密码" prop="pass">
+          <el-input type="password" v-model="retForm.pass" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="新密码" prop="pass">
+          <el-input type="password" v-model="retForm.pass" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="重复新密码" prop="checkPass">
+          <el-input type="password" v-model="retForm.checkPass" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="retCancel">取 消</el-button>
+        <el-button type="primary" @click="reset('retForm')">确 定</el-button>
+      </span>
+    </el-dialog>
+  </div>
 </template>
 
 <script>
 export default {
   data() {
+    var validatePass1 = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请输入密码'))
+      } else {
+        if (this.retForm.checkPass !== '') {
+          this.$refs.retForm.validateField('checkPass')
+        }
+        callback()
+      }
+    }
+    var validatePass2 = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请再次输入密码'))
+      } else if (value !== this.retForm.pass) {
+        callback(new Error('亲，两次输入密码不一致!'))
+      } else {
+        callback()
+      }
+    }
     return {
+      resetDialogVisible: false,
       isCollapse: false,
       isShow: false,
-      menusList: []
+      menusList: [],
+      retForm: {
+        pass: '',
+        checkPass: ''
+      },
+      rules: {
+        pass: [
+          { required: true, message: '请输入密码', trigger: 'blur' },
+          {
+            pattern: /^([a-zA-Z0-9]){6,16}$/,
+            message: '仅英文及数字，6-16位。至少包括1位数字、大小写英文字符',
+            trigger: 'change'
+          },
+          { validator: validatePass1, trigger: 'blur' }
+        ],
+        checkPass: [
+          { required: true, message: '请再次输入密码', trigger: 'blur' },
+          { validator: validatePass2, trigger: 'blur' }
+        ]
+      }
     }
   },
   methods: {
@@ -72,6 +133,7 @@ export default {
           localStorage.removeItem('companyId')
           localStorage.removeItem('points')
           localStorage.removeItem('loginName')
+          localStorage.removeItem('companyTree')
           this.$router.push('./login')
         })
         .catch(() => {
@@ -80,6 +142,40 @@ export default {
             message: '已取消删除'
           })
         })
+    },
+    editPsd() {
+      this.resetDialogVisible = true
+    },
+    retCancel() {
+      this.resetDialogVisible = false
+      this.retForm = {}
+    },
+    reset(formName) {
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          let res = await this.axios.put(`/employee/password/adminReset`, {
+            password: this.retForm.retCheckAdminPassword,
+            loginName: this.loginName
+          })
+          let { code } = res.data.content
+          if (code === +0) {
+            this.$message.success('密码已修改')
+          }
+          if (code === +-9999) {
+            this.$message.error(`Exception Message`)
+          }
+          if (code === +-3007) {
+            this.$message.error(`用户无法重置自身账号密码`)
+          }
+          if (code === +-3014) {
+            this.$message.error(`重置密码与原密码一样`)
+          }
+          this.resetDialogVisible = false
+          this.retForm = {}
+        } else {
+          return false
+        }
+      })
     }
   },
   created() {
@@ -205,5 +301,15 @@ export default {
 }
 .el-menu--vertical .el-menu-item.is-active {
   background-color: #3692e8 !important;
+}
+.el-dialog__wrapper {
+  /deep/ .el-dialog {
+    .el-dialog__header {
+      background-color: #3ba1ff !important;
+      .el-dialog__title {
+        color: #fff;
+      }
+    }
+  }
 }
 </style>

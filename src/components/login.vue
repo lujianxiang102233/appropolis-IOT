@@ -56,6 +56,7 @@ export default {
             localStorage.setItem('points', JSON.stringify(data.functionPoints))
             localStorage.setItem('companyId', data.companyId)
             localStorage.setItem('loginName', data.loginName)
+            localStorage.setItem('companyTree', data.companyTree)
             this.$router.push('/')
           }
         } else {

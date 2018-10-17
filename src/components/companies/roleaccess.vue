@@ -9,10 +9,10 @@
     <el-form :inline="true" class="demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_role_auth_query')>-1" :model="queryTable">
       <div class="filter">筛选</div>
       <el-form-item label="功能点名称">
-        <el-input v-model="queryTable.permissionName" placeholder="请输入" class="filter-ipt"></el-input>
+        <el-input v-model="queryTable.permissionName" placeholder="请输入" size="mini" class="filter-ipt"></el-input>
       </el-form-item>
       <el-form-item label="FUNCID">
-        <el-input v-model="queryTable.permissionCode" placeholder="请输入" class="filter-ipt"></el-input>
+        <el-input v-model="queryTable.permissionCode" size="mini" placeholder="请输入" class="filter-ipt"></el-input>
       </el-form-item>
       <el-form-item class="fr">
         <el-button type="primary" @click="onSubmit" size="medium">查询</el-button>
@@ -299,36 +299,9 @@ export default {
       this.$refs[formName].resetFields()
     },
     async getList() {
-      //   let indexi = 0
-      //   function getArray(data, depth, parentId) {
-      //     for (var i in data) {
-      //       if (data[i].permissionCode !== undefined) {
-      //         data[i].id = ++indexi
-      //         data[i].depth = depth
-      //         data[i].parentId = parentId
-      //         data[i].child_num = data[i].children.length
-      //       }
-      //       if (data[i].children.length > 0) {
-      //         let tempDept = depth + 1
-      //         getArray(data[i].children, tempDept, data[i].id)
-      //       }
-      //     }
-      //   }
       this.coList = JSON.parse(localStorage.getItem('points'))
-      let res = await this.axios.get(
-        `/role/permission/${this.$route.query.roleId}`
-      )
-      console.log(res)
-      //   let { code, data } = res.data.content
-      //   if (code === -9999) {
-      //     this.$message.error(`Exception Message`)
-      //   }
-      //   if (code === 0) {
-      //     let newdata = JSON.parse(data)
-      //     getArray(newdata.permissionTree, 0, null)
-      //     this.funcTable = newdata.permissionTree
-      //     this.treeList = newdata
-      //   }
+      let companyTree = JSON.parse(localStorage.getItem('companyTree'))
+      this.funcTable = companyTree
     },
     add(formName) {
       this.$refs[formName].validate(async valid => {

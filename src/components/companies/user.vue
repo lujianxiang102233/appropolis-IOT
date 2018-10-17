@@ -4,7 +4,7 @@
       <el-breadcrumb-item>权限管理</el-breadcrumb-item>
       <el-breadcrumb-item>用户管理</el-breadcrumb-item>
     </el-breadcrumb>
-    <el-form :inline="true" :model="queryForm"  class="demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_role_query')>-1">
+    <el-form :inline="true" class="clearfix demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_role_query')>-1">
       <div class="filter">筛选</div>
       <el-form-item label="用户名">
         <el-input size="mini" v-model="queryForm.loginName" placeholder="请输入" class="filter-ipt"></el-input>
@@ -677,7 +677,10 @@ export default {
   border: 1px solid #999;
   margin-top: 10px;
   padding: 10px;
-  height: 60px;
+  min-height: 60px;
+  .el-form-item {
+    margin-bottom: 0;
+  }
   .filter {
     font-size: 14px;
     font-weight: bold;

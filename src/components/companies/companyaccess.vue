@@ -6,7 +6,7 @@
       <el-breadcrumb-item>公司权限</el-breadcrumb-item>
     </el-breadcrumb>
     <div class="editCom"><p>编辑【蒙羊牧业有限公司】权限</p></div>
-    <el-form :inline="true" class="demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_co_func_query')>-1" :model="queryTable">
+    <el-form :inline="true" class="clearfix demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_co_func_query')>-1" :model="queryTable">
       <div class="filter">筛选</div>
       <el-form-item label="功能点名称">
         <el-input size="mini" v-model="queryTable.permissionName" placeholder="请输入" class="filter-ipt"></el-input>
@@ -670,7 +670,10 @@ export default {
   border: 1px solid #999;
   margin-top: 10px;
   padding: 10px;
-  height: 60px;
+  min-height: 60px;
+  .el-form-item {
+    margin-bottom: 0;
+  }
   .filter {
     font-size: 14px;
     font-weight: bold;

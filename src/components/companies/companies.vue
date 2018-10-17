@@ -4,7 +4,7 @@
       <el-breadcrumb-item>权限管理</el-breadcrumb-item>
       <el-breadcrumb-item>公司管理</el-breadcrumb-item>
     </el-breadcrumb>
-    <el-form :model="ruleForm" :inline="true" class="demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_co_query')>-1">
+    <el-form :model="ruleForm" :inline="true" class="clearfix demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_co_query')>-1">
       <div class="filter">筛选</div>
       <el-form-item label="公司名称">
         <el-input size="mini" v-model="ruleForm.companyName" placeholder="请输入" class="filter-ipt"></el-input>
@@ -359,7 +359,10 @@ export default {
   border: 1px solid #999;
   margin-top: 10px;
   padding: 10px;
-  height: 60px;
+  min-height: 60px;
+  .el-form-item {
+    margin-bottom: 0;
+  }
   .filter {
     font-size: 14px;
     font-weight: bold;

@@ -157,7 +157,7 @@
         :data="data2">
       </el-transfer>
       <span slot="footer" class="dialog-footer">
-        <el-button>取 消</el-button>
+        <el-button @click="userDialogVisible=false">取 消</el-button>
         <el-button type="primary" @click="members">确 定</el-button>
       </span>
     </el-dialog>
@@ -451,7 +451,6 @@ export default {
       }
     },
     async userBtn(row) {
-      console.log(row)
       this.roleId = row.roleId
       this.userDialogVisible = true
       let getUrl = `/employee/${this.companyId}/{loginName}/2/{role}/${
@@ -467,11 +466,18 @@ export default {
           cities: item.name + '(' + item.loginName + ')'
         }
       })
-      console.log(datas)
       this.data2 = datas
-      let res2 = await this.axios.get(`/role/members/1`)
-      let { data } = res2.data.content
-      console.log(data)
+      let res2 = await this.axios.get(`/role/members/${row.roleId}`)
+      let { code, data } = res2.data.content
+      if (code === 0) {
+        console.log(data)
+        this.value2 = data.map(item => {
+          return item.employeeId
+        })
+      }
+      if (code === -9999) {
+        this.$message.error('Exception Message')
+      }
     },
     jump(row) {
       console.log(row)
@@ -480,8 +486,6 @@ export default {
       })
     },
     async members() {
-      console.log(this.roleId)
-      console.log(this.value2)
       let res = await this.axios.put(
         `/role/members/${this.roleId}`,
         this.value2
@@ -491,6 +495,7 @@ export default {
         this.getList()
         this.roleId = ''
         this.userDialogVisible = false
+        this.$message.success('角色成员编辑成功')
       }
       if (code === -9999) {
         this.$message.error('Exception Message')

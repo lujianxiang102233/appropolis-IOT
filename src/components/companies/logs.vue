@@ -13,6 +13,7 @@
           </el-form-item>
           <el-form-item label = "行为分类">
               <el-autocomplete
+                  :clearable = "true"
                   size="mini"
                   class="inline-input"
                   v-model="formInline.type"
@@ -68,26 +69,26 @@
                 align="center"
                 width="180">
             </el-table-column>
-            <!-- <el-table-column
+            <el-table-column
                 prop="remark"
                 align="center"
                 label="行为描述"
-                width="300">
-            </el-table-column> -->
-              <el-table-column
-                prop="remark"
-                align="center"
-                label="行为描述"
-                width="300">
+                >
                 <template slot-scope="scope">
+                  <el-tooltip placement="top" effect="light">
+                    <div slot="content">{{scope.row.remark}}</div>
+                    <div class="lastClass">{{scope.row.remark}}</div>
+                  </el-tooltip>
+                </template>
+                <!-- <template slot-scope="scope">
                   <el-popover
                     placement="top-start"
                     width="200"
-                    trigger="hover"
-                    content="这是一段内容,这是一段内容,这是一段内容,这是一段内容。">
+                    trigger="hover">
+                      <div>{{scope.row.remark}}</div>
                       <div slot="reference" class="lastClass">{{scope.row.remark}}</div>
                   </el-popover>
-                </template>
+                </template> -->
             </el-table-column>
         </el-table>
         <el-pagination
@@ -129,6 +130,7 @@ export default {
           remark: ''
         }
       ],
+      myData: '这是一段内容,这是一段内容,这是一段内容,这是一段内容。',
       //   分页
       currentPage: 0,
       totalAll: 0
@@ -148,10 +150,10 @@ export default {
     //   })
   },
   computed: {
-    operateDateChange: function() {
-      console.log(new Date('Mon Sep 10 2018 00:00:00 GMT+0800 (中国标准时间)'))
-      return new Date('Mon Sep 10 2018 00:00:00 GMT+0800 (中国标准时间)')
-    }
+    // operateDateChange: function() {
+    //   console.log(new Date('Mon Sep 10 2018 00:00:00 GMT+0800 (中国标准时间)'))
+    //   return new Date('Mon Sep 10 2018 00:00:00 GMT+0800 (中国标准时间)')
+    // }
   },
   methods: {
     // from type
@@ -174,8 +176,9 @@ export default {
     handleSelect(item) {
       this.operationTypeId = item.id
     },
-    // form time
+    // form picker
     dateBlur() {
+      if (!this.formInline.date) return ''
       let startTime = new Date(this.formInline.date[0])
       let endTime = new Date(this.formInline.date[1])
       this.formInline.date[0] = this.formatTime(startTime)
@@ -198,12 +201,13 @@ export default {
     },
     // from button
     onSubmit() {
-      this.getTableData(this.userName)
+      this.getTableData()
     },
-    onResetForm(formName) {
+    onResetForm() {
       this.formInline.userName = ''
       this.formInline.type = ''
       this.formInline.date = ''
+      this.getTableData()
     },
     // table
     headerColor({ row, rowIndex }) {
@@ -213,11 +217,11 @@ export default {
     handleSizeChange(val) {
       this.pageSize = val
       this.pageIndex = 1
-      this.getTableData(this.userName)
+      this.getTableData()
     },
     handleCurrentChange(val) {
       this.pageIndex = val
-      this.getTableData(this.userName)
+      this.getTableData()
     },
     total() {
       return this.totalAll
@@ -257,22 +261,20 @@ export default {
           console.log(error)
         })
     },
-    getTableData(userName) {
+    getTableData() {
       this.companyId = localStorage.getItem('companyId')
-      userName = this.formInline.userName
+      let userName = this.formInline.userName
         ? `${this.formInline.userName}`
         : `{empUsername}`
       let type = this.formInline.type ? `${this.operationTypeId}` : '-1'
-      let start = this.formInline.date[0]
-        ? `${this.formInline.date[0]}`
-        : `{startDate}`
-      let end = this.formInline.date[1]
-        ? `${this.formInline.date[1]}`
-        : `{endDate}`
-
-      // let start = `${this.start}` || `{startDate}`
-      // let end = `${this.end}` || `{endDate}`
-      // date:
+      let start =
+        this.formInline.date.length > 0
+          ? `${this.formInline.date[0]}`
+          : `{startDate}`
+      let end =
+        this.formInline.date.length > 0
+          ? `${this.formInline.date[1]}`
+          : `{endDate}`
       let urlRest = `/logs/employee/${
         this.companyId
       }/${userName}/${type}/${start}/${end}/${this.pageIndex}/${this.pageSize}`

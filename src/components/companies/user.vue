@@ -94,7 +94,7 @@
           <template slot-scope="scope">
             <el-button type="primary" size="mini" v-if="coList.indexOf('permission_user_edit')>-1" plain @click="editAdmin(scope.row)">编辑</el-button>
             <el-button type="success" size="mini" v-if="coList.indexOf('permission_user_auth')>-1" plain @click="warrant(scope.row)">授权管理</el-button>
-            <el-button type="success" size="mini" v-if="coList.indexOf('permission_user_reset')>-1" plain @click="jump(scope.row)">成员重置</el-button>
+            <el-button type="success" size="mini" v-if="coList.indexOf('permission_user_reset')>-1" plain @click="jump(scope.row)">重置密码</el-button>
           </template>
       </el-table-column>
     </el-table>
@@ -401,19 +401,40 @@ export default {
         }
       })
     },
-    async stateTrue() {
+    async send() {
       let res = await this.axios.put(
         `/employee/company/${this.employeeId}`,
         this.value2
       )
       let { code } = res.data.content
       if (code === 0) {
-        this.$message.success(`授权成功`)
         this.getList()
         this.wrtDialogVisible = false
       }
       if (code === -9999) {
         this.$message.error(`Exception Message`)
+      }
+    },
+    async stateTrue() {
+      if (this.value2.length === 0) {
+        this.$confirm('尚未设置该用户可查看的公司, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
+          .then(() => {
+            this.send()
+            this.$message.success(`设置成功`)
+          })
+          .catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消删除'
+            })
+          })
+      } else {
+        this.send()
+        this.$message.success(`授权成功`)
       }
     },
     stateCancel() {

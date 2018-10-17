@@ -203,7 +203,7 @@ export default {
           { validator: validatePass2, trigger: 'blur' }
         ],
         retAdminPassword: [
-          { required: true, message: '请输入密码111', trigger: 'blur' },
+          { required: true, message: '请输入密码', trigger: 'blur' },
           {
             pattern: /^([a-zA-Z0-9]){6,16}$/,
             message: '仅英文及数字，6-16位。至少包括1位数字、大小写英文字符',
@@ -212,7 +212,7 @@ export default {
           { validator: validatePass3, trigger: 'blur' }
         ],
         retCheckAdminPassword: [
-          { required: true, message: '请再次输入密码222', trigger: 'blur' },
+          { required: true, message: '请再次输入密码', trigger: 'blur' },
           { validator: validatePass4, trigger: 'blur' }
         ]
       },

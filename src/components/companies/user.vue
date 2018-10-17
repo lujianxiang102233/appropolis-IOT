@@ -94,7 +94,7 @@
           <template slot-scope="scope">
             <el-button type="primary" size="mini" v-if="coList.indexOf('permission_user_edit')>-1" plain @click="editAdmin(scope.row)">编辑</el-button>
             <el-button type="success" size="mini" v-if="coList.indexOf('permission_user_auth')>-1" plain @click="warrant(scope.row)">授权管理</el-button>
-            <el-button type="success" size="mini" v-if="coList.indexOf('permission_user_reset')>-1" plain @click="jump(scope.row)">重置密码</el-button>
+            <el-button type="success" size="mini" v-if="coList.indexOf('permission_user_reset')>-1" plain @click="resetPsd(scope.row)">重置密码</el-button>
           </template>
       </el-table-column>
     </el-table>
@@ -203,11 +203,47 @@
         <el-button type="primary" @click="stateTrue">确 定</el-button>
       </span>
     </el-dialog>
+    <el-dialog
+      title="重置用户密码"
+      :visible.sync="resetDialogVisible"
+      width="50%">
+      <el-form :model="retForm" status-icon :rules="rules" ref="retForm" label-width="100px" class="demo-ruleForm">
+        <el-form-item label="密码" prop="pass">
+          <el-input type="password" v-model="retForm.pass" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="确认密码" prop="checkPass">
+          <el-input type="password" v-model="retForm.checkPass" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="retCancel">取 消</el-button>
+        <el-button type="primary" @click="reset('retForm')">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
 export default {
   data() {
+    var validatePass1 = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请输入密码'))
+      } else {
+        if (this.retForm.checkPass !== '') {
+          this.$refs.retForm.validateField('checkPass')
+        }
+        callback()
+      }
+    }
+    var validatePass2 = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请再次输入密码'))
+      } else if (value !== this.retForm.pass) {
+        callback(new Error('亲，两次输入密码不一致!'))
+      } else {
+        callback()
+      }
+    }
     return {
       data2: [],
       value2: [],
@@ -216,7 +252,7 @@ export default {
       },
       tableData: [],
       addDalogVisible: false,
-      resetDalogVisible: false,
+      resetDialogVisible: false,
       wrtDialogVisible: false,
       editDalogVisible: false,
       disabled: false,
@@ -238,6 +274,10 @@ export default {
         roleList: [],
         enable: 0,
         employeeId: ''
+      },
+      retForm: {
+        pass: '',
+        checkPass: ''
       },
       rules: {
         loginName: [
@@ -289,6 +329,19 @@ export default {
             message: '长度在 0 到 50 个字符',
             trigger: 'change'
           }
+        ],
+        pass: [
+          { required: true, message: '请输入密码', trigger: 'blur' },
+          {
+            pattern: /^([a-zA-Z0-9]){6,16}$/,
+            message: '仅英文及数字，6-16位。至少包括1位数字、大小写英文字符',
+            trigger: 'change'
+          },
+          { validator: validatePass1, trigger: 'blur' }
+        ],
+        checkPass: [
+          { required: true, message: '请再次输入密码', trigger: 'blur' },
+          { validator: validatePass2, trigger: 'blur' }
         ]
       },
       companyName: '',
@@ -316,7 +369,10 @@ export default {
       companyId: '',
       roleId: '',
       enable: '',
-      employeeId: ''
+      employeeId: '',
+      loginName: '',
+      loginNameMy: '',
+      show: true
     }
   },
   methods: {
@@ -548,6 +604,41 @@ export default {
       if (code === -9999) {
         this.$message.error('Exception Message')
       }
+    },
+    resetPsd(row) {
+      this.resetDialogVisible = true
+      this.loginName = row.loginName
+    },
+    retCancel() {
+      this.resetDialogVisible = false
+      this.retForm = {}
+    },
+    reset(formName) {
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          let res = await this.axios.put(`/employee/password/adminReset`, {
+            password: this.retForm.retCheckAdminPassword,
+            loginName: this.loginName
+          })
+          let { code } = res.data.content
+          if (code === +0) {
+            this.$message.success('密码已修改')
+          }
+          if (code === +-9999) {
+            this.$message.error(`Exception Message`)
+          }
+          if (code === +-3007) {
+            this.$message.error(`用户无法重置自身账号密码`)
+          }
+          if (code === +-3014) {
+            this.$message.error(`重置密码与原密码一样`)
+          }
+          this.resetDialogVisible = false
+          this.retForm = {}
+        } else {
+          return false
+        }
+      })
     }
   },
   created() {

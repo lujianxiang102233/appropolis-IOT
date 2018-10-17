@@ -6,7 +6,7 @@
                 <el-breadcrumb-item>操作日志</el-breadcrumb-item>
             </el-breadcrumb>
         </el-checkbox>
-        <el-form :inline="true" :model = "formInline" ref="formInline" class="role-form" >
+        <el-form :inline="true" :model = "formInline" ref="formInline" class="clearfix role-form">
           <div>筛选</div>
           <el-form-item label = "操作人">
               <el-input size="mini" v-model = "formInline.userName" placeholder="请输入" class="user-form"></el-input>
@@ -300,12 +300,14 @@ export default {
 .logs {
   padding-left: 34px;
   @borderColor: #999;
-
   .role-form {
     border: 1px solid @borderColor;
     padding: 10px;
     margin-top: 10px;
-    height: 60px;
+    min-height: 60px;
+    .el-form-item {
+      margin-bottom: 0;
+    }
     .user-form {
       width: 120px;
     }

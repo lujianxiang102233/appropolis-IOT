@@ -27,25 +27,29 @@
      <el-button type="primary" style="margin-top: 10px;" size="medium" @click="addDalogVisible = true" v-if="coList.indexOf('permission_role_add')>-1">+ 新建角色</el-button>
      <el-table
       :data="tableData"
-       height="310"
+       height="210"
       style="width: 100%">
       <el-table-column
         prop="roleName"
         label="角色名称"
+        align="center"
         width="140">
       </el-table-column>
       <el-table-column
         prop="remark"
         label="角色描述"
+        align="center"
         width="160">
       </el-table-column>
       <el-table-column
         prop="roleCount"
         label="角色人数"
+        align="center"
         width="130">
       </el-table-column>
       <el-table-column
         label="状态"
+        align="center"
         width="130">
         <template slot-scope="scope">
             <el-switch
@@ -60,12 +64,15 @@
       </el-table-column>
       <el-table-column
         width="160"
+        align="center"
         label="创建时间">
           <template slot-scope="scope">
             {{ scope.row.createDate | time}}
           </template>
       </el-table-column>
       <el-table-column
+       width="300"
+       align="center"
         label="操作">
           <template slot-scope="scope">
             <el-button type="primary" size="mini" v-if="coList.indexOf('permission_role_edit')>-1" plain @click="editAdmin(scope.row)">编辑</el-button>
@@ -257,10 +264,15 @@ export default {
       let getUrl = `/role/${this.companyId}/${this.roleName}/${
         this.roleState
       }/${this.pageIndex}/${this.pageSize}`
-      if (this.roleName.length === 0) {
+      if (this.roleName.length === 0 && this.roleState === '') {
         getUrl = `/role/${this.companyId}/{roleName}/2/${this.pageIndex}/${
           this.pageSize
         }`
+      }
+      if (this.roleName.length === 0 && this.roleState !== '') {
+        getUrl = `/role/${this.companyId}/{roleName}/${this.roleState}/${
+          this.pageIndex
+        }/${this.pageSize}`
       }
       let res = await this.axios.get(getUrl)
       res.data.content.data.list.forEach(function(v, i) {
@@ -315,7 +327,8 @@ export default {
       }
       if (code === +0) {
         this.$message.success(`修改角色状态成功`)
-        this.roleState = status
+        // this.roleState = status
+        this.getList()
       }
       this.dialogVisible = false
     },
@@ -324,7 +337,6 @@ export default {
       this.getList()
     },
     changeStatus(row) {
-      console.log(row)
       this.dialogVisible = true
       let { roleId, enable, roleName } = row
       this.roleId = roleId
@@ -397,6 +409,9 @@ export default {
               this.$message.success('【' + roleName + '】' + '已删除')
               this.getList()
             }
+            if (code === -9999) {
+              this.$message.error('Exception Message')
+            }
           })
           .catch(() => {
             this.$message({
@@ -441,44 +456,19 @@ export default {
       }/${this.epyPageSize}`
       let res = await this.axios.get(getUrl)
       let { list } = res.data.content.data
-      let newData = list.map(function(item) {
-        return item.name + '(' + item.loginName + ')'
-      })
-      let datas = []
-      newData.forEach((item, index) => {
-        datas.push({
-          label: item,
-          key: index,
-          cities: newData[index]
-        })
+      // console.log(list)
+      let datas = list.map(function(item) {
+        return {
+          label: item.name + '(' + item.loginName + ')',
+          key: item.employeeId,
+          cities: item.name + '(' + item.loginName + ')'
+        }
       })
       // console.log(datas)
       this.data2 = datas
       let res2 = await this.axios.get(`/role/members/1`)
       let { data } = res2.data.content
-      let newData2 = data.map(function(item) {
-        return item.name + '(' + item.loginName + ')'
-      })
-      let hh = datas.map(function(item) {
-        return item.key + '-' + item.cities
-      })
-      let ff = []
-      hh.forEach(function(item) {
-        if (item.indexOf(newData2[0]) > 0) {
-          ff.push(+item.split('-')[0])
-        }
-        if (item.indexOf(newData2[1]) > 0) {
-          ff.push(+item.split('-')[0])
-        }
-        if (item.indexOf(newData2[2]) > 0) {
-          ff.push(+item.split('-')[0])
-        }
-        if (item.indexOf(newData2[3]) > 0) {
-          ff.push(+item.split('-')[0])
-        }
-      })
-
-      this.value2 = ff
+      console.log(data)
     },
     jump(row) {
       console.log(row)

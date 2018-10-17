@@ -35,15 +35,18 @@
       <el-table-column
         prop="loginName"
         label="用户名"
+        align="center"
         width="140">
       </el-table-column>
       <el-table-column
         prop="name"
+        align="center"
         label="真实姓名"
         width="160">
       </el-table-column>
       <el-table-column
         width="130"
+        align="center"
         label="角色">
           <template slot-scope="scope">
             <div class="elli" :title="scope.row.newRoleList">{{ scope.row.newRoleList}}</div>
@@ -51,6 +54,7 @@
       </el-table-column>
       <el-table-column
         label="电话/电子邮箱"
+        align="center"
         width="130">
         <template slot-scope="scope">
           <div class="elli" :title="[scope.row.phone+'/'+scope.row.email]">{{scope.row.phone}}/{{scope.row.email}}</div>
@@ -58,6 +62,7 @@
       </el-table-column>
       <el-table-column
         label="状态"
+        align="center"
         width="130">
         <template slot-scope="scope">
           <span v-if="scope.row.enable == 1" style="color:red;">开启</span>
@@ -68,6 +73,7 @@
       </el-table-column>
       <el-table-column
         width="160"
+        align="center"
         label="创建时间">
           <template slot-scope="scope">
             {{ scope.row.createDate | time}}
@@ -75,6 +81,7 @@
       </el-table-column>
       <el-table-column
         width="160"
+        align="center"
         label="创建最后登录时间">
           <template slot-scope="scope">
             {{ scope.row.lastLoginDate | time}}
@@ -82,6 +89,7 @@
       </el-table-column>
       <el-table-column
        width="280"
+       align="center"
         label="操作">
           <template slot-scope="scope">
             <el-button type="primary" size="mini" v-if="coList.indexOf('permission_user_edit')>-1" plain @click="editAdmin(scope.row)">编辑</el-button>
@@ -191,7 +199,7 @@
           :data="data2">
         </el-transfer>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="stateCancel">取 消</el-button>
+        <el-button @click="wrtDialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="stateTrue">确 定</el-button>
       </span>
     </el-dialog>
@@ -307,7 +315,8 @@ export default {
       addOptions: [],
       companyId: '',
       roleId: '',
-      enable: ''
+      enable: '',
+      employeeId: ''
     }
   },
   methods: {
@@ -393,17 +402,19 @@ export default {
       })
     },
     async stateTrue() {
-      let status = this.enable ? '1' : '0'
-      let res = await this.axios.put(`/role/${this.roleId}/${status}`)
+      let res = await this.axios.put(
+        `/employee/company/${this.employeeId}`,
+        this.value2
+      )
       let { code } = res.data.content
-      if (code === +-9999) {
+      if (code === 0) {
+        this.$message.success(`授权成功`)
+        this.getList()
+        this.wrtDialogVisible = false
+      }
+      if (code === -9999) {
         this.$message.error(`Exception Message`)
       }
-      if (code === +0) {
-        this.$message.success(`修改角色状态成功`)
-        this.roleState = status
-      }
-      this.dialogVisible = false
     },
     stateCancel() {
       this.dialogVisible = false
@@ -492,7 +503,7 @@ export default {
       this.render()
     },
     async warrant(row) {
-      console.log(row)
+      this.employeeId = row.employeeId
       this.wrtDialogVisible = true
       let res1 = await this.axios.get(`/company/{companyName}/1/100`)
       let platformList = res1.data.content.data.list
@@ -500,13 +511,22 @@ export default {
       let newPlatForm = platformList.map((item, index) => {
         return {
           label: item.companyName + '(' + item.companyCode + ')',
-          key: index,
+          key: item.companyId,
           cities: item.companyName + '(' + item.companyCode + ')'
         }
       })
       this.data2 = newPlatForm
       // console.log(newPlatForm)
-      // console.log(this.data2)
+      let res2 = await this.axios.get(`/employee/company/${row.employeeId}`)
+      let { code, data } = res2.data.content
+      if (code === 0) {
+        this.value2 = data.map(item => {
+          return item.companyId
+        })
+      }
+      if (code === -9999) {
+        this.$message.error('Exception Message')
+      }
     }
   },
   created() {

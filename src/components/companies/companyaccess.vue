@@ -182,7 +182,7 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="addCancel">取 消</el-button>
-        <el-button type="primary" @click="edit('editForm')">确 定</el-button>
+        <el-button type="primary" @click="editTrue('editForm')">确 定</el-button>
       </span>
     </el-dialog>
      <el-dialog
@@ -484,6 +484,7 @@ export default {
       this.addsubForm.children = []
     },
     edit(row) {
+      console.log(row)
       let {
         permissionName,
         permissionCode,
@@ -503,7 +504,6 @@ export default {
       this.editForm.newTab = String(newTab)
       this.editForm.remark = remark
       this.editForm.children = children
-      console.log(this.editForm)
     },
     del(row) {
       // console.log(row)
@@ -630,6 +630,15 @@ export default {
     },
     handleSelect(item) {
       this.companyId = item.companyId
+    },
+    editTrue(formName) {
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          console.log(123)
+        } else {
+          return false
+        }
+      })
     }
   },
   components: {

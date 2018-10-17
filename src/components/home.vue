@@ -71,6 +71,7 @@ export default {
           localStorage.removeItem('token')
           localStorage.removeItem('companyId')
           localStorage.removeItem('points')
+          localStorage.removeItem('loginName')
           this.$router.push('./login')
         })
         .catch(() => {

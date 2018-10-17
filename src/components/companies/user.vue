@@ -7,10 +7,10 @@
     <el-form :inline="true" class="demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_role_query')>-1">
       <div class="filter">筛选</div>
       <el-form-item label="用户名">
-        <el-input v-model="roleName" placeholder="请输入" class="filter-ipt"></el-input>
+        <el-input size="mini" v-model="roleName" placeholder="请输入" class="filter-ipt"></el-input>
       </el-form-item>
       <el-form-item label="状态">
-        <el-select v-model="roleState" placeholder="请选择">
+        <el-select v-model="roleState" placeholder="请选择" size="mini">
           <el-option
             v-for="item in options"
             :key="item.value"
@@ -19,8 +19,8 @@
           </el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="用户名">
-        <el-input v-model="roleName" placeholder="请输入" class="filter-ipt"></el-input>
+      <el-form-item label="角色">
+        <el-input size="mini" v-model="roleName" placeholder="请输入" class="filter-ipt"></el-input>
       </el-form-item>
       <el-form-item class="fr">
         <el-button type="primary" @click="onSubmit" size="medium">查询</el-button>
@@ -399,11 +399,11 @@ export default {
       let getUrl = `/employee/${this.companyId}/{loginName}/2/{role}/${
         this.pageIndex
       }/${this.pageSize}`
-      //   if (this.roleName.length === 0) {
-      //     getUrl = `/role/${this.companyId}/{roleName}/2/${this.pageIndex}/${
-      //       this.pageSize
-      //     }`
-      //   }
+      if (this.roleName.length === 0) {
+        getUrl = `/employee/${this.companyId}/{loginName}/2/{role}/${
+          this.pageIndex
+        }/${this.pageSize}`
+      }
       let res = await this.axios.get(getUrl)
       let {
         code,

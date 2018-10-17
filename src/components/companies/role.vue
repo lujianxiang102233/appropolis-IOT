@@ -157,8 +157,8 @@
         :data="data2">
       </el-transfer>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="stateCancel">取 消</el-button>
-        <el-button type="primary" @click="stateTrue">确 定</el-button>
+        <el-button>取 消</el-button>
+        <el-button type="primary" @click="members">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -329,6 +329,7 @@ export default {
         this.$message.success(`修改角色状态成功`)
         // this.roleState = status
         this.getList()
+        this.roleId = ''
       }
       this.dialogVisible = false
     },
@@ -450,6 +451,8 @@ export default {
       }
     },
     async userBtn(row) {
+      console.log(row)
+      this.roleId = row.roleId
       this.userDialogVisible = true
       let getUrl = `/employee/${this.companyId}/{loginName}/2/{role}/${
         this.epyPageIndex
@@ -464,7 +467,7 @@ export default {
           cities: item.name + '(' + item.loginName + ')'
         }
       })
-      // console.log(datas)
+      console.log(datas)
       this.data2 = datas
       let res2 = await this.axios.get(`/role/members/1`)
       let { data } = res2.data.content
@@ -475,6 +478,23 @@ export default {
       this.$router.push({
         path: `/roleaccess?roleId=${row.roleId}`
       })
+    },
+    async members() {
+      console.log(this.roleId)
+      console.log(this.value2)
+      let res = await this.axios.put(
+        `/role/members/${this.roleId}`,
+        this.value2
+      )
+      let { code } = res.data.content
+      if (code === 0) {
+        this.getList()
+        this.roleId = ''
+        this.userDialogVisible = false
+      }
+      if (code === -9999) {
+        this.$message.error('Exception Message')
+      }
     }
   },
   created() {

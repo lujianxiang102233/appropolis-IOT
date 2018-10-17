@@ -7,7 +7,7 @@
     <el-form :model="ruleForm" :inline="true" class="demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_co_query')>-1">
       <div class="filter">筛选</div>
       <el-form-item label="公司名称">
-        <el-input v-model="ruleForm.companyName" placeholder="请输入" class="filter-ipt"></el-input>
+        <el-input size="mini" v-model="ruleForm.companyName" placeholder="请输入" class="filter-ipt"></el-input>
       </el-form-item>
       <el-form-item class="fr">
         <el-button type="primary" @click="onSubmit" size="medium">查询</el-button>
@@ -25,27 +25,32 @@
       </el-table-column>
       <el-table-column
         prop="companyName"
+        align="center"
         label="公司名称"
         width="160">
       </el-table-column>
       <el-table-column
         prop="adminLoginName"
         label="超管用户名"
+        align="center"
         width="160">
       </el-table-column>
       <el-table-column
         prop="companyCode"
         label="公司内码"
+        align="center"
         width="130">
       </el-table-column>
       <el-table-column
         width="160"
+        align="center"
         label="创建时间">
           <template slot-scope="scope">
             {{ scope.row.createDate | time}}
           </template>
       </el-table-column>
       <el-table-column
+        align="center"
         label="操作">
           <template slot-scope="scope">
             <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_resetAdmin')>-1" plain @click="resetAdmin(scope.row)">重置超管</el-button>

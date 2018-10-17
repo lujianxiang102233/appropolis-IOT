@@ -9,10 +9,10 @@
     <el-form :inline="true" class="demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_co_func_query')>-1" :model="queryTable">
       <div class="filter">筛选</div>
       <el-form-item label="功能点名称">
-        <el-input v-model="queryTable.permissionName" placeholder="请输入" class="filter-ipt"></el-input>
+        <el-input size="mini" v-model="queryTable.permissionName" placeholder="请输入" class="filter-ipt"></el-input>
       </el-form-item>
       <el-form-item label="FUNCID">
-        <el-input v-model="queryTable.permissionCode" placeholder="请输入" class="filter-ipt"></el-input>
+        <el-input size="mini" v-model="queryTable.permissionCode" placeholder="请输入" class="filter-ipt"></el-input>
       </el-form-item>
       <el-form-item class="fr">
         <el-button type="primary" @click="onSubmit" size="medium">查询</el-button>
@@ -39,6 +39,7 @@
       <el-table-column
         prop="permissionCode"
         width="150"
+        align="center"
         label="FUNCID">
          <template slot-scope="scope">
           <div class="elli" :title="scope.row.permissionCode">{{scope.row.permissionCode}}</div>
@@ -47,6 +48,7 @@
       <el-table-column
         prop="menu"
         width="120"
+        align="center"
         label="菜单栏（权重）">
        <template slot-scope="scope">
           <div>{{scope.row.menu?'是':'否'}}&nbsp;&nbsp;&nbsp;<span v-show="scope.row.weight>-1">(</span>{{scope.row.weight}}<span v-show="scope.row.weight >-1">)</span></div>
@@ -55,6 +57,7 @@
       <el-table-column
         prop="url"
         width="140"
+        align="center"
         label="url">
         <template slot-scope="scope">
           <a href="scope.row.url" class="elli" target="_blank"  :title="scope.row.url">{{scope.row.url}}</a>
@@ -63,12 +66,14 @@
       <el-table-column
         prop="remark"
         width="150"
+        align="center"
         label="功能描述">
         <template slot-scope="scope">
           <div class="elli" :title="scope.row.remark">{{scope.row.remark}}</div>
         </template>
       </el-table-column>
       <el-table-column
+        align="center"
         label="操作">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_addsub')>-1"  plain @click="addsub(scope.row)" >添加</el-button>

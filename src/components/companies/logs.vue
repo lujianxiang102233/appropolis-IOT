@@ -12,14 +12,27 @@
               <el-input size="mini" v-model = "formInline.userName" placeholder="请输入" class="user-form"></el-input>
           </el-form-item>
           <el-form-item label = "行为分类">
-              <el-autocomplete
+              <el-select
+                :clearable="true"
+                size="mini"
+                v-model="formInline.type"
+                placeholder="请选择"
+                @change="selectChange">
+                <el-option
+                  v-for="item in allOperationTypes"
+                  :key = "item.id"
+                  :label="item.value"
+                  :value="item.id">
+                </el-option>
+              </el-select>
+              <!-- <el-autocomplete
                   size="mini"
                   class="inline-input"
                   v-model="formInline.type"
                   :fetch-suggestions="querySearch"
                   placeholder="请选择"
                   @select="handleSelect">
-              </el-autocomplete>
+              </el-autocomplete> -->
           </el-form-item>
           <el-form-item label = "操作时间">
               <el-date-picker
@@ -76,12 +89,6 @@
                 <template slot-scope="scope">
                   <div class="lastClass" :title="scope.row.remark">{{scope.row.remark}}</div>
                 </template>
-                <!-- <template slot-scope="scope">
-                  <el-tooltip placement="top" effect="light">
-                    <div slot="content" >{{scope.row.remark}}</div>
-                    <div class="lastClass">{{scope.row.remark}}</div>
-                  </el-tooltip>
-                </template> -->
             </el-table-column>
         </el-table>
         <el-pagination
@@ -148,23 +155,27 @@ export default {
   },
   methods: {
     // from type
-    querySearch(queryString, cb) {
-      let allOperationTypes = this.allOperationTypes
-      let results = queryString
-        ? allOperationTypes.filter(this.createFilter(queryString))
-        : allOperationTypes
-      cb(results)
-    },
-    createFilter(queryString) {
-      return allOperationTypes => {
-        return (
-          allOperationTypes.value
-            .toLowerCase()
-            .indexOf(queryString.toLowerCase()) === 0
-        )
-      }
-    },
-    handleSelect(item) {
+    // querySearch(queryString, cb) {
+    //   let allOperationTypes = this.allOperationTypes
+    //   let results = queryString
+    //     ? allOperationTypes.filter(this.createFilter(queryString))
+    //     : allOperationTypes
+    //   cb(results)
+    // },
+    // createFilter(queryString) {
+    //   return allOperationTypes => {
+    //     return (
+    //       allOperationTypes.value
+    //         .toLowerCase()
+    //         .indexOf(queryString.toLowerCase()) === 0
+    //     )
+    //   }
+    // },
+    // handleSelect(item) {
+    //   this.operationTypeId = item.id
+    // },
+    selectChange(item) {
+      // console.log(this.formInline.type)
       this.operationTypeId = item.id
     },
     // form picker
@@ -242,7 +253,7 @@ export default {
       let userName = this.formInline.userName
         ? `${this.formInline.userName}`
         : `{empUsername}`
-      let type = this.formInline.type ? `${this.operationTypeId}` : '-1'
+      let type = this.formInline.type ? `${this.formInline.type}` : '-1'
       let start, end
       if (
         this.formInline.date &&

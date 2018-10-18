@@ -8,6 +8,7 @@
           <div class="name">筛选</div>
           <el-form-item label = "操作人">
               <el-input
+                :clearable = "true"
                 size="mini"
                 v-model = "formInline.userName"
                 placeholder="请输入"
@@ -45,6 +46,7 @@
           </el-form-item>
         </el-form>
         <el-table
+            :height= 'tableHeight'
             class = "table"
             :data = "tableData"
             :header-row-class-name = "headerColor"
@@ -79,7 +81,8 @@
             <el-table-column
                 prop = "remark"
                 align = "center"
-                label = "行为描述">
+                label = "行为描述"
+                min-width = "130">
                 <template slot-scope ="scope">
                   <div class ="lastClass" :title="scope.row.remark">{{scope.row.remark}}</div>
                 </template>
@@ -89,10 +92,10 @@
             @size-change = "handleSizeChange"
             @current-change = "handleCurrentChange"
             :current-page = "currentPage"
-            :page-sizes = "[10,20,50,100]"
+            :page-sizes = "[5,10,15,20]"
             :page-size = "pageSize"
             layout ="total,prev,pager,next,sizes,jumper"
-            :total = "totalAll">
+            :total = "total">
         </el-pagination>
     </div>
 </template>
@@ -105,7 +108,7 @@ export default {
       companyId: '',
       operationTypeId: '',
       pageIndex: 1,
-      pageSize: 10,
+      pageSize: 5,
       allOperationTypes: [],
       //   form
       formInline: {
@@ -114,6 +117,7 @@ export default {
         date: []
       },
       //   table
+      tableHeight: '',
       tableData: [
         {
           loginName: '',
@@ -125,15 +129,23 @@ export default {
       ],
       //   分页
       currentPage: 0,
-      totalAll: 0
+      total: 0
     }
   },
-  created() {},
+  created() {
+    // this.tableHeight = window.innerHeight - 320
+    this.tableHeight = document.documentElement.clientHeight - 320
+  },
   mounted() {
     // this.getTypeData()
-    // this.getTableData()
+    this.getTableData()
     this.type()
-    this.table()
+    window.onresize = () => {
+      return (() => {
+        // this.tableHeight = window.innerHeight - 320
+        this.tableHeight = document.documentElement.clientHeight - 320
+      })()
+    }
   },
   computed: {},
   methods: {
@@ -149,15 +161,15 @@ export default {
     },
     // from button
     onSubmit() {
-      // this.getTableData()
-      this.table()
+      this.currentPage = 1
+      this.pageIndex = 1
+      this.getTableData()
     },
     onResetForm() {
       this.formInline.userName = ''
       this.formInline.type = ''
       this.formInline.date = ''
-      // this.getTableData()
-      this.table()
+      this.getTableData()
     },
     // table
     headerColor({ row, rowIndex }) {
@@ -167,16 +179,11 @@ export default {
     handleSizeChange(val) {
       this.pageSize = val
       this.pageIndex = 1
-      // this.getTableData()
-      this.table()
+      this.getTableData()
     },
     handleCurrentChange(val) {
       this.pageIndex = val
-      // this.getTableData()
-      this.table()
-    },
-    total() {
-      return this.totalAll
+      this.getTableData()
     },
     page() {
       return this.pageSize
@@ -204,61 +211,6 @@ export default {
         .then(data => {
           this.allOperationTypes = Object.entries(data).map(item => {
             return { value: item[0], id: item[1] }
-          })
-        })
-        .catch(err => {
-          console.log(err)
-        })
-    },
-    getTable() {
-      this.companyId = localStorage.getItem('companyId')
-      let userName = this.formInline.userName
-        ? `${this.formInline.userName}`
-        : `{empUsername}`
-      let type = this.formInline.type !== '' ? `${this.formInline.type}` : '-1'
-      let start, end
-      if (
-        this.formInline.date &&
-        this.formInline.date.length > 0 &&
-        this.formInline.date[0]
-      ) {
-        start = `${this.formInline.date[0]}`
-        end = `${this.formInline.date[1]}`
-      } else {
-        start = `{startDate}`
-        end = `{endDate}`
-      }
-      let urlRest = `/logs/employee/${
-        this.companyId
-      }/${userName}/${type}/${start}/${end}/${this.pageIndex}/${this.pageSize}`
-      return new Promise((resolve, reject) => {
-        axios(urlRest)
-          .then(response => {
-            let content = response.data.content
-            if (content.code === 0) {
-              resolve(content.data)
-            } else if (content.code === -9999) {
-              reject(content.errMsg)
-            }
-          })
-          .catch(error => {
-            console.log(error)
-          })
-      })
-    },
-    table() {
-      this.getTable()
-        .then(data => {
-          this.totalAll = data.total
-          this.pageSize = data.pageSize
-          this.tableData = data.list.map(item => {
-            return {
-              loginName: item.loginName,
-              operationType: item.operationType,
-              operateDate: item.operateDate,
-              loginIp: item.loginIp,
-              remark: item.remark
-            }
           })
         })
         .catch(err => {
@@ -303,7 +255,7 @@ export default {
         .get(urlRest)
         .then(response => {
           let data = response.data.content.data
-          this.totalAll = data.total
+          this.total = data.total
           this.pageSize = data.pageSize
           this.tableData = data.list.map(item => {
             return {
@@ -370,7 +322,6 @@ export default {
   .table {
     margin-top: 20px;
     border: 1px solid @borderColor;
-    border-radius: 4px;
     .el-table {
       .headerBgColor {
         //q

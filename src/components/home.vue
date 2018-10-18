@@ -48,7 +48,6 @@
       title="重置用户密码"
       :visible.sync="resetDialogVisible"
       width="30%">
-      <!-- type="password" -->
       <el-form :model="retForm" status-icon :rules="rules" ref="retForm" label-width="100px" class="demo-ruleForm">
         <el-form-item label="原密码" prop="oldPass">
           <el-input type="password" v-model="retForm.oldPass" autocomplete="off"></el-input>
@@ -104,7 +103,7 @@ export default {
         oldPass: [
           { required: true, message: '请输入密码', trigger: 'blur' },
           {
-            pattern: /^([a-zA-Z0-9]){3,16}$/,
+            pattern: /^(?![0-9]+$)(?![a-z]+$)(?![A-Z]+$)(?![a-zA-Z]+$)(?![0-9a-z]+$)(?![0-9A-Z]+$)[0-9A-Za-z]{6,16}$/,
             message: '仅英文及数字，6-16位。至少包括1位数字、大小写英文字符',
             trigger: 'change'
           }
@@ -112,7 +111,7 @@ export default {
         pass: [
           { required: true, message: '请输入密码', trigger: 'blur' },
           {
-            pattern: /^([a-zA-Z0-9]){3,16}$/,
+            pattern: /^(?![0-9]+$)(?![a-z]+$)(?![A-Z]+$)(?![a-zA-Z]+$)(?![0-9a-z]+$)(?![0-9A-Z]+$)[0-9A-Za-z]{6,16}$/,
             message: '仅英文及数字，6-16位。至少包括1位数字、大小写英文字符',
             trigger: 'change'
           },

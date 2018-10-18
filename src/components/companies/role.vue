@@ -27,7 +27,7 @@
      <el-button type="primary" style="margin-top: 10px;" size="medium" @click="addDalogVisible = true" v-if="coList.indexOf('permission_role_add')>-1">+ 新建角色</el-button>
      <el-table
       :data="tableData"
-       height="340"
+      :height='tableHeight'
       style="width: 100%">
       <el-table-column
         prop="roleName"
@@ -167,6 +167,7 @@
 export default {
   data() {
     return {
+      tableHeight: '',
       data2: [],
       value2: [],
       filterMethod(query, item) {
@@ -505,6 +506,7 @@ export default {
   },
   created() {
     this.getList()
+    this.tableHeight = `${document.documentElement.clientHeight}` - 300
   }
 }
 </script>

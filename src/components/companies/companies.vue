@@ -17,17 +17,19 @@
      <el-button type="primary" style="margin-top: 10px;" size="medium" @click="addDalogVisible = true" v-if="coList.indexOf('permission_co_add')>-1">+ 新建</el-button>
      <el-table
       :data="tableData"
-      height="340"
+      :height='tableHeight'
       style="width: 100%">
       <el-table-column
         type="index"
         width="50">
       </el-table-column>
       <el-table-column
-        prop="companyName"
         align="center"
         label="公司名称"
-        width="160">
+        width="180">
+        <template slot-scope="scope">
+          <div class="elli" :title="scope.row.companyName">{{scope.row.companyName}}</div>
+        </template>
       </el-table-column>
       <el-table-column
         prop="adminLoginName"
@@ -41,6 +43,14 @@
         align="center"
         width="130">
       </el-table-column>
+     <el-table-column
+        align="center"
+        label="登入入口"
+        width="180">
+        <template slot-scope="scope">
+          <div class="elli" :title="scope.row.companyName">{{scope.row.companyName}}</div>
+        </template>
+      </el-table-column>
       <el-table-column
         width="160"
         align="center"
@@ -51,6 +61,7 @@
       </el-table-column>
       <el-table-column
         align="center"
+        width="260"
         label="操作">
           <template slot-scope="scope">
             <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_resetAdmin')>-1" plain @click="resetAdmin(scope.row)">重置超管</el-button>
@@ -160,6 +171,7 @@ export default {
       }
     }
     return {
+      tableHeight: '',
       tableData: [],
       addDalogVisible: false,
       resetDalogVisible: false,
@@ -197,7 +209,7 @@ export default {
         adminPassword: [
           { required: true, message: '请输入密码', trigger: 'blur' },
           {
-            pattern: /^([a-zA-Z0-9]){6,16}$/,
+            pattern: /^(?![0-9]+$)(?![a-z]+$)(?![A-Z]+$)(?![a-zA-Z]+$)(?![0-9a-z]+$)(?![0-9A-Z]+$)[0-9A-Za-z]{6,16}$/,
             message: '仅英文及数字，6-16位。至少包括1位数字、大小写英文字符',
             trigger: 'change'
           },
@@ -263,6 +275,7 @@ export default {
       } = res.data.content
       if (code === 0) {
         this.tableData = list
+        console.log(this.tableData)
         this.total = total
       }
     },
@@ -345,6 +358,7 @@ export default {
   },
   created() {
     this.getList()
+    this.tableHeight = `${document.documentElement.clientHeight}` - 300
   }
 }
 </script>
@@ -389,12 +403,32 @@ export default {
 }
 .el-input {
   /deep/ .el-input__inner {
-    width: 70%;
+    width: 100%;
   }
 }
 .el-input.filter-ipt {
   /deep/ .el-input__inner {
     height: 30px;
+  }
+}
+.el-table {
+  /deep/ .cell .elli {
+    display: inline-block;
+    *display: inline;
+    *zoom: 1;
+    width: 11em;
+    height: 23px;
+    line-height: 23px;
+    // font-size: 12px;
+    overflow: hidden;
+    -ms-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .el-form-item {
+    /deep/ .el-autocomplete {
+      width: 360px;
+    }
   }
 }
 </style>

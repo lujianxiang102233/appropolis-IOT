@@ -30,7 +30,7 @@
      <el-button type="primary" style="margin-top: 10px;" size="medium" @click="addClick" v-if="coList.indexOf('permission_user_add')>-1">+ 新增用户</el-button>
      <el-table
       :data="tableData"
-      height="340"
+      :height='tableHeight'
       style="width: 100%">
       <el-table-column
         prop="loginName"
@@ -206,13 +206,13 @@
     <el-dialog
       title="重置用户密码"
       :visible.sync="resetDialogVisible"
-      width="50%">
+      width="30%">
       <el-form :model="retForm" status-icon :rules="rules" ref="retForm" label-width="100px" class="demo-ruleForm">
         <el-form-item label="密码" prop="pass">
-          <el-input type="password" v-model="retForm.pass" autocomplete="off"></el-input>
+          <el-input  v-model="retForm.pass" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="确认密码" prop="checkPass">
-          <el-input type="password" v-model="retForm.checkPass" autocomplete="off"></el-input>
+          <el-input  v-model="retForm.checkPass" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -245,6 +245,7 @@ export default {
       }
     }
     return {
+      tableHeight: '',
       data2: [],
       value2: [],
       filterMethod(query, item) {
@@ -300,15 +301,9 @@ export default {
         ],
         password: [
           { required: true, message: '请输入', trigger: 'blur' },
-          // {
-          //   pattern: /^(?![0-9]+$)(?![a-z]+$)(?![A-Z]+$)(?![a-zA-Z]+$)(?![0-9a-z]+$)(?![0-9A-Z]+$)[0-9A-Za-z]{6,16}$/,
-          //   message: '仅英文及数字。6-16位，至少包括1位数字、大小写英文字符',
-          //   trigger: 'change'
-          // }
           {
-            min: 3,
-            max: 6,
-            message: '长度在 3 到 6 个字符',
+            pattern: /^(?![0-9]+$)(?![a-z]+$)(?![A-Z]+$)(?![a-zA-Z]+$)(?![0-9a-z]+$)(?![0-9A-Z]+$)[0-9A-Za-z]{6,16}$/,
+            message: '仅英文及数字。6-16位，至少包括1位数字、大小写英文字符',
             trigger: 'change'
           }
         ],
@@ -662,6 +657,7 @@ export default {
   },
   created() {
     this.getList()
+    this.tableHeight = `${document.documentElement.clientHeight}` - 300
   }
 }
 </script>

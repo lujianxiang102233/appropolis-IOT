@@ -30,7 +30,7 @@
      <el-button type="primary" style="margin-top: 10px;" size="medium" @click="addClick" v-if="coList.indexOf('permission_user_add')>-1">+ 新增用户</el-button>
      <el-table
       :data="tableData"
-      :height='tableHeight'
+      :height= 'tableHeight'
       style="width: 100%">
       <el-table-column
         prop="loginName"
@@ -88,7 +88,7 @@
           </template>
       </el-table-column>
       <el-table-column
-       width="280"
+       width="380"
        align="center"
         label="操作">
           <template slot-scope="scope">
@@ -310,10 +310,10 @@ export default {
         phone: [
           { required: false, message: '请输入', trigger: 'blur' },
           {
-            min: 0,
-            max: 50,
-            message: '长度在 0 到 50 个字符',
-            trigger: 'change'
+            min: 3,
+            max: 6,
+            message: '长度在 3 到 6 个字符',
+            trigger: 'blur'
           }
         ],
         email: [
@@ -328,9 +328,9 @@ export default {
         pass: [
           { required: true, message: '请输入密码', trigger: 'blur' },
           {
-            pattern: /^([a-zA-Z0-9]){6,16}$/,
+            pattern: /^(?![0-9]+$)(?![a-z]+$)(?![A-Z]+$)(?![a-zA-Z]+$)(?![0-9a-z]+$)(?![0-9A-Z]+$)[0-9A-Za-z]{6,16}$/,
             message: '仅英文及数字，6-16位。至少包括1位数字、大小写英文字符',
-            trigger: 'change'
+            trigger: 'blur'
           },
           { validator: validatePass1, trigger: 'blur' }
         ],
@@ -507,16 +507,6 @@ export default {
         this.$message.success(`授权成功`)
       }
     },
-    stateCancel() {
-      this.dialogVisible = false
-      this.getList()
-    },
-    changeStatus(row) {
-      this.dialogVisible = true
-      let { roleId, enable } = row
-      this.roleId = roleId
-      this.enable = enable
-    },
     editAdmin(row) {
       this.editDalogVisible = true
       this.render()
@@ -657,7 +647,14 @@ export default {
   },
   created() {
     this.getList()
-    this.tableHeight = `${document.documentElement.clientHeight}` - 300
+    this.tableHeight = `${document.documentElement.clientHeight}` - 320
+  },
+  mounted() {
+    window.onresize = () => {
+      return (() => {
+        this.tableHeight = document.documentElement.clientHeight - 320
+      })()
+    }
   }
 }
 </script>

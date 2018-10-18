@@ -48,7 +48,7 @@
         label="登入入口"
         width="180">
         <template slot-scope="scope">
-          <div class="elli" :title="scope.row.companyName">{{scope.row.companyName}}</div>
+          <div class="elli" :title="scope.row.companyUrl">{{scope.row.companyUrl}}</div>
         </template>
       </el-table-column>
       <el-table-column
@@ -108,7 +108,7 @@
       title="重置超管密码"
       :visible.sync="resetDalogVisible"
       width="40%">
-      <el-form :model="retForm" :rules="rules" ref="retForm" label-width="120px" class="demo-ruleForm">
+      <el-form :model="retForm" :rules="rules" ref="retForm" status-icon label-width="120px" class="demo-ruleForm">
         <el-form-item label="公司名称">
           <el-input v-model="retForm.companyName" placeholder="请输入"></el-input>
         </el-form-item>
@@ -193,9 +193,10 @@ export default {
         companyName: [
           { required: true, message: '请输入公司名称', trigger: 'blur' },
           {
-            pattern: /^([\u2E80-\u9FFF]|[a-zA-Z0-9]){1,100}$/,
+            min: 0,
+            max: 100,
             message: '最长100个中文字符',
-            trigger: 'change'
+            trigger: 'blur'
           }
         ],
         companyCode: [
@@ -203,7 +204,7 @@ export default {
           {
             pattern: /^([a-zA-Z]){1,100}$/,
             message: '最长20个英文字符，仅英文',
-            trigger: 'change'
+            trigger: 'blur'
           }
         ],
         adminPassword: [
@@ -211,7 +212,7 @@ export default {
           {
             pattern: /^(?![0-9]+$)(?![a-z]+$)(?![A-Z]+$)(?![a-zA-Z]+$)(?![0-9a-z]+$)(?![0-9A-Z]+$)[0-9A-Za-z]{6,16}$/,
             message: '仅英文及数字，6-16位。至少包括1位数字、大小写英文字符',
-            trigger: 'change'
+            trigger: 'blur'
           },
           { validator: validatePass1, trigger: 'blur' }
         ],
@@ -222,9 +223,9 @@ export default {
         retAdminPassword: [
           { required: true, message: '请输入密码', trigger: 'blur' },
           {
-            pattern: /^([a-zA-Z0-9]){6,16}$/,
+            pattern: /^(?![0-9]+$)(?![a-z]+$)(?![A-Z]+$)(?![a-zA-Z]+$)(?![0-9a-z]+$)(?![0-9A-Z]+$)[0-9A-Za-z]{6,16}$/,
             message: '仅英文及数字，6-16位。至少包括1位数字、大小写英文字符',
-            trigger: 'change'
+            trigger: 'blur'
           },
           { validator: validatePass3, trigger: 'blur' }
         ],
@@ -318,7 +319,6 @@ export default {
       this.retForm.companyId = String(companyId)
     },
     reset(formName) {
-      console.log(formName)
       this.$refs[formName].validate(async valid => {
         if (valid) {
           let res = await this.axios.put(
@@ -327,7 +327,6 @@ export default {
               password: this.retForm.retCheckAdminPassword
             }
           )
-          console.log(res)
           let { code } = res.data.content
           if (code === +0) {
             this.$message.success(this.retForm.companyName + '超管账号重置成功')
@@ -358,7 +357,14 @@ export default {
   },
   created() {
     this.getList()
-    this.tableHeight = `${document.documentElement.clientHeight}` - 300
+    this.tableHeight = document.documentElement.clientHeight - 320
+  },
+  mounted() {
+    window.onresize = () => {
+      return (() => {
+        this.tableHeight = document.documentElement.clientHeight - 320
+      })()
+    }
   }
 }
 </script>

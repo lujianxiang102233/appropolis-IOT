@@ -23,7 +23,7 @@
      <el-button type="primary" style="margin:0px 40px;" size="medium" @click="copyDalogVisible = true" v-if="coList.indexOf('permission_co_func_copy')>-1">复制其他公司权限</el-button>
       <el-table
       :data="funcTable"
-      height="350"
+      :height= 'tableHeight'
       style="width: 100%">
       <el-table-tree-column
         fixed :expand-all="!1"
@@ -263,25 +263,28 @@ export default {
         permissionName: [
           { required: true, message: '请输入功能点名称', trigger: 'blur' },
           {
-            pattern: /^([\u2E80-\u9FFF]|[a-zA-Z0-9]){1,50}$/,
+            min: 0,
+            max: 50,
             message: '最长50个中文字符',
-            trigger: 'change'
+            trigger: 'blur'
           }
         ],
         permissionCode: [
           { required: true, message: '请输入FUNCID', trigger: 'blur' },
           {
-            pattern: /^([\u2E80-\u9FFF]|[a-zA-Z0-9]){1,100}$/,
+            min: 0,
+            max: 100,
             message: '最长100个中文字符',
-            trigger: 'change'
+            trigger: 'blur'
           }
         ],
         remark: [
           { required: false, message: '请输入功能点描述', trigger: 'blur' },
           {
-            pattern: /^([\u2E80-\u9FFF]|[a-zA-Z0-9]){1,50}$/,
+            min: 0,
+            max: 50,
             message: '最长50个中文字符',
-            trigger: 'change'
+            trigger: 'blur'
           }
         ],
         weight: [
@@ -289,27 +292,30 @@ export default {
           {
             pattern: /^[1-9]\d{0,9}$/,
             message: '10位以内正整数',
-            trigger: 'change'
+            trigger: 'blur'
           }
         ],
         url: [
           { required: true, message: '请输入公司名称', trigger: 'blur' },
           {
-            pattern: /^\w{0,1000}$/,
+            min: 0,
+            max: 1000,
             message: '最长1000个中文字符',
-            trigger: 'change'
+            trigger: 'blur'
           }
         ],
         state: [
           { required: true, message: '请输入公司名称', trigger: 'blur' },
           {
-            pattern: /[\s\S]/,
+            min: 0,
+            max: 1000,
             message: '最长1000个中文字符',
-            trigger: 'change'
+            trigger: 'blur'
           }
         ]
       },
       coList: [],
+      tableHeight: '',
       funcTable: [],
       queryTable: {
         permissionName: '',
@@ -653,9 +659,15 @@ export default {
   created() {
     this.companyId = this.$route.query.id
     this.getList()
+    this.tableHeight = `${document.documentElement.clientHeight}` - 320
   },
   mounted() {
     this.render()
+    window.onresize = () => {
+      return (() => {
+        this.tableHeight = document.documentElement.clientHeight - 320
+      })()
+    }
   }
 }
 </script>
@@ -733,9 +745,9 @@ export default {
     }
   }
 
-  // .el-autocomplete {
-  //   position: relative;
-  // }
+  .el-autocomplete {
+    position: relative;
+  }
 
   // .elliSpan {
   //   color: red;

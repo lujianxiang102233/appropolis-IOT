@@ -105,7 +105,7 @@ export default {
           {
             pattern: /^(?![0-9]+$)(?![a-z]+$)(?![A-Z]+$)(?![a-zA-Z]+$)(?![0-9a-z]+$)(?![0-9A-Z]+$)[0-9A-Za-z]{6,16}$/,
             message: '仅英文及数字，6-16位。至少包括1位数字、大小写英文字符',
-            trigger: 'change'
+            trigger: 'blur'
           }
         ],
         pass: [
@@ -113,7 +113,7 @@ export default {
           {
             pattern: /^(?![0-9]+$)(?![a-z]+$)(?![A-Z]+$)(?![a-zA-Z]+$)(?![0-9a-z]+$)(?![0-9A-Z]+$)[0-9A-Za-z]{6,16}$/,
             message: '仅英文及数字，6-16位。至少包括1位数字、大小写英文字符',
-            trigger: 'change'
+            trigger: 'blur'
           },
           { validator: validatePass1, trigger: 'blur' }
         ],

@@ -706,7 +706,7 @@ export default {
 }
 .el-input {
   /deep/ .el-input__inner {
-    width: 70%;
+    width: 120px;
   }
 }
 .el-input.filter-ipt {

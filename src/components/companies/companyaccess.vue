@@ -325,6 +325,7 @@ export default {
   },
   methods: {
     onSubmit() {
+      this.pageIndex = 1
       this.getList()
     },
     resetForm(formName) {

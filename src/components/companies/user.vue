@@ -381,7 +381,7 @@ export default {
   },
   methods: {
     onSubmit() {
-      console.log(123)
+      this.pageIndex = 1
       this.getList()
     },
     resetForm(formName) {
@@ -422,7 +422,6 @@ export default {
           this.queryForm.queryState
         }/{role}/${this.pageIndex}/${this.pageSize}`
       }
-      console.log(getUrl)
       let res = await this.axios.get(getUrl)
       let {
         code,
@@ -431,6 +430,7 @@ export default {
       if (code === 0) {
         this.tableData = list
         this.total = total
+        console.log(this.tableData)
         list.forEach(function(item) {
           let roleList = item.roleList
           if (roleList.length === 0) return '暂无数据'

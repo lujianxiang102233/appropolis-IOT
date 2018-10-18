@@ -7,10 +7,10 @@
     <el-form :inline="true" class="clearfix demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_role_query')>-1">
       <div class="filter">筛选</div>
       <el-form-item label="角色名称">
-        <el-input v-model="roleName" placeholder="请输入" class="filter-ipt"></el-input>
+        <el-input v-model="roleName" size="mini" placeholder="请输入" class="filter-ipt"></el-input>
       </el-form-item>
       <el-form-item label="角色状态">
-        <el-select v-model="roleState" placeholder="请选择">
+        <el-select v-model="roleState" size="mini" placeholder="请选择">
           <el-option
             v-for="item in options"
             :key="item.value"
@@ -242,6 +242,7 @@ export default {
   },
   methods: {
     onSubmit() {
+      this.pageIndex = 1
       this.getList()
     },
     resetForm(formName) {

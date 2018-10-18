@@ -1,11 +1,11 @@
 <template>
     <div class="logs">
-        <el-breadcrumb separator = "/">
+        <el-breadcrumb separator = "/" >
             <el-breadcrumb-item>权限管理</el-breadcrumb-item>
             <el-breadcrumb-item>操作日志</el-breadcrumb-item>
         </el-breadcrumb>
         <el-form :inline = "true" :model = "formInline" ref="formInline" class="clearfix role-form">
-          <div>筛选</div>
+          <div class="name">筛选</div>
           <el-form-item label = "操作人">
               <el-input
                 size="mini"
@@ -131,21 +131,11 @@ export default {
   created() {},
   mounted() {
     // this.getTypeData()
-    this.getTableData()
-    this.getData()
-      .then(data => {
-        console.log(data)
-      })
-      .catch(err => {
-        console.log(err)
-      })
+    // this.getTableData()
+    this.type()
+    this.table()
   },
-  computed: {
-    // operateDateChange: function() {
-    //   console.log(new Date('Mon Sep 10 2018 00:00:00 GMT+0800 (中国标准时间)'))
-    //   return new Date('Mon Sep 10 2018 00:00:00 GMT+0800 (中国标准时间)')
-    // }
-  },
+  computed: {},
   methods: {
     // form picker
     dateBlur() {
@@ -159,13 +149,15 @@ export default {
     },
     // from button
     onSubmit() {
-      this.getTableData()
+      // this.getTableData()
+      this.table()
     },
     onResetForm() {
       this.formInline.userName = ''
       this.formInline.type = ''
       this.formInline.date = ''
-      this.getTableData()
+      // this.getTableData()
+      this.table()
     },
     // table
     headerColor({ row, rowIndex }) {
@@ -175,11 +167,13 @@ export default {
     handleSizeChange(val) {
       this.pageSize = val
       this.pageIndex = 1
-      this.getTableData()
+      // this.getTableData()
+      this.table()
     },
     handleCurrentChange(val) {
       this.pageIndex = val
-      this.getTableData()
+      // this.getTableData()
+      this.table()
     },
     total() {
       return this.totalAll
@@ -188,19 +182,88 @@ export default {
       return this.pageSize
     },
     // data
-    getData() {
+    getType() {
       let urlRest = '/logs/allOperationTypes'
-      return new Promise(function(resolve, reject) {
+      return new Promise((resolve, reject) => {
         axios(urlRest)
           .then(response => {
-            if (response.data.content.code === 0) {
-              resolve()
+            let content = response.data.content
+            if (content.code === 0) {
+              resolve(content.data)
+            } else if (content.code === -9999) {
+              reject(content.errMsg)
             }
           })
           .catch(error => {
             console.log(error)
           })
       })
+    },
+    type() {
+      this.getType()
+        .then(data => {
+          this.allOperationTypes = Object.entries(data).map(item => {
+            return { value: item[0], id: item[1] }
+          })
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+    getTable() {
+      this.companyId = localStorage.getItem('companyId')
+      let userName = this.formInline.userName
+        ? `${this.formInline.userName}`
+        : `{empUsername}`
+      let type = this.formInline.type !== '' ? `${this.formInline.type}` : '-1'
+      let start, end
+      if (
+        this.formInline.date &&
+        this.formInline.date.length > 0 &&
+        this.formInline.date[0]
+      ) {
+        start = `${this.formInline.date[0]}`
+        end = `${this.formInline.date[1]}`
+      } else {
+        start = `{startDate}`
+        end = `{endDate}`
+      }
+      let urlRest = `/logs/employee/${
+        this.companyId
+      }/${userName}/${type}/${start}/${end}/${this.pageIndex}/${this.pageSize}`
+      return new Promise((resolve, reject) => {
+        axios(urlRest)
+          .then(response => {
+            let content = response.data.content
+            if (content.code === 0) {
+              resolve(content.data)
+            } else if (content.code === -9999) {
+              reject(content.errMsg)
+            }
+          })
+          .catch(error => {
+            console.log(error)
+          })
+      })
+    },
+    table() {
+      this.getTable()
+        .then(data => {
+          this.totalAll = data.total
+          this.pageSize = data.pageSize
+          this.tableData = data.list.map(item => {
+            return {
+              loginName: item.loginName,
+              operationType: item.operationType,
+              operateDate: item.operateDate,
+              loginIp: item.loginIp,
+              remark: item.remark
+            }
+          })
+        })
+        .catch(err => {
+          console.log(err)
+        })
     },
     getTypeData() {
       let urlRest = '/logs/allOperationTypes'
@@ -279,11 +342,24 @@ export default {
 .logs {
   padding-left: 34px;
   @borderColor: #999;
+
+  .el-breadcrumb__inner {
+    color: #999;
+  }
+  .el-breadcrumb__item:last-child {
+    .el-breadcrumb__inner {
+      color: #999;
+    }
+  }
   .role-form {
     border: 1px solid @borderColor;
     padding: 10px;
     margin-top: 10px;
     min-height: 60px;
+    .name {
+      font-size: 14px;
+      font-weight: bold;
+    }
     .el-form-item {
       margin-bottom: 0;
     }

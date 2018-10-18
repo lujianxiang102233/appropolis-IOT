@@ -46,10 +46,13 @@ export default {
             ...this.form,
             ...this.code
           })
+          console.log(res.data.content)
           let { code, data } = res.data.content
-          console.log(data)
           if (code === +-3017 || code === +-3016) {
-            this.$message.error(`用户名或者密码错误`)
+            this.$message.error(`用户名或者密码错误,还有【${data}】次输入机会`)
+          }
+          if (code === +-3003) {
+            this.$message.error('5次输入错误，账号已锁定，请联系管理员解锁')
           }
           if (code === +0) {
             localStorage.setItem('token', data.token)

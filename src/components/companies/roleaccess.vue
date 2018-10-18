@@ -15,8 +15,8 @@
         <el-input v-model="queryTable.permissionCode" size="mini" placeholder="请输入" class="filter-ipt"></el-input>
       </el-form-item>
       <el-form-item class="fr">
-        <el-button type="primary" @click="onSubmit" size="medium">查询</el-button>
-        <el-button @click="resetForm('ruleForm')" size="medium">重置</el-button>
+        <el-button type="primary" @click="onSubmit" size="mini">查询</el-button>
+        <el-button @click="resetForm('ruleForm')" size="mini">重置</el-button>
       </el-form-item>
     </el-form>
       <el-table

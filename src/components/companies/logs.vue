@@ -1,13 +1,14 @@
 <template>
     <div class="logs">
-        <el-breadcrumb separator = "/">
+        <el-breadcrumb separator = "/" >
             <el-breadcrumb-item>权限管理</el-breadcrumb-item>
             <el-breadcrumb-item>操作日志</el-breadcrumb-item>
         </el-breadcrumb>
         <el-form :inline = "true" :model = "formInline" ref="formInline" class="clearfix role-form">
-          <div>筛选</div>
+          <div class="name">筛选</div>
           <el-form-item label = "操作人">
               <el-input
+                :clearable = "true"
                 size="mini"
                 v-model = "formInline.userName"
                 placeholder="请输入"
@@ -45,6 +46,7 @@
           </el-form-item>
         </el-form>
         <el-table
+            :height= 'tableHeight'
             class = "table"
             :data = "tableData"
             :header-row-class-name = "headerColor"
@@ -79,7 +81,8 @@
             <el-table-column
                 prop = "remark"
                 align = "center"
-                label = "行为描述">
+                label = "行为描述"
+                min-width = "130">
                 <template slot-scope ="scope">
                   <div class ="lastClass" :title="scope.row.remark">{{scope.row.remark}}</div>
                 </template>
@@ -89,14 +92,15 @@
             @size-change = "handleSizeChange"
             @current-change = "handleCurrentChange"
             :current-page = "currentPage"
-            :page-sizes = "[10,20,50,100]"
+            :page-sizes = "[5,10,15,20]"
             :page-size = "pageSize"
             layout ="total,prev,pager,next,sizes,jumper"
-            :total = "totalAll">
+            :total = "total">
         </el-pagination>
     </div>
 </template>
 <script>
+import axios from 'axios'
 export default {
   data() {
     return {
@@ -104,7 +108,7 @@ export default {
       companyId: '',
       operationTypeId: '',
       pageIndex: 1,
-      pageSize: 10,
+      pageSize: 5,
       allOperationTypes: [],
       //   form
       formInline: {
@@ -113,6 +117,7 @@ export default {
         date: []
       },
       //   table
+      tableHeight: '',
       tableData: [
         {
           loginName: '',
@@ -124,27 +129,25 @@ export default {
       ],
       //   分页
       currentPage: 0,
-      totalAll: 0
+      total: 0
     }
   },
-  created() {},
+  created() {
+    // this.tableHeight = window.innerHeight - 320
+    this.tableHeight = document.documentElement.clientHeight - 320
+  },
   mounted() {
-    this.getTypeData()
+    // this.getTypeData()
     this.getTableData()
-    // this.getData()
-    //   .then(data => {
-    //     console.log(111)
-    //   })
-    //   .catch(err => {
-    //     console.log(err)
-    //   })
+    this.type()
+    window.onresize = () => {
+      return (() => {
+        // this.tableHeight = window.innerHeight - 320
+        this.tableHeight = document.documentElement.clientHeight - 320
+      })()
+    }
   },
-  computed: {
-    // operateDateChange: function() {
-    //   console.log(new Date('Mon Sep 10 2018 00:00:00 GMT+0800 (中国标准时间)'))
-    //   return new Date('Mon Sep 10 2018 00:00:00 GMT+0800 (中国标准时间)')
-    // }
-  },
+  computed: {},
   methods: {
     // form picker
     dateBlur() {
@@ -158,6 +161,8 @@ export default {
     },
     // from button
     onSubmit() {
+      this.currentPage = 1
+      this.pageIndex = 1
       this.getTableData()
     },
     onResetForm() {
@@ -180,26 +185,37 @@ export default {
       this.pageIndex = val
       this.getTableData()
     },
-    total() {
-      return this.totalAll
-    },
     page() {
       return this.pageSize
     },
     // data
-    getData() {
+    getType() {
       let urlRest = '/logs/allOperationTypes'
-      return new Promise(function(resolve, reject) {
-        this.axios(urlRest)
+      return new Promise((resolve, reject) => {
+        axios(urlRest)
           .then(response => {
-            if (response.data.content.code === 0) {
-              resolve()
+            let content = response.data.content
+            if (content.code === 0) {
+              resolve(content.data)
+            } else if (content.code === -9999) {
+              reject(content.errMsg)
             }
           })
           .catch(error => {
             console.log(error)
           })
       })
+    },
+    type() {
+      this.getType()
+        .then(data => {
+          this.allOperationTypes = Object.entries(data).map(item => {
+            return { value: item[0], id: item[1] }
+          })
+        })
+        .catch(err => {
+          console.log(err)
+        })
     },
     getTypeData() {
       let urlRest = '/logs/allOperationTypes'
@@ -239,7 +255,7 @@ export default {
         .get(urlRest)
         .then(response => {
           let data = response.data.content.data
-          this.totalAll = data.total
+          this.total = data.total
           this.pageSize = data.pageSize
           this.tableData = data.list.map(item => {
             return {
@@ -278,11 +294,24 @@ export default {
 .logs {
   padding-left: 34px;
   @borderColor: #999;
+
+  .el-breadcrumb__inner {
+    color: #999;
+  }
+  .el-breadcrumb__item:last-child {
+    .el-breadcrumb__inner {
+      color: #999;
+    }
+  }
   .role-form {
     border: 1px solid @borderColor;
     padding: 10px;
     margin-top: 10px;
     min-height: 60px;
+    .name {
+      font-size: 14px;
+      font-weight: bold;
+    }
     .el-form-item {
       margin-bottom: 0;
     }
@@ -293,7 +322,6 @@ export default {
   .table {
     margin-top: 20px;
     border: 1px solid @borderColor;
-    border-radius: 4px;
     .el-table {
       .headerBgColor {
         //q

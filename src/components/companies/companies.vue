@@ -10,11 +10,11 @@
         <el-input size="mini" v-model="ruleForm.companyName" placeholder="请输入" class="filter-ipt"></el-input>
       </el-form-item>
       <el-form-item class="fr">
-        <el-button type="primary" @click="onSubmit" size="medium">查询</el-button>
-        <el-button @click="resetForm('ruleForm')" size="medium">重置</el-button>
+        <el-button type="primary" @click="onSubmit" size="mini">查询</el-button>
+        <el-button @click="resetForm('ruleForm')" size="mini">重置</el-button>
       </el-form-item>
     </el-form>
-     <el-button type="primary" style="margin-top: 10px;" size="medium" @click="addDalogVisible = true" v-if="coList.indexOf('permission_co_add')>-1">+ 新建</el-button>
+     <el-button type="primary" style="margin-top: 10px;" size="mini" @click="addDalogVisible = true" v-if="coList.indexOf('permission_co_add')>-1">+ 新建</el-button>
      <el-table
       :data="tableData"
       :height='tableHeight'
@@ -75,7 +75,7 @@
       :currentPage="pageIndex"
       :page-sizes="[5, 10, 15, 20]"
       :page-size="pageSize"
-      layout="total, sizes, prev, pager, next, jumper"
+      layout="total, prev, pager, next, sizes, jumper"
       :total="total">
     </el-pagination>
     <el-dialog
@@ -409,7 +409,7 @@ export default {
 }
 .el-input {
   /deep/ .el-input__inner {
-    width: 100%;
+    width: 120px;
   }
 }
 .el-input.filter-ipt {

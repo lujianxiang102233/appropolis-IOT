@@ -48,9 +48,10 @@
       title="重置用户密码"
       :visible.sync="resetDialogVisible"
       width="30%">
+      <!-- type="password" -->
       <el-form :model="retForm" status-icon :rules="rules" ref="retForm" label-width="100px" class="demo-ruleForm">
-        <el-form-item label="原密码" prop="pass">
-          <el-input type="password" v-model="retForm.pass" autocomplete="off"></el-input>
+        <el-form-item label="原密码" prop="oldPass">
+          <el-input type="password" v-model="retForm.oldPass" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="新密码" prop="pass">
           <el-input type="password" v-model="retForm.pass" autocomplete="off"></el-input>
@@ -96,13 +97,22 @@ export default {
       menusList: [],
       retForm: {
         pass: '',
-        checkPass: ''
+        checkPass: '',
+        oldPass: ''
       },
       rules: {
+        oldPass: [
+          { required: true, message: '请输入密码', trigger: 'blur' },
+          {
+            pattern: /^([a-zA-Z0-9]){3,16}$/,
+            message: '仅英文及数字，6-16位。至少包括1位数字、大小写英文字符',
+            trigger: 'change'
+          }
+        ],
         pass: [
           { required: true, message: '请输入密码', trigger: 'blur' },
           {
-            pattern: /^([a-zA-Z0-9]){6,16}$/,
+            pattern: /^([a-zA-Z0-9]){3,16}$/,
             message: '仅英文及数字，6-16位。至少包括1位数字、大小写英文字符',
             trigger: 'change'
           },
@@ -153,22 +163,23 @@ export default {
     reset(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
-          let res = await this.axios.put(`/employee/password/adminReset`, {
-            password: this.retForm.retCheckAdminPassword,
-            loginName: this.loginName
+          console.log(this.retForm)
+          let res = await this.axios.put(`/employee/password`, {
+            currentPassword: this.retForm.oldPass,
+            newPassword: this.retForm.pass
           })
           let { code } = res.data.content
           if (code === +0) {
-            this.$message.success('密码已修改')
+            this.$message.success('密码已修改成功')
           }
           if (code === +-9999) {
             this.$message.error(`Exception Message`)
           }
-          if (code === +-3007) {
-            this.$message.error(`用户无法重置自身账号密码`)
+          if (code === +-3013) {
+            this.$message.error(`原密码输入错误`)
           }
-          if (code === +-3014) {
-            this.$message.error(`重置密码与原密码一样`)
+          if (code === +-3007) {
+            this.$message.error(`新密码不能与原密码一致`)
           }
           this.resetDialogVisible = false
           this.retForm = {}

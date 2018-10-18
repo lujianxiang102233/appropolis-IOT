@@ -30,7 +30,7 @@
      <el-button type="primary" style="margin-top: 10px;" size="medium" @click="addClick" v-if="coList.indexOf('permission_user_add')>-1">+ 新增用户</el-button>
      <el-table
       :data="tableData"
-      height="310"
+      height="340"
       style="width: 100%">
       <el-table-column
         prop="loginName"
@@ -720,8 +720,8 @@ export default {
     *display: inline;
     *zoom: 1;
     width: 10em;
-    height: 25px;
-    line-height: 25px;
+    height: 30px;
+    line-height: 30px;
     // font-size: 12px;
     overflow: hidden;
     -ms-text-overflow: ellipsis;
@@ -729,12 +729,12 @@ export default {
     white-space: nowrap;
   }
   /deep/ .el-table__row {
-    height: 20px;
-    line-height: 20px;
-  }
-  /deep/ .cell {
     height: 25px;
     line-height: 25px;
+  }
+  /deep/ .cell {
+    height: 30px;
+    line-height: 30px;
   }
 }
 .el-dialog__wrapper {

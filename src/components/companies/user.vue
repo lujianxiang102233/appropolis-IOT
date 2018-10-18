@@ -104,7 +104,7 @@
       :currentPage="pageIndex"
       :page-sizes="[5, 10, 15, 20]"
       :page-size="pageSize"
-      layout="total, sizes, prev, pager, next, jumper"
+      layout="total, prev, pager, next, sizes, jumper"
       :total="total">
     </el-pagination>
     <el-dialog

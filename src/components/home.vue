@@ -1,5 +1,5 @@
 <template>
-  <div class="home">
+  <div class="home" style="height:100%">
     <el-container>
     <el-menu
         default-active="1"

@@ -7,10 +7,10 @@
     <el-form :inline="true" class="clearfix demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_role_query')>-1">
       <div class="filter">筛选</div>
       <el-form-item label="角色名称">
-        <el-input v-model="roleName" placeholder="请输入" class="filter-ipt"></el-input>
+        <el-input size="mini" v-model="roleName" placeholder="请输入" class="filter-ipt"></el-input>
       </el-form-item>
       <el-form-item label="角色状态">
-        <el-select v-model="roleState" placeholder="请选择">
+        <el-select size="mini" v-model="roleState" placeholder="请选择">
           <el-option
             v-for="item in options"
             :key="item.value"
@@ -20,11 +20,11 @@
         </el-select>
       </el-form-item>
       <el-form-item class="fr">
-        <el-button type="primary" @click="onSubmit" size="medium">查询</el-button>
-        <el-button @click="resetForm('ruleForm')" size="medium">重置</el-button>
+        <el-button type="primary" @click="onSubmit" size="mini">查询</el-button>
+        <el-button @click="resetForm('ruleForm')" size="mini">重置</el-button>
       </el-form-item>
     </el-form>
-     <el-button type="primary" style="margin-top: 10px;" size="medium" @click="addDalogVisible = true" v-if="coList.indexOf('permission_role_add')>-1">+ 新建角色</el-button>
+     <el-button type="primary" style="margin-top: 10px;" size="mini" @click="addDalogVisible = true" v-if="coList.indexOf('permission_role_add')>-1">+ 新建角色</el-button>
      <el-table
       :data="tableData"
        height="210"

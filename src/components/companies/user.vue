@@ -23,11 +23,11 @@
         <el-input size="mini" v-model="queryForm.roleName" placeholder="请输入" class="filter-ipt"></el-input>
       </el-form-item>
       <el-form-item class="fr">
-        <el-button type="primary" @click="onSubmit" size="medium">查询</el-button>
-        <el-button @click="resetForm('ruleForm')" size="medium">重置</el-button>
+        <el-button type="primary" @click="onSubmit" size="mini">查询</el-button>
+        <el-button @click="resetForm('ruleForm')" size="mini">重置</el-button>
       </el-form-item>
     </el-form>
-     <el-button type="primary" style="margin-top: 10px;" size="medium" @click="addClick" v-if="coList.indexOf('permission_user_add')>-1">+ 新增用户</el-button>
+     <el-button type="primary" style="margin-top: 10px;" size="mini" @click="addClick" v-if="coList.indexOf('permission_user_add')>-1">+ 新增用户</el-button>
      <el-table
       :data="tableData"
       height="310"

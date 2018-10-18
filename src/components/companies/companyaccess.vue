@@ -15,12 +15,12 @@
         <el-input size="mini" v-model="queryTable.permissionCode" placeholder="请输入" class="filter-ipt"></el-input>
       </el-form-item>
       <el-form-item class="fr">
-        <el-button type="primary" @click="onSubmit" size="medium">查询</el-button>
-        <el-button @click="resetForm('ruleForm')" size="medium">重置</el-button>
+        <el-button type="primary" @click="onSubmit" size="mini">查询</el-button>
+        <el-button @click="resetForm('ruleForm')" size="mini">重置</el-button>
       </el-form-item>
     </el-form>
-     <el-button type="primary" style="margin-top: 10px;" size="medium" @click="addDalogVisible = true" v-if="coList.indexOf('permission_co_func_add')>-1">+ 新建一级功能点</el-button>
-     <el-button type="primary" style="margin:0px 40px;" size="medium" @click="copyDalogVisible = true" v-if="coList.indexOf('permission_co_func_copy')>-1">复制其他公司权限</el-button>
+     <el-button type="primary" style="margin-top: 10px;" size="mini" @click="addDalogVisible = true" v-if="coList.indexOf('permission_co_func_add')>-1">+ 新建一级功能点</el-button>
+     <el-button type="primary" style="margin:0px 40px;" size="mini" @click="copyDalogVisible = true" v-if="coList.indexOf('permission_co_func_copy')>-1">复制其他公司权限</el-button>
       <el-table
       :data="funcTable"
       height="350"

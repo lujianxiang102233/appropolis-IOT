@@ -97,6 +97,7 @@
     </div>
 </template>
 <script>
+import axios from 'axios'
 export default {
   data() {
     return {
@@ -129,15 +130,15 @@ export default {
   },
   created() {},
   mounted() {
-    this.getTypeData()
+    // this.getTypeData()
     this.getTableData()
-    // this.getData()
-    //   .then(data => {
-    //     console.log(111)
-    //   })
-    //   .catch(err => {
-    //     console.log(err)
-    //   })
+    this.getData()
+      .then(data => {
+        console.log(data)
+      })
+      .catch(err => {
+        console.log(err)
+      })
   },
   computed: {
     // operateDateChange: function() {
@@ -190,7 +191,7 @@ export default {
     getData() {
       let urlRest = '/logs/allOperationTypes'
       return new Promise(function(resolve, reject) {
-        this.axios(urlRest)
+        axios(urlRest)
           .then(response => {
             if (response.data.content.code === 0) {
               resolve()

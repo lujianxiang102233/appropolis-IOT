@@ -276,7 +276,6 @@ export default {
       } = res.data.content
       if (code === 0) {
         this.tableData = list
-        console.log(this.tableData)
         this.total = total
       }
     },

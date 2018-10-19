@@ -605,9 +605,9 @@ export default {
               type: 'warning'
             }
           )
-            .then(() => {
+            .then(async () => {
               getAddArray(this.treeList.permissionTree, this.editId)
-              let res2 = this.axios.put(
+              let res2 = await this.axios.put(
                 `/company/permission/${
                   this.$route.query.id
                 }/${permissionCode}/${permissionName}`,

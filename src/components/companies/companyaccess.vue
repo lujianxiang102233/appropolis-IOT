@@ -605,9 +605,9 @@ export default {
               type: 'warning'
             }
           )
-            .then(async () => {
+            .then(() => {
               getAddArray(this.treeList.permissionTree, this.editId)
-              let res2 = await this.axios.put(
+              let res2 = this.axios.put(
                 `/company/permission/${
                   this.$route.query.id
                 }/${permissionCode}/${permissionName}`,
@@ -623,7 +623,7 @@ export default {
                     this.route.query.companyName
                   }】的【${permissionName}】权限`
                 )
-                this.getList()
+                // this.getList()
               }
               if (code === -9999) {
                 this.$message.error('Exception Message')

@@ -88,7 +88,7 @@
                 label = "行为描述"
                 min-width = "130">
                 <template slot-scope ="scope">
-                  <div class ="lastClass" :title="scope.row.remark">{{scope.row.remark}}</div>
+                  <div class ="overflowClass" :title = "scope.row.remark">{{scope.row.remark}}</div>
                 </template>
             </el-table-column>
         </el-table>
@@ -284,7 +284,6 @@ export default {
 .logs {
   padding-left: 34px;
   @borderColor: #999;
-
   .el-breadcrumb__inner {
     color: #999;
   }
@@ -318,7 +317,7 @@ export default {
         background: red;
       }
     }
-    .lastClass {
+    .overflowClass {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;

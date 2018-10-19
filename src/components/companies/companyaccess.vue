@@ -165,7 +165,7 @@
           <el-input v-model="editForm.permissionName" placeholder="请输入"></el-input>
         </el-form-item>
         <el-form-item label="FUNCID" prop="permissionCode">
-          <el-input v-model="editForm.permissionCode" placeholder="请输入"></el-input>
+          <el-input :disabled="true" v-model="editForm.permissionCode" placeholder="请输入"></el-input>
         </el-form-item>
         <el-form-item label="是否菜单栏" prop="menu">
           <el-radio v-model="editForm.menu" label="true">是</el-radio>
@@ -186,7 +186,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="addCancel">取 消</el-button>
+        <el-button @click="editDalogVisible=false">取 消</el-button>
         <el-button type="primary" @click="editTrue('editForm')">确 定</el-button>
       </span>
     </el-dialog>
@@ -579,7 +579,6 @@ export default {
       if (code === +0) {
         this.copyList = list.map(function(item) {
           return {
-            // value: '【' + item.companyName + '（' + item.companyCode + '）】',
             value: `【${item.companyName}(${item.companyCode}】`,
             companyId: item.companyId,
             companyName: item.companyName
@@ -649,7 +648,23 @@ export default {
     editTrue(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
-          console.log(123)
+          let res = await this.axios.put(
+            `/company/permission/${this.$route.query.id}/${
+              this.editForm.permissionCode
+            }`,
+            {
+              permissionTree: this.treeList.permissionTree,
+              version: this.treeList.version
+            }
+          )
+          console.log(res.data.content)
+          let { code } = res.data.content
+          console.log(code)
+          if (code === 0) {
+            this.$message.success(`编辑功能完成`)
+            this.getList()
+            this.editDalogVisible = false
+          }
         } else {
           return false
         }

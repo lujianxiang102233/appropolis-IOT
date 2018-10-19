@@ -305,12 +305,12 @@ export default {
           }
         ],
         state: [
-          { required: true, message: '请输入公司名称', trigger: 'blur' },
+          { required: true, message: '请输入公司名称', trigger: 'change' },
           {
             min: 0,
             max: 1000,
             message: '最长1000个中文字符',
-            trigger: 'blur'
+            trigger: 'change'
           }
         ]
       },
@@ -443,7 +443,6 @@ export default {
       this.$refs[formName].validate(async valid => {
         if (valid) {
           getAddArray(this.treeList.permissionTree, this.paiId, this.addsubForm)
-          console.log(this.treeList.permissionTree)
           let res = await this.axios.post(
             `/company/permission/${this.$route.query.id}/${
               this.addsubForm.permissionName
@@ -580,7 +579,8 @@ export default {
       if (code === +0) {
         this.copyList = list.map(function(item) {
           return {
-            value: '【' + item.companyName + '（' + item.companyCode + '）】',
+            // value: '【' + item.companyName + '（' + item.companyCode + '）】',
+            value: `【${item.companyName}(${item.companyCode}】`,
             companyId: item.companyId,
             companyName: item.companyName
           }
@@ -614,27 +614,30 @@ export default {
       this.copyForm.state = ''
     },
     copy(formName) {
-      // console.log(this.companyId)
       this.$refs[formName].validate(async valid => {
         if (valid) {
-          // console.log(this.companyId)
-          this.$confirm('是否放弃已有权限配置?', '提示', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-          })
-            .then(async () => {
-              console.log(this.companyId)
-              this.getList()
-              this.$message.success(`已复制【${this.companyName}】配置权限`)
-              this.copyDalogVisible = false
+          if (this.funcTable !== undefined) {
+            this.$confirm('是否放弃已有权限配置?', '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
             })
-            .catch(() => {
-              this.$message({
-                type: 'info',
-                message: '已取消复制权限'
+              .then(async () => {
+                this.getList()
+                this.$message.success(`已复制【${this.companyName}】配置权限`)
+                this.copyDalogVisible = false
               })
-            })
+              .catch(() => {
+                this.$message({
+                  type: 'info',
+                  message: '已取消复制权限'
+                })
+              })
+          } else {
+            this.getList()
+            this.$message.success(`已复制【${this.companyName}】配置权限`)
+            this.copyDalogVisible = false
+          }
         } else {
           return false
         }

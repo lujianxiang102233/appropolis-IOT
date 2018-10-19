@@ -4,15 +4,19 @@
             <el-breadcrumb-item>权限管理</el-breadcrumb-item>
             <el-breadcrumb-item>操作日志</el-breadcrumb-item>
         </el-breadcrumb>
-        <el-form :inline = "true" :model = "formInline" ref="formInline" class="clearfix role-form">
-          <div class="name">筛选</div>
+        <el-form
+          :inline = "true"
+          :model = "formInline"
+          ref = "formInline"
+          class = "clearfix role-form">
+          <div class = "name">筛选</div>
           <el-form-item label = "操作人">
               <el-input
                 :clearable = "true"
-                size="mini"
+                size = "mini"
                 v-model = "formInline.userName"
-                placeholder="请输入"
-                class="user-form">
+                placeholder = "请输入"
+                class = "user-form">
               </el-input>
           </el-form-item>
           <el-form-item label = "行为分类">
@@ -46,7 +50,7 @@
           </el-form-item>
         </el-form>
         <el-table
-            :height= 'tableHeight'
+            :height = 'tableHeight'
             class = "table"
             :data = "tableData"
             :header-row-class-name = "headerColor"
@@ -100,7 +104,6 @@
     </div>
 </template>
 <script>
-import axios from 'axios'
 export default {
   data() {
     return {
@@ -133,22 +136,35 @@ export default {
     }
   },
   created() {
-    // this.tableHeight = window.innerHeight - 320
-    this.tableHeight = document.documentElement.clientHeight - 320
+    this.$nextTick(() => {
+      this.flexTableHeight()
+    })
+    this.fixedTableHeight()
   },
   mounted() {
-    // this.getTypeData()
+    this.getTypeData()
     this.getTableData()
-    this.type()
     window.onresize = () => {
       return (() => {
-        // this.tableHeight = window.innerHeight - 320
-        this.tableHeight = document.documentElement.clientHeight - 320
+        this.flexTableHeight()
       })()
     }
   },
+  watch: {
+    // tableHeight(val) {
+    //   this.tableHeight = val
+    // }
+  },
   computed: {},
   methods: {
+    flexTableHeight() {
+      this.tableHeight =
+        document.documentElement.clientHeight -
+        (this.$refs.formInline.$el.offsetHeight + 196)
+    },
+    fixedTableHeight() {
+      this.tableHeight = document.documentElement.clientHeight - 320
+    },
     // form picker
     dateBlur() {
       if (!this.formInline.date) {
@@ -165,7 +181,7 @@ export default {
       this.pageIndex = 1
       this.getTableData()
     },
-    onResetForm() {
+    onResetForm(formInline) {
       this.formInline.userName = ''
       this.formInline.type = ''
       this.formInline.date = ''
@@ -189,42 +205,16 @@ export default {
       return this.pageSize
     },
     // data
-    getType() {
-      let urlRest = '/logs/allOperationTypes'
-      return new Promise((resolve, reject) => {
-        axios(urlRest)
-          .then(response => {
-            let content = response.data.content
-            if (content.code === 0) {
-              resolve(content.data)
-            } else if (content.code === -9999) {
-              reject(content.errMsg)
-            }
-          })
-          .catch(error => {
-            console.log(error)
-          })
-      })
-    },
-    type() {
-      this.getType()
-        .then(data => {
-          this.allOperationTypes = Object.entries(data).map(item => {
-            return { value: item[0], id: item[1] }
-          })
-        })
-        .catch(err => {
-          console.log(err)
-        })
-    },
     getTypeData() {
       let urlRest = '/logs/allOperationTypes'
       this.axios(urlRest)
         .then(response => {
-          let listAll = Object.entries(response.data.content.data)
-          this.allOperationTypes = listAll.map(item => {
-            return { value: item[0], id: item[1] }
-          })
+          if (response.data.content.code === 0) {
+            let listAll = Object.entries(response.data.content.data)
+            this.allOperationTypes = listAll.map(item => {
+              return { value: item[0], id: item[1] }
+            })
+          }
         })
         .catch(error => {
           console.log(error)

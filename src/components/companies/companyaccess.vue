@@ -26,7 +26,10 @@
       :height= 'tableHeight'
       style="width: 100%">
       <el-table-tree-column
-        fixed :expand-all="!1"
+        fixed :expand-all="show"
+        file-icon="icon icon-file"
+        folder-icon="icon icon-folder"
+        :show-overflow-tooltip="true"
         :indent-size="30"
         parent-key="parentId"
         prop="permissionName"
@@ -327,7 +330,8 @@ export default {
       paiId: '',
       restaurants: [],
       copyList: [],
-      editId: ''
+      editId: '',
+      show: true
     }
   },
   methods: {
@@ -566,10 +570,8 @@ export default {
         this.$message.error(`Exception Message`)
       }
     },
-    async del(row) {
-      let { id, permissionCode, permissionName } = row
-      this.editId = id
-      function getAddArray(data, id) {
+    func() {
+      return function getAddArray(data, id) {
         for (var i in data) {
           if (data[i].id === id) {
             data.splice(i, 1)
@@ -579,6 +581,10 @@ export default {
           }
         }
       }
+    },
+    async del(row) {
+      let { id, permissionCode, permissionName } = row
+      this.editId = id
       let res1 = await this.axios.put(
         `/company/checkCompanyPermissionChildrenAndRoles/${
           this.$route.query.id
@@ -592,6 +598,16 @@ export default {
         code,
         data: { numOfChildren, numOfRoles, firstRolesName }
       } = res1.data.content
+      function getAddArray(data, id) {
+        for (var i in data) {
+          if (data[i].id === id) {
+            data.splice(i, 1)
+          }
+          if (data[i].children.length > 0) {
+            getAddArray(data[i].children, id)
+          }
+        }
+      }
       if (code === 0) {
         if (numOfChildren <= 0 && numOfRoles <= 0) {
           this.$confirm(
@@ -607,36 +623,37 @@ export default {
           )
             .then(async () => {
               getAddArray(this.treeList.permissionTree, this.editId)
-              let res2 = await this.axios.put(
-                `/company/permission/${
-                  this.$route.query.id
-                }/${permissionCode}/${permissionName}`,
-                {
-                  permissionTree: this.treeList.permissionTree,
-                  version: this.treeList.version
-                }
-              )
-              let { code } = res2.data.content
-              if (code === 0) {
-                this.$message.success(
-                  `已取消【${
-                    this.route.query.companyName
-                  }】的【${permissionName}】权限`
-                )
-                // this.getList()
-              }
-              if (code === -9999) {
-                this.$message.error('Exception Message')
-              }
-              if (code === -3009) {
-                this.$message.error('权限已存在')
-              }
-              if (code === -3010) {
-                this.$message.error('权限已授权')
-              }
-              if (code === -3011) {
-                this.$message.error('权限树版本问题')
-              }
+              // let res2 = await this.axios.put(
+              //   `/company/permission/${
+              //     this.$route.query.id
+              //   }/${permissionCode}/${permissionName}`,
+              //   {
+              //     permissionTree: this.treeList.permissionTree,
+              //     version: this.treeList.version
+              //   }
+              // )
+              // let { code } = res2.data.content
+              // if (code === 0) {
+              //   this.$message.success(
+              //     `已取消【${
+              //       this.route.query.companyName
+              //     }】的【${permissionName}】权限`
+              //   )
+              //   this.getList()
+              //   this.show = true
+              // }
+              // if (code === -9999) {
+              //   this.$message.error('Exception Message')
+              // }
+              // if (code === -3009) {
+              //   this.$message.error('权限已存在')
+              // }
+              // if (code === -3010) {
+              //   this.$message.error('权限已授权')
+              // }
+              // if (code === -3011) {
+              //   this.$message.error('权限树版本问题')
+              // }
             })
             .catch(() => {
               this.$message({
@@ -644,57 +661,6 @@ export default {
                 message: '已取消删除'
               })
             })
-          // this.$confirm(
-          //   `确定取消【${
-          //     this.$route.query.companyName
-          //   }】关于【${permissionName}】吗?`,
-          //   '提示',
-          //   {
-          //     confirmButtonText: '确定',
-          //     cancelButtonText: '取消',
-          //     type: 'warning'
-          //   }
-          // )
-          //   .then(async () => {
-          //     console.log(11111111111111111)
-          //     getAddArray(this.treeList.permissionTree, this.editId)
-          //     let res2 = await this.axios.put(
-          //       `/company/permission/${
-          //         this.$route.query.id
-          //       }/${permissionCode}/${permissionName}`,
-          //       {
-          //         permissionTree: this.treeList.permissionTree,
-          //         version: this.treeList.version
-          //       }
-          //     )
-          //     let { code } = res2.data.content
-          //     if (code === +0) {
-          //       this.$message.success(
-          //         `已取消【${
-          //           this.$route.query.companyName
-          //         }】的【${permissionName}】权限`
-          //       )
-          //       this.getList()
-          //     }
-          //     if (code === -9999) {
-          //       this.$message.error('Exception Message')
-          //     }
-          //     if (code === -3009) {
-          //       this.$message.error('权限已存在')
-          //     }
-          //     if (code === -3010) {
-          //       this.$message.error('权限已授权')
-          //     }
-          //     if (code === -3011) {
-          //       this.$message.error('权限树版本问题')
-          //     }
-          //   })
-          //   .catch(() => {
-          //     this.$message({
-          //       type: 'info',
-          //       message: '888888888888888'
-          //     })
-          //   })
         } else if (numOfChildren > 0) {
           this.$message.error('无法删除，请先删除该功能下的其他子功能点')
         } else if (numOfChildren === 0 && numOfRoles === 1) {

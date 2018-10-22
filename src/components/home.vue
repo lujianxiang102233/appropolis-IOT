@@ -29,7 +29,15 @@
              <img src="../assets/images/u67.png" @click="collapse">
             </div>
             <span class="text">APPROPOLIS</span>
-            <span id="edit" v-if="$route.path.slice(1) == 'companies'">变更</span>
+            <!-- <span id="edit" v-if="$route.path.slice(1) == 'companies'" class="demonstration" trigger="click">变更</span> -->
+            <el-dropdown trigger="click">
+              <span class="el-dropdown-link">
+                <span id="edit" v-if="$route.path.slice(1) == 'companies'" class="demonstration" trigger="click">变更</span>
+              </span>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item v-for="item in companySet" :key="item.companyId">{{item.companyName}}</el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
             <div class="user" @click="logout">
              <img src="../assets/images/u70.png" @click="collapse">
              <span>admin</span>
@@ -121,7 +129,8 @@ export default {
           { required: true, message: '请再次输入密码', trigger: 'blur' },
           { validator: validatePass2, trigger: 'blur' }
         ]
-      }
+      },
+      companySet: {}
     }
   },
   methods: {
@@ -143,6 +152,7 @@ export default {
           localStorage.removeItem('points')
           localStorage.removeItem('loginName')
           localStorage.removeItem('companyTree')
+          localStorage.removeItem('companySet')
           this.$router.push('./login')
         })
         .catch(() => {
@@ -190,6 +200,8 @@ export default {
   },
   created() {
     this.menusList = JSON.parse(localStorage.getItem('points'))
+    this.companySet = JSON.parse(localStorage.getItem('companySet'))
+    console.log(this.companySet)
   }
 }
 </script>
@@ -320,6 +332,18 @@ export default {
         color: #fff;
       }
     }
+  }
+}
+.el-dropdown-menu {
+  box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.4);
+  padding: 10px 15px;
+  .el-dropdown-menu__item {
+    border: 1px solid #ccc;
+    background-color: white !important;
+  }
+  .el-dropdown-menu__item:hover {
+    border: 1px solid #3692e8;
+    color: #3692e8 !important;
   }
 }
 </style>

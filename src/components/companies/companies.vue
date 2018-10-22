@@ -21,6 +21,7 @@
       style="width: 100%">
       <el-table-column
         type="index"
+        :index="indexMethod"
         width="50">
       </el-table-column>
       <el-table-column
@@ -352,6 +353,9 @@ export default {
           row.companyName
         }`
       })
+    },
+    indexMethod(index) {
+      return (this.pageIndex - 1) * this.pageSize + index + 1
     }
   },
   created() {

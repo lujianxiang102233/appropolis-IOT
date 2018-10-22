@@ -29,13 +29,12 @@
              <img src="../assets/images/u67.png" @click="collapse">
             </div>
             <span class="text">APPROPOLIS</span>
-            <!-- <span id="edit" v-if="$route.path.slice(1) == 'companies'" class="demonstration" trigger="click">变更</span> -->
-            <el-dropdown trigger="click">
+            <el-dropdown trigger="click" @command="handleCommand">
               <span class="el-dropdown-link">
                 <span id="edit" v-if="$route.path.slice(1) == 'companies'" class="demonstration" trigger="click">变更</span>
               </span>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item v-for="item in companySet" :key="item.companyId">{{item.companyName}}</el-dropdown-item>
+                <el-dropdown-item :command="item.companyId" v-for="item in companySet" :key="item.companyId">{{item.companyName}}</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
             <div class="user" @click="logout">
@@ -196,12 +195,19 @@ export default {
           return false
         }
       })
+    },
+    async handleCommand(command) {
+      console.log(command)
+      let res = await this.axios.get(`/company/permission/${command}`)
+      let { code, data } = res.data.content
+      if (code === 0) {
+        console.log(JSON.parse(data))
+      }
     }
   },
   created() {
     this.menusList = JSON.parse(localStorage.getItem('points'))
     this.companySet = JSON.parse(localStorage.getItem('companySet'))
-    console.log(this.companySet)
   }
 }
 </script>

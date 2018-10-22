@@ -137,7 +137,8 @@
       title="提示"
       :visible.sync="dialogVisible"
       width="30%">
-      <span>确认要停用【{{ stateName }}】吗？</span>
+      <span v-if="enable===false">确认要停用【{{ stateName }}】吗？</span>
+      <span v-else>确认要启用【{{ stateName }}】吗？</span>
       <span slot="footer" class="dialog-footer">
         <el-button @click="stateCancel">取 消</el-button>
         <el-button type="primary" @click="stateTrue">确 定</el-button>
@@ -291,6 +292,7 @@ export default {
       } = res.data.content
       if (code === 0) {
         this.tableData = list
+        console.log(this.tableData)
         this.total = total
       }
       if (code === -9999) {
@@ -328,7 +330,13 @@ export default {
         this.$message.error(`Exception Message`)
       }
       if (code === +0) {
-        this.$message.success(`修改角色状态成功`)
+        console.log(this.enable)
+        if (this.enable === false) {
+          this.$message(`【${this.stateName}】已停用`)
+        }
+        if (this.enable === true) {
+          this.$message.success(`【${this.stateName}】已启用`)
+        }
         // this.roleState = status
         this.getList()
         this.roleId = ''

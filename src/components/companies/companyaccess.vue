@@ -11,9 +11,6 @@
       <el-form-item label="功能点名称">
         <el-input size="mini" v-model="queryTable.permissionName" placeholder="请输入" class="filter-ipt"></el-input>
       </el-form-item>
-      <el-form-item label="FUNCID">
-        <el-input size="mini" v-model="queryTable.permissionCode" placeholder="请输入" class="filter-ipt"></el-input>
-      </el-form-item>
       <el-form-item class="fr">
         <el-button type="primary" @click="onSubmit" size="mini">查询</el-button>
         <el-button @click="resetForm('ruleForm')" size="mini">重置</el-button>
@@ -538,9 +535,37 @@ export default {
         data: { numOfRoles, firstRolesName }
       } = res.data.content
       if (code === 0) {
-        if (numOfRoles > 0) {
+        if (numOfRoles === 0) {
           this.$confirm(
             `该功能点已配置给【${firstRolesName}】,FUNID不可编辑，如需编辑FUNCID请先取消角色授权`,
+            '提示',
+            {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            }
+          )
+            .then(() => {
+              this.editDalogVisible = true
+              this.editForm.permissionName = permissionName
+              this.editForm.permissionCode = permissionCode
+              this.editForm.url = url
+              this.editForm.weight = weight
+              this.editForm.menu = String(menu)
+              this.editForm.newTab = String(newTab)
+              this.editForm.remark = remark
+              this.editForm.children = children
+              this.editId = id
+            })
+            .catch(() => {
+              this.$message({
+                type: 'info',
+                message: '已取消编辑功能点'
+              })
+            })
+        } else if (numOfRoles > 0) {
+          this.$confirm(
+            `该功能点已配置给【${firstRolesName}】等【${numOfRoles}】个角色,FUNID不可编辑，如需编辑FUNCID请先取消角色授权`,
             '提示',
             {
               confirmButtonText: '确定',

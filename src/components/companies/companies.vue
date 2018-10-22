@@ -74,7 +74,7 @@
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
       :currentPage="pageIndex"
-      :page-sizes="[5, 10, 15, 20]"
+      :page-sizes="[10, 20, 50, 100]"
       :page-size="pageSize"
       layout="total, prev, pager, next, sizes, jumper"
       :total="total">
@@ -239,7 +239,7 @@ export default {
         companyName: ''
       },
       pageIndex: 1,
-      pageSize: 5,
+      pageSize: 10,
       total: 1,
       coList: []
     }

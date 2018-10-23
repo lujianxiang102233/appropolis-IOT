@@ -8,13 +8,13 @@
         <div class="editCom"><p>编辑【蒙羊牧业有限公司】权限</p></div>
         <el-form
           :inline= "true"
-          class="role-form"
-          :model= "treeTable">
+          class="role-form">
           <div class="filter">筛选</div>
-          <el-form-item label="功能点名称" :model = "treeTable">
+          <el-form-item label="功能点名称">
             <el-input
+              :clearable = "true"
               size="mini"
-              v-model = "filterName"
+              v-model= "filterName"
               placeholder= "请输入">
             </el-input>
           </el-form-item>
@@ -26,8 +26,8 @@
             </el-input>
           </el-form-item> -->
           <el-form-item class="fr">
-            <el-button type="primary" size="mini" @click= "onSubmit()">查询</el-button>
-            <el-button size="mini">重置</el-button>
+            <el-button type="primary" size="mini" @click= "onSubmit(filterName)">查询</el-button>
+            <el-button size="mini" @click = "onReset(filterName)">重置</el-button>
           </el-form-item>
         </el-form>
         <div class="table">
@@ -43,7 +43,9 @@
             default-expand-all
             :filter-node-method= "filterNode"
             ref="tree"
-            :default-checked-keys= "checkedKeys">
+            :default-checked-keys= "checkedKeys"
+            @check = "onCheck()"
+            >
             <span slot-scope= "{node,data}" class="treeTable">
               <span class="tree">{{data.permissionName}}</span>
               <span class="content overflowClass">
@@ -55,7 +57,7 @@
             </span>
           </el-tree>
         </div>
-        <el-form>
+        <el-form v-if= "this.authEdit">
           <el-form-item class="fr">
             <el-button size = "mini" @click= "cancal()">取消</el-button>
             <el-button type = "primary" size="mini" @click = "submit()">提交</el-button>
@@ -71,65 +73,95 @@ export default {
   data() {
     return {
       // 下为用
-      treeTable: {
-        permissionName: '',
-        permissionCode: ''
-      },
+      // treeTable: {
+      //   permissionName: '',
+      //   permissionCode: ''
+      // },
       filterName: '',
       filterCode: '',
       checkedCodes: [],
-      checkedKeys: []
+      checkedKeys: [],
+      keys: [],
+      codes: []
     }
   },
   created() {
     this.getTreeData()
-    this.get()
-    this.checked(this.treeTableData)
-    this.change(this.treeTableData)
+    this.getData()
+    this.changedKeys(this.treeTableData)
+    // this.setDisabled(this.treeTableData)
   },
-  mounted() {},
-  watch: {
-    filterName(val) {
-      this.$refs.tree.filter(val)
-    }
+  mounted() {
+    console.log(this.keys, '111')
   },
+  watch: {},
   methods: {
-    // 模糊匹配
-    filterNode(value, data) {
-      if (!value) return true
-      return data.permissionName.indexOf(value) !== -1
+    // 勾选获取
+    onCheck() {
+      this.keys = this.$refs.tree.getCheckedKeys()
+      this.changedCodes(this.treeTableData, this.keys)
     },
-    // code转换key值
-    checked(forData) {
+    // key转换code值 &&获取codes
+    changedCodes(forData, key) {
+      console.log(this.keys)
       for (let item of forData) {
-        if (this.checkedCodes.includes(item.permissionCode)) {
-          this.checkedKeys.push(item.id)
-        } else if (item.children.length > 0) {
-          this.checked(item.children)
+        if (item.children.length === 0 && key.includes(item.id)) {
+          this.codes.push(item.permissionCode)
+        } else if (item.children.length > 0 && key.includes(item.id)) {
+          this.codes.push(item.permissionCode)
+          this.changedCodes(item.children, key)
         }
-        this.checkedKeys.push(item.id)
       }
+      this.codes = Array.from(new Set(this.codes))
+      console.log(this.codes)
     },
-    // key转换为code值
-    change(forData) {
-      console.log(forData)
-      for (let item of forData) {
-        this.checkedKeys = this.checkedKeys.sort((a, b) => {
-          return a - b
-        })
-        if (this.checkedKeys.includes(item.id)) {
-          this.checkedCodes.push(item.permissionCode)
-        } else if (item.children.length > 0) {
-          this.change(item.children)
-        }
-        // this.checkedCodes.push(item.permissionCode)
-        console.log(this.checkedCodes)
-      }
-    },
+    // 返回上一级
     goBack() {
       this.$router.push({
         path: '/role'
       })
+    },
+    // 模糊匹配点击
+    filterNode(value, data) {
+      if (!value) return true
+      return data.permissionName.indexOf(value) !== -1
+    },
+    // code转换key值 &&获取checkedKeys
+    changedKeys(data) {
+      for (let item of data) {
+        if (
+          item.children.length === 0 &&
+          this.checkedCodes.includes(item.permissionCode)
+        ) {
+          this.checkedKeys.push(item.id)
+        } else if (item.children.length > 0) {
+          this.changedKeys(item.children)
+        }
+        this.checkedKeys.push(item.id)
+      }
+    },
+    // 每个节点添加disabled
+    // setDisabled(forData) {
+    //   if (!this.authEdit) {
+    //     return forData.map(item => {
+    //       if (item.children.length === 0) {
+    //         return Object.assign({}, item, { disabled: true })
+    //       } else if (item.children.length > 0) {
+    //         // console.log(this.item(item))
+    //         return this.setDisabled(item.children)
+    //       }
+    //     })
+    //   }
+    // },
+    // 查询
+    onSubmit(val) {
+      this.$refs.tree.filter(val)
+    },
+    // 重置
+    onReset(formInline) {
+      this.filterName = ''
+      this.getTreeData()
+      this.getData()
     },
     // 取消
     cancal() {
@@ -157,27 +189,18 @@ export default {
             })
           })
       }
-      this.put()
+
+      // console.log(this.keys)
+      this.putData()
     },
-    put() {
+    putData() {
+      console.log(this.codes, 'codes')
       let roleId = this.$route.query.roleId
       let urlRest = `/role/permission/${roleId}`
       this.axios
-        .put(urlRest, [
-          'permission_co',
-          'permission_co_add',
-          'permission_co_query',
-          'permission_co_resetAdmin',
-          'permission_co_func',
-          'permission_co_func_query',
-          'permission_co_func_add',
-          'permission_co_func_addsub',
-          'permission_co_func_edit',
-          'permission_co_func_del',
-          'permission_co_func_copy',
-          'permission_role'
-        ])
+        .put(urlRest, this.codes)
         .then(response => {
+          console.log(response.data)
           if (response.data.content.data === 1) {
             this.$message('提交成功')
             // this.goBack()
@@ -189,7 +212,7 @@ export default {
           console.log(error)
         })
     },
-    get() {
+    getData() {
       let roleId = this.$route.query.roleId
       let urlRest = `/role/permission/${roleId}`
       this.axios
@@ -205,6 +228,9 @@ export default {
     },
     getTreeData() {
       this.treeTableData = JSON.parse(localStorage.getItem('companyTree'))
+      // 是否有编辑权限
+      // console.log(permission_role_auth_edit)
+      this.authEdit = localStorage.getItem('points').includes('1')
     }
   }
 }

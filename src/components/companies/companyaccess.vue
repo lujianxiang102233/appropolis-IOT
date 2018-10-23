@@ -18,7 +18,7 @@
     </el-form>
      <el-button type="primary" style="margin-top: 10px;" size="mini" @click="addDalogVisible = true" v-if="coList.indexOf('permission_co_func_add')>-1">+ 新建一级功能点</el-button>
      <el-button type="primary" style="margin:0px 40px;" size="mini" @click="copyDalogVisible = true" v-if="coList.indexOf('permission_co_func_copy')>-1">复制其他公司权限</el-button>
-      <el-table
+      <!-- <el-table
       :data="funcTable"
       :height= 'tableHeight'
       style="width: 100%">
@@ -81,7 +81,42 @@
           <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_del')>-1"  plain @click="del(scope.row)">删除</el-button>
         </template>
       </el-table-column>
-    </el-table>
+    </el-table> -->
+    <div class="table" :style="{height: tableHeight + 'px' }">
+      <div class="tableTitle">
+        <span class="permissionName">功能点名称</span>
+        <span class="permissionCode">FUNCID</span>
+        <span class="menu">菜单栏（权重）</span>
+        <span class="url">url</span>
+        <span class="remark">功能描述</span>
+        <span class="handle">操作</span>
+      </div>
+      <el-tree
+        :data = "funcTable"
+        show-checkbox
+        node-key = "id"
+        default-expand-all
+        :expand-on-click-node = "false">
+        <span slot-scope= "{node,data}" class="treeTable">
+          <span class="elli permissionName" >{{data.permissionName}}</span>
+          <span class="elli permissionCode" :title="data.permissionCode">{{data.permissionCode}}</span>
+          <span class="elli menu">{{data.menu}}</span>
+          <span class="elli url">{{data.url}}</span>
+          <span class="elli remark">{{data.remark}}</span>
+          <!-- <span class="content overflowClass">
+            {{data.permissionCode?data.permissionCode:"--"}}
+          </span>
+          <span class="content overflowClass">
+            {{data.remark?data.remark:"--"}}
+          </span> -->
+          <span>
+            <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_addsub')>-1"  plain @click="addsub(scope.row)" >添加</el-button>
+            <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_edit')>-1"  plain @click="edit(scope.row)">编辑</el-button>
+            <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_del')>-1"  plain @click="del(scope.row)">删除</el-button>
+          </span>
+        </span>
+      </el-tree>
+    </div>
     <el-dialog
       title="新建一级功能点"
       :visible.sync="addDalogVisible"
@@ -377,6 +412,7 @@ export default {
         let newdata = JSON.parse(data)
         getArray(newdata.permissionTree, 0, null)
         this.funcTable = newdata.permissionTree
+        console.log(this.funcTable)
         this.treeList = newdata
       }
     },
@@ -935,5 +971,103 @@ export default {
   //   text-overflow: ellipsis;
   //   white-space: nowrap;
   // }
+}
+.table {
+  margin-top: 20px;
+  border: 1px solid #999;
+  width: 1009px;
+  overflow: auto;
+  .tableTitle {
+    height: 53px;
+    line-height: 53px;
+    display: flex;
+    width: 1200px;
+    .permissionName {
+      flex: 0.6;
+      padding-left: 40px;
+    }
+    .permissionCode {
+      text-align: center;
+      width: 150px;
+      padding: 0 10px;
+    }
+    .menu {
+      text-align: center;
+      width: 120px;
+      padding: 0 10px;
+    }
+    .remark {
+      text-align: center;
+      width: 150px;
+      padding: 0 10px;
+    }
+    .url {
+      text-align: center;
+      width: 140px;
+      padding: 0 10px;
+    }
+    .handle {
+      text-align: center;
+      width: 300px;
+      padding: 0 10px;
+    }
+  }
+  .treeTable {
+    flex: 1;
+    display: flex;
+    font-size: 14px;
+    .permissionName {
+      flex: 1;
+    }
+    .permissionCode {
+      text-align: center;
+      display: inline-block;
+      width: 150px;
+      padding: 0 10px;
+    }
+    .menu {
+      text-align: center;
+      display: inline-block;
+      width: 120px;
+      padding: 0 10px;
+    }
+    .url {
+      text-align: center;
+      display: inline-block;
+      width: 140px;
+      padding: 0 10px;
+    }
+    .remark {
+      text-align: center;
+      display: inline-block;
+      width: 150px;
+      padding: 0 10px;
+    }
+    .elli {
+      display: inline-block;
+      *display: inline;
+      *zoom: 1;
+      width: 10em;
+      height: 53px;
+      line-height: 53px;
+      // font-size: 12px;
+      overflow: hidden;
+      -ms-text-overflow: ellipsis;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+  .overflowClass {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+.el-tree {
+  /deep/ .el-tree-node__content {
+    height: 53px;
+    line-height: 53px;
+    border-top: 1px solid #ebeef5;
+  }
 }
 </style>

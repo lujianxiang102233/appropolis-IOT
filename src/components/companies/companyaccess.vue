@@ -446,7 +446,6 @@ export default {
             data[i].depth = depth
             data[i].parentId = parentId
             data[i].child_num = data[i].children.length
-            break
           }
           if (data[i].children.length > 0) {
             let tempDept = depth + 1
@@ -526,6 +525,7 @@ export default {
       this.addForm.children = []
     },
     addsub(row) {
+      console.log(row)
       this.addsubDalogVisible = true
       this.paipermissionName = row.permissionName
       this.paipermissionCode = row.permissionCode
@@ -545,7 +545,6 @@ export default {
       }
       this.$refs[formName].validate(async valid => {
         if (valid) {
-          console.log(this.paiId)
           getAddArray(this.treeList.permissionTree, this.paiId, this.addsubForm)
           let res = await this.axios.post(
             `/company/permission/${this.$route.query.id}/${
@@ -623,8 +622,9 @@ export default {
         code,
         data: { numOfRoles, firstRolesName }
       } = res.data.content
+      console.log(numOfRoles)
       if (code === 0) {
-        if (numOfRoles === 0) {
+        if (numOfRoles === 1) {
           this.$confirm(
             `该功能点已配置给【${firstRolesName}】,FUNID不可编辑，如需编辑FUNCID请先取消角色授权`,
             '提示',
@@ -652,7 +652,7 @@ export default {
                 message: '已取消编辑功能点'
               })
             })
-        } else if (numOfRoles > 0) {
+        } else if (numOfRoles > 1) {
           this.$confirm(
             `该功能点已配置给【${firstRolesName}】等【${numOfRoles}】个角色,FUNID不可编辑，如需编辑FUNCID请先取消角色授权`,
             '提示',

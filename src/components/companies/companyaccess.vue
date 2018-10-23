@@ -446,6 +446,7 @@ export default {
             data[i].depth = depth
             data[i].parentId = parentId
             data[i].child_num = data[i].children.length
+            break
           }
           if (data[i].children.length > 0) {
             let tempDept = depth + 1
@@ -461,6 +462,7 @@ export default {
       }
       if (code === 0) {
         let newdata = JSON.parse(data)
+        console.log(newdata.permissionTree)
         getArray(newdata.permissionTree, 0, null)
         this.funcTable = newdata.permissionTree
         console.log(this.funcTable)
@@ -505,7 +507,6 @@ export default {
             this.addForm.newTab = 'true'
             this.addForm.remark = ''
             this.addForm.children = []
-            this.expandedAll(this.$refs.tree2.$children, true)
             // console.log(this.expandedAll())
           }
         } else {
@@ -535,6 +536,7 @@ export default {
         for (var i in data) {
           if (data[i].id === id) {
             data[i].children.push(child)
+            break
           }
           if (data[i].children.length > 0) {
             getAddArray(data[i].children, id, child)

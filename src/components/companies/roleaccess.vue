@@ -91,19 +91,27 @@ export default {
     this.changedKeys(this.treeTableData)
     // this.setDisabled(this.treeTableData)
   },
-  mounted() {
-    console.log(this.keys, '111')
+  mounted() {},
+  watch: {
+    // keys: {
+    //   handler(cur, old) {
+    //     console.log(old, 'old')
+    //     console.log(cur, 'cur')
+    //     this.changedCodes(this.treeTableData, cur)
+    //   },
+    //   deep: true
+    // }
   },
-  watch: {},
   methods: {
     // 勾选获取
-    onCheck() {
+    onCheck(data) {
       this.keys = this.$refs.tree.getCheckedKeys()
+      console.log(this.keys)
+      this.codes = []
       this.changedCodes(this.treeTableData, this.keys)
     },
     // key转换code值 &&获取codes
     changedCodes(forData, key) {
-      console.log(this.keys)
       for (let item of forData) {
         if (item.children.length === 0 && key.includes(item.id)) {
           this.codes.push(item.permissionCode)
@@ -189,8 +197,6 @@ export default {
             })
           })
       }
-
-      // console.log(this.keys)
       this.putData()
     },
     putData() {
@@ -230,7 +236,9 @@ export default {
       this.treeTableData = JSON.parse(localStorage.getItem('companyTree'))
       // 是否有编辑权限
       // console.log(permission_role_auth_edit)
-      this.authEdit = localStorage.getItem('points').includes('1')
+      this.authEdit = localStorage
+        .getItem('points')
+        .includes('permission_role_auth_edit')
     }
   }
 }

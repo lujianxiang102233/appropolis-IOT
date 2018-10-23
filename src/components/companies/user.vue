@@ -4,7 +4,7 @@
       <el-breadcrumb-item>权限管理</el-breadcrumb-item>
       <el-breadcrumb-item>用户管理</el-breadcrumb-item>
     </el-breadcrumb>
-    <el-form :inline="true" class="clearfix demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_role_query')>-1">
+    <el-form :inline="true" :model="queryForm" class="clearfix demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_role_query')>-1">
       <div class="filter">筛选</div>
       <el-form-item label="用户名">
         <el-input size="mini" v-model="queryForm.loginName" placeholder="请输入" class="filter-ipt"></el-input>
@@ -102,7 +102,7 @@
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
       :currentPage="pageIndex"
-      :page-sizes="[5, 10, 15, 20]"
+      :page-sizes="[10, 20, 50, 100]"
       :page-size="pageSize"
       layout="total, prev, pager, next, sizes, jumper"
       :total="total">
@@ -341,7 +341,7 @@ export default {
       },
       companyName: '',
       pageIndex: 1,
-      pageSize: 5,
+      pageSize: 10,
       total: 1,
       roleName: '',
       roleState: '',
@@ -358,6 +358,10 @@ export default {
         {
           value: '0',
           label: '关闭'
+        },
+        {
+          value: '-99',
+          label: '全部'
         }
       ],
       addOptions: [],
@@ -380,9 +384,10 @@ export default {
       this.getList()
     },
     resetForm(formName) {
-      // this.roleName = ''
-      // this.roleState = ''
-      // this.getList()
+      this.queryForm.loginName = ''
+      this.queryForm.roleName = ''
+      this.queryForm.queryState = ''
+      this.getList()
     },
     handleSizeChange(val) {
       this.pageSize = val
@@ -404,16 +409,27 @@ export default {
         this.queryForm.roleName.length === 0 &&
         this.queryForm.queryState.length === 0
       ) {
-        getUrl = `/employee/${this.companyId}/{loginName}/2/{role}/${
+        getUrl = `/employee/${this.companyId}/{loginName}/-99/{role}/${
           this.pageIndex
         }/${this.pageSize}`
-      }
-      if (
+      } else if (
         this.queryForm.loginName.length === 0 &&
         this.queryForm.roleName.length === 0 &&
         this.queryForm.queryState.length !== 0
       ) {
         getUrl = `/employee/${this.companyId}/{loginName}/${
+          this.queryForm.queryState
+        }/{role}/${this.pageIndex}/${this.pageSize}`
+      } else if (
+        this.queryForm.loginName.length === 0 &&
+        this.queryForm.roleName.length !== 0 &&
+        this.queryForm.queryState.length !== 0
+      ) {
+        getUrl = `/employee/${this.companyId}/{loginName}/${
+          this.queryForm.queryState
+        }/${this.queryForm.roleName}/${this.pageIndex}/${this.pageSize}`
+      } else {
+        getUrl = `/employee/${this.companyId}/${this.queryForm.loginName}/${
           this.queryForm.queryState
         }/{role}/${this.pageIndex}/${this.pageSize}`
       }
@@ -425,7 +441,6 @@ export default {
       if (code === 0) {
         this.tableData = list
         this.total = total
-        console.log(this.tableData)
         list.forEach(function(item) {
           let roleList = item.roleList
           if (roleList.length === 0) return '暂无数据'

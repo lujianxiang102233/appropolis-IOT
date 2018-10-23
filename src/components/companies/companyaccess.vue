@@ -11,9 +11,6 @@
       <el-form-item label="功能点名称">
         <el-input size="mini" v-model="queryTable.permissionName" placeholder="请输入" class="filter-ipt"></el-input>
       </el-form-item>
-      <el-form-item label="FUNCID">
-        <el-input size="mini" v-model="queryTable.permissionCode" placeholder="请输入" class="filter-ipt"></el-input>
-      </el-form-item>
       <el-form-item class="fr">
         <el-button type="primary" @click="onSubmit" size="mini">查询</el-button>
         <el-button @click="resetForm('ruleForm')" size="mini">重置</el-button>
@@ -26,7 +23,10 @@
       :height= 'tableHeight'
       style="width: 100%">
       <el-table-tree-column
-        fixed :expand-all="!1"
+        fixed :expand-all="true"
+        file-icon="icon icon-file"
+        folder-icon="icon icon-folder"
+        :show-overflow-tooltip="true"
         :indent-size="30"
         parent-key="parentId"
         prop="permissionName"
@@ -165,7 +165,7 @@
           <el-input v-model="editForm.permissionName" placeholder="请输入"></el-input>
         </el-form-item>
         <el-form-item label="FUNCID" prop="permissionCode">
-          <el-input v-model="editForm.permissionCode" placeholder="请输入"></el-input>
+          <el-input :disabled="true" v-model="editForm.permissionCode" placeholder="请输入"></el-input>
         </el-form-item>
         <el-form-item label="是否菜单栏" prop="menu">
           <el-radio v-model="editForm.menu" label="true">是</el-radio>
@@ -186,7 +186,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="addCancel">取 消</el-button>
+        <el-button @click="editDalogVisible=false">取 消</el-button>
         <el-button type="primary" @click="editTrue('editForm')">确 定</el-button>
       </span>
     </el-dialog>
@@ -305,12 +305,12 @@ export default {
           }
         ],
         state: [
-          { required: true, message: '请输入公司名称', trigger: 'blur' },
+          { required: true, message: '请输入公司名称', trigger: 'change' },
           {
             min: 0,
             max: 1000,
             message: '最长1000个中文字符',
-            trigger: 'blur'
+            trigger: 'change'
           }
         ]
       },
@@ -326,10 +326,23 @@ export default {
       paipermissionCode: '',
       paiId: '',
       restaurants: [],
-      copyList: []
+      copyList: [],
+      editId: ''
     }
   },
   methods: {
+    expandedAll() {
+      return function _ExpandAll(children, isexpand) {
+        for (var i in children) {
+          if (children[i].expanded !== isexpand) {
+            children[i].expanded = isexpand
+          }
+          if (children[i].$children.length > 0) {
+            _ExpandAll(children[i].children, isexpand)
+          }
+        }
+      }
+    },
     onSubmit() {
       this.pageIndex = 1
       this.getList()
@@ -356,7 +369,6 @@ export default {
       }
       this.coList = JSON.parse(localStorage.getItem('points'))
       let res = await this.axios.get(`/company/permission/${this.companyId}`)
-
       let { code, data } = res.data.content
       if (code === -9999) {
         this.$message.error(`Exception Message`)
@@ -406,6 +418,8 @@ export default {
             this.addForm.newTab = 'true'
             this.addForm.remark = ''
             this.addForm.children = []
+            this.expandedAll(this.$refs.tree2.$children, true)
+            // console.log(this.expandedAll())
           }
         } else {
           return false
@@ -442,8 +456,8 @@ export default {
       }
       this.$refs[formName].validate(async valid => {
         if (valid) {
+          console.log(this.paiId)
           getAddArray(this.treeList.permissionTree, this.paiId, this.addsubForm)
-          console.log(this.treeList.permissionTree)
           let res = await this.axios.post(
             `/company/permission/${this.$route.query.id}/${
               this.addsubForm.permissionName
@@ -495,8 +509,7 @@ export default {
       this.addsubForm.remark = ''
       this.addsubForm.children = []
     },
-    edit(row) {
-      console.log(row)
+    async edit(row) {
       let {
         permissionName,
         permissionCode,
@@ -505,69 +518,192 @@ export default {
         weight,
         newTab,
         remark,
-        children
+        children,
+        id
       } = row
-      this.editDalogVisible = true
-      this.editForm.permissionName = permissionName
-      this.editForm.permissionCode = permissionCode
-      this.editForm.url = url
-      this.editForm.weight = weight
-      this.editForm.menu = String(menu)
-      this.editForm.newTab = String(newTab)
-      this.editForm.remark = remark
-      this.editForm.children = children
+      let res = await this.axios.put(
+        `/company/checkCompanyPermissionChildrenAndRoles/${
+          this.$route.query.id
+        }/${permissionCode}`,
+        {
+          permissionTree: this.treeList.permissionTree,
+          version: this.treeList.version
+        }
+      )
+      let {
+        code,
+        data: { numOfRoles, firstRolesName }
+      } = res.data.content
+      if (code === 0) {
+        if (numOfRoles === 0) {
+          this.$confirm(
+            `该功能点已配置给【${firstRolesName}】,FUNID不可编辑，如需编辑FUNCID请先取消角色授权`,
+            '提示',
+            {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            }
+          )
+            .then(() => {
+              this.editDalogVisible = true
+              this.editForm.permissionName = permissionName
+              this.editForm.permissionCode = permissionCode
+              this.editForm.url = url
+              this.editForm.weight = weight
+              this.editForm.menu = String(menu)
+              this.editForm.newTab = String(newTab)
+              this.editForm.remark = remark
+              this.editForm.children = children
+              this.editId = id
+            })
+            .catch(() => {
+              this.$message({
+                type: 'info',
+                message: '已取消编辑功能点'
+              })
+            })
+        } else if (numOfRoles > 0) {
+          this.$confirm(
+            `该功能点已配置给【${firstRolesName}】等【${numOfRoles}】个角色,FUNID不可编辑，如需编辑FUNCID请先取消角色授权`,
+            '提示',
+            {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            }
+          )
+            .then(() => {
+              this.editDalogVisible = true
+              this.editForm.permissionName = permissionName
+              this.editForm.permissionCode = permissionCode
+              this.editForm.url = url
+              this.editForm.weight = weight
+              this.editForm.menu = String(menu)
+              this.editForm.newTab = String(newTab)
+              this.editForm.remark = remark
+              this.editForm.children = children
+              this.editId = id
+            })
+            .catch(() => {
+              this.$message({
+                type: 'info',
+                message: '已取消编辑功能点'
+              })
+            })
+        } else {
+          this.editDalogVisible = true
+          this.editForm.permissionName = permissionName
+          this.editForm.permissionCode = permissionCode
+          this.editForm.url = url
+          this.editForm.weight = weight
+          this.editForm.menu = String(menu)
+          this.editForm.newTab = String(newTab)
+          this.editForm.remark = remark
+          this.editForm.children = children
+          this.editId = id
+        }
+      }
+      if (code === -9999) {
+        this.$message.error(`Exception Message`)
+      }
     },
-    del(row) {
-      // console.log(row)
-      //  if (roleCount === 0) {
-      //   this.$confirm('确定要删除【' + roleName + '】吗?', '提示', {
-      //     confirmButtonText: '确定',
-      //     cancelButtonText: '取消',
-      //     type: 'warning'
-      //   })
-      //     .then(async () => {
-      //       let res = await this.axios.delete(`/role/${roleId}/${roleName}`)
-      //       let { code } = res.data.content
-      //       if (code === +0) {
-      //         this.$message.success('【' + roleName + '】' + '已删除')
-      //         this.getList()
-      //       }
-      //     })
-      //     .catch(() => {
-      //       this.$message({
-      //         type: 'info',
-      //         message: '已取消删除'
-      //       })
-      //     })
-      // } else {
-      //   this.$confirm(
-      //     '【' +
-      //       roleName +
-      //       '】下共有【' +
-      //       roleCount +
-      //       '】名用户，删除角色后用户将取消相应角色及其授权，是否继续',
-      //     '提示',
-      //     {
-      //       confirmButtonText: '确定',
-      //       cancelButtonText: '取消',
-      //       type: 'warning'
-      //     }
-      //   )
-      //     .then(async () => {
-      //       let res = await this.axios.delete(`/role/${roleId}/${roleName}`)
-      //       let { code } = res.data.content
-      //       if (code === +0) {
-      //         this.$message.success('【' + roleName + '】' + '已删除')
-      //         this.getList()
-      //       }
-      //     })
-      //     .catch(() => {
-      //       this.$message({
-      //         type: 'info',
-      //         message: '已取消删除'
-      //       })
-      //     })
-      // }
+    async del(row) {
+      let { id, permissionCode, permissionName } = row
+      this.editId = id
+      let res1 = await this.axios.put(
+        `/company/checkCompanyPermissionChildrenAndRoles/${
+          this.$route.query.id
+        }/${permissionCode}`,
+        {
+          permissionTree: this.treeList.permissionTree,
+          version: this.treeList.version
+        }
+      )
+      let {
+        code,
+        data: { numOfChildren, numOfRoles, firstRolesName }
+      } = res1.data.content
+      function getAddArray(data, id) {
+        for (var i in data) {
+          if (data[i].id === id) {
+            data.splice(i, 1)
+            break
+          }
+          if (data[i].children.length > 0) {
+            getAddArray(data[i].children, id)
+          }
+        }
+      }
+      if (code === 0) {
+        if (numOfChildren <= 0 && numOfRoles <= 0) {
+          this.$confirm(
+            `确定取消【${
+              this.$route.query.companyName
+            }】关于【${permissionName}】的授权吗？`,
+            '提示',
+            {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            }
+          )
+            .then(async () => {
+              getAddArray(this.treeList.permissionTree, this.editId)
+              let res2 = await this.axios.put(
+                `/company/permission/${
+                  this.$route.query.id
+                }/${permissionCode}/${permissionName}`,
+                {
+                  permissionTree: this.treeList.permissionTree,
+                  version: this.treeList.version
+                }
+              )
+              let { code } = res2.data.content
+              if (code === 0) {
+                this.$message.success(
+                  `已取消【${
+                    this.$route.query.companyName
+                  }】的【${permissionName}】权限`
+                )
+                this.getList()
+                this.show = true
+              }
+              if (code === -9999) {
+                this.$message.error('Exception Message')
+              }
+              if (code === -3009) {
+                this.$message.error('权限已存在')
+              }
+              if (code === -3010) {
+                this.$message.error('权限已授权')
+              }
+              if (code === -3011) {
+                this.$message.error('权限树版本问题')
+              }
+            })
+            .catch(() => {
+              this.$message({
+                type: 'info',
+                message: '已取消删除'
+              })
+            })
+        } else if (numOfChildren > 0) {
+          this.$message.error('无法删除，请先删除该功能下的其他子功能点')
+        } else if (numOfChildren === 0 && numOfRoles === 1) {
+          this.$message.error(
+            `无法删除，【${
+              row.permissionName
+            }】已授权给【${firstRolesName}】,请先取消对角色的授权`
+          )
+        } else {
+          this.$message.error(
+            `无法删除，【${
+              row.permissionName
+            }】已授权给【${firstRolesName}】等【${numOfRoles}】个角色,请先取消对角色的授权`
+          )
+        }
+      }
     },
     async render() {
       let res = await this.axios.get(
@@ -580,7 +716,7 @@ export default {
       if (code === +0) {
         this.copyList = list.map(function(item) {
           return {
-            value: '【' + item.companyName + '（' + item.companyCode + '）】',
+            value: `【${item.companyName}(${item.companyCode}】`,
             companyId: item.companyId,
             companyName: item.companyName
           }
@@ -599,7 +735,6 @@ export default {
       var results = queryString
         ? restaurants.filter(this.createFilter(queryString))
         : restaurants
-      // 调用 callback 返回建议列表的数据
       cb(results)
     },
     createFilter(queryString) {
@@ -614,27 +749,30 @@ export default {
       this.copyForm.state = ''
     },
     copy(formName) {
-      // console.log(this.companyId)
       this.$refs[formName].validate(async valid => {
         if (valid) {
-          // console.log(this.companyId)
-          this.$confirm('是否放弃已有权限配置?', '提示', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-          })
-            .then(async () => {
-              console.log(this.companyId)
-              this.getList()
-              this.$message.success(`已复制【${this.companyName}】配置权限`)
-              this.copyDalogVisible = false
+          if (this.funcTable !== undefined) {
+            this.$confirm('是否放弃已有权限配置?', '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
             })
-            .catch(() => {
-              this.$message({
-                type: 'info',
-                message: '已取消复制权限'
+              .then(async () => {
+                this.getList()
+                this.$message.success(`已复制【${this.companyName}】配置权限`)
+                this.copyDalogVisible = false
               })
-            })
+              .catch(() => {
+                this.$message({
+                  type: 'info',
+                  message: '已取消复制权限'
+                })
+              })
+          } else {
+            this.getList()
+            this.$message.success(`已复制【${this.companyName}】配置权限`)
+            this.copyDalogVisible = false
+          }
         } else {
           return false
         }
@@ -644,9 +782,43 @@ export default {
       this.companyId = item.companyId
     },
     editTrue(formName) {
+      function getAddArray(data, id, child) {
+        for (var i in data) {
+          if (data[i].id === id) {
+            data.splice(i, 1, child)
+          }
+          if (data[i].children.length > 0) {
+            getAddArray(data[i].children, id, child)
+          }
+        }
+      }
       this.$refs[formName].validate(async valid => {
         if (valid) {
-          console.log(123)
+          getAddArray(this.treeList.permissionTree, this.editId, this.editForm)
+          let res = await this.axios.put(
+            `/company/permission/${this.$route.query.id}/${
+              this.editForm.permissionCode
+            }`,
+            {
+              permissionTree: this.treeList.permissionTree,
+              version: this.treeList.version
+            }
+          )
+          let { code } = res.data.content
+          if (code === 0) {
+            this.$message.success(`编辑功能完成`)
+            this.getList()
+          }
+          if (code === -3009) {
+            this.$message.error('权限已存在')
+          }
+          if (code === -3010) {
+            this.$message.error('权限已授权')
+          }
+          if (code === -3011) {
+            this.$message.error('权限树版本问题')
+          }
+          this.editDalogVisible = false
         } else {
           return false
         }

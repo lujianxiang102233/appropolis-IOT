@@ -60,6 +60,7 @@ export default {
             localStorage.setItem('companyId', data.companyId)
             localStorage.setItem('loginName', data.loginName)
             localStorage.setItem('companyTree', data.companyTree)
+            localStorage.setItem('companySet', JSON.stringify(data.companySet))
             this.$router.push('/')
           }
         } else {

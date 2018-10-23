@@ -21,6 +21,7 @@
       style="width: 100%">
       <el-table-column
         type="index"
+        :index="indexMethod"
         width="50">
       </el-table-column>
       <el-table-column
@@ -73,7 +74,7 @@
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
       :currentPage="pageIndex"
-      :page-sizes="[5, 10, 15, 20]"
+      :page-sizes="[10, 20, 50, 100]"
       :page-size="pageSize"
       layout="total, prev, pager, next, sizes, jumper"
       :total="total">
@@ -238,7 +239,7 @@ export default {
         companyName: ''
       },
       pageIndex: 1,
-      pageSize: 5,
+      pageSize: 10,
       total: 1,
       coList: []
     }
@@ -276,7 +277,6 @@ export default {
       } = res.data.content
       if (code === 0) {
         this.tableData = list
-        console.log(this.tableData)
         this.total = total
       }
     },
@@ -353,6 +353,9 @@ export default {
           row.companyName
         }`
       })
+    },
+    indexMethod(index) {
+      return (this.pageIndex - 1) * this.pageSize + index + 1
     }
   },
   created() {

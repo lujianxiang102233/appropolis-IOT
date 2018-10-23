@@ -207,7 +207,13 @@ export default {
   },
   created() {
     this.menusList = JSON.parse(localStorage.getItem('points'))
-    this.companySet = JSON.parse(localStorage.getItem('companySet'))
+    // let newSet = JSON.parse(localStorage.getItem('companySet'))
+    let newSet = localStorage.getItem('companySet')
+    if (newSet === 'undefined') {
+      this.companySet = [{ companyName: '没有数据' }]
+    } else {
+      this.companySet = JSON.parse(newSet)
+    }
   }
 }
 </script>

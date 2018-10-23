@@ -21,9 +21,10 @@
       <!-- <el-table
       :data="funcTable"
       :height= 'tableHeight'
+      ref="aaa"
       style="width: 100%">
       <el-table-tree-column
-        fixed :expand-all="true"
+        :expandAll="true"
         file-icon="icon icon-file"
         folder-icon="icon icon-folder"
         :show-overflow-tooltip="true"
@@ -31,6 +32,7 @@
         parent-key="parentId"
         prop="permissionName"
         width="170"
+         ref="tree"
         label="功能点名称">
         <template slot-scope="scope">
           <span class="elliSpan" :title="scope.row.permissionName">{{scope.row.permissionName}}</span>
@@ -98,17 +100,11 @@
         default-expand-all
         :expand-on-click-node = "false">
         <span slot-scope= "{node,data}" class="treeTable">
-          <span class="elli permissionName" >{{data.permissionName}}</span>
+          <span class="permissionName" >{{data.permissionName}}</span>
           <span class="elli permissionCode" :title="data.permissionCode">{{data.permissionCode}}</span>
           <span class="elli menu">{{data.menu}}</span>
           <span class="elli url">{{data.url}}</span>
           <span class="elli remark">{{data.remark}}</span>
-          <!-- <span class="content overflowClass">
-            {{data.permissionCode?data.permissionCode:"--"}}
-          </span>
-          <span class="content overflowClass">
-            {{data.remark?data.remark:"--"}}
-          </span> -->
           <span>
             <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_addsub')>-1"  plain @click="addsub(scope.row)" >添加</el-button>
             <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_edit')>-1"  plain @click="edit(scope.row)">编辑</el-button>
@@ -362,7 +358,62 @@ export default {
       paiId: '',
       restaurants: [],
       copyList: [],
-      editId: ''
+      editId: '',
+      bbb: [
+        {
+          id: 1,
+          label: '一级 1',
+          children: [
+            {
+              id: 4,
+              label: '二级 1-1',
+              children: [
+                {
+                  id: 9,
+                  label: '三级 1-1-1'
+                },
+                {
+                  id: 10,
+                  label: '三级 1-1-2'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 2,
+          label: '一级 2',
+          children: [
+            {
+              id: 5,
+              label: '二级 2-1'
+            },
+            {
+              id: 6,
+              label: '二级 2-2'
+            }
+          ]
+        },
+        {
+          id: 3,
+          label: '一级 3',
+          children: [
+            {
+              id: 7,
+              label: '二级 3-1'
+            },
+            {
+              id: 8,
+              label: '二级 3-2'
+            }
+          ]
+        }
+      ],
+      defaultProps: {
+        children: 'children',
+        label: 'label'
+      },
+      ccc: [5]
     }
   },
   methods: {
@@ -865,6 +916,7 @@ export default {
     'el-table-tree-column': ElTreeGrid
   },
   created() {
+    this.ccc = [5]
     this.companyId = this.$route.query.id
     this.getList()
     this.tableHeight = `${document.documentElement.clientHeight}` - 320
@@ -983,7 +1035,7 @@ export default {
     display: flex;
     width: 1200px;
     .permissionName {
-      flex: 0.6;
+      width: 9%;
       padding-left: 40px;
     }
     .permissionCode {
@@ -1017,7 +1069,8 @@ export default {
     display: flex;
     font-size: 14px;
     .permissionName {
-      flex: 1;
+      max-width: 200px;
+      min-width: 200px;
     }
     .permissionCode {
       text-align: center;
@@ -1068,6 +1121,12 @@ export default {
     height: 53px;
     line-height: 53px;
     border-top: 1px solid #ebeef5;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 14px;
+    padding-right: 8px;
   }
 }
 </style>

@@ -9,7 +9,7 @@
     <el-form :inline="true" class="clearfix demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_co_func_query')>-1" :model="queryTable">
       <div class="filter">筛选</div>
       <el-form-item label="功能点名称">
-        <el-input size="mini" v-model="queryTable.permissionName" placeholder="请输入" class="filter-ipt"></el-input>
+        <el-input size="mini" v-model="filterText" placeholder="请输入" class="filter-ipt"></el-input>
       </el-form-item>
       <el-form-item class="fr">
         <el-button type="primary" @click="onSubmit" size="mini">查询</el-button>
@@ -18,72 +18,6 @@
     </el-form>
      <el-button type="primary" style="margin-top: 10px;" size="mini" @click="addDalogVisible = true" v-if="coList.indexOf('permission_co_func_add')>-1">+ 新建一级功能点</el-button>
      <el-button type="primary" style="margin:0px 40px;" size="mini" @click="copyDalogVisible = true" v-if="coList.indexOf('permission_co_func_copy')>-1">复制其他公司权限</el-button>
-      <!-- <el-table
-      :data="funcTable"
-      :height= 'tableHeight'
-      ref="aaa"
-      style="width: 100%">
-      <el-table-tree-column
-        :expandAll="true"
-        file-icon="icon icon-file"
-        folder-icon="icon icon-folder"
-        :show-overflow-tooltip="true"
-        :indent-size="30"
-        parent-key="parentId"
-        prop="permissionName"
-        width="170"
-         ref="tree"
-        label="功能点名称">
-        <template slot-scope="scope">
-          <span class="elliSpan" :title="scope.row.permissionName">{{scope.row.permissionName}}</span>
-        </template>
-      </el-table-tree-column>
-      <el-table-column
-        prop="permissionCode"
-        width="150"
-        align="center"
-        label="FUNCID">
-         <template slot-scope="scope">
-          <div class="elli" :title="scope.row.permissionCode">{{scope.row.permissionCode}}</div>
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="menu"
-        width="120"
-        align="center"
-        label="菜单栏（权重）">
-       <template slot-scope="scope">
-          <div>{{scope.row.menu?'是':'否'}}&nbsp;&nbsp;&nbsp;<span v-show="scope.row.weight>-1">(</span>{{scope.row.weight}}<span v-show="scope.row.weight >-1">)</span></div>
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="url"
-        width="140"
-        align="center"
-        label="url">
-        <template slot-scope="scope">
-          <a href="scope.row.url" class="elli" target="_blank"  :title="scope.row.url">{{scope.row.url}}</a>
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="remark"
-        width="150"
-        align="center"
-        label="功能描述">
-        <template slot-scope="scope">
-          <div class="elli" :title="scope.row.remark">{{scope.row.remark}}</div>
-        </template>
-      </el-table-column>
-      <el-table-column
-        align="center"
-        label="操作">
-        <template slot-scope="scope">
-          <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_addsub')>-1"  plain @click="addsub(scope.row)" >添加</el-button>
-          <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_edit')>-1"  plain @click="edit(scope.row)">编辑</el-button>
-          <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_del')>-1"  plain @click="del(scope.row)">删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table> -->
     <div class="table" :style="{height: tableHeight + 'px' }">
       <div class="tableTitle">
         <span class="permissionName">功能点名称</span>
@@ -98,6 +32,7 @@
         show-checkbox
         node-key = "id"
         default-expand-all
+        :filter-node-method="filterNode"
         :expand-on-click-node = "false">
         <span slot-scope= "{node,data}" class="treeTable">
           <span class="permissionName" >{{data.permissionName}}</span>
@@ -251,6 +186,7 @@ let ElTreeGrid = require('element-tree-grid')
 export default {
   data() {
     return {
+      filterText: '',
       addDalogVisible: false,
       addsubDalogVisible: false,
       editDalogVisible: false,
@@ -417,18 +353,18 @@ export default {
     }
   },
   methods: {
-    expandedAll() {
-      return function _ExpandAll(children, isexpand) {
-        for (var i in children) {
-          if (children[i].expanded !== isexpand) {
-            children[i].expanded = isexpand
-          }
-          if (children[i].$children.length > 0) {
-            _ExpandAll(children[i].children, isexpand)
-          }
-        }
-      }
-    },
+    // expandedAll() {
+    //   return function _ExpandAll(children, isexpand) {
+    //     for (var i in children) {
+    //       if (children[i].expanded !== isexpand) {
+    //         children[i].expanded = isexpand
+    //       }
+    //       if (children[i].$children.length > 0) {
+    //         _ExpandAll(children[i].children, isexpand)
+    //       }
+    //     }
+    //   }
+    // },
     onSubmit() {
       this.pageIndex = 1
       this.getList()
@@ -622,7 +558,6 @@ export default {
         code,
         data: { numOfRoles, firstRolesName }
       } = res.data.content
-      console.log(numOfRoles)
       if (code === 0) {
         if (numOfRoles === 1) {
           this.$confirm(
@@ -912,6 +847,10 @@ export default {
           return false
         }
       })
+    },
+    filterNode(value, data) {
+      if (!value) return true
+      return data.label.indexOf(value) !== -1
     }
   },
   components: {
@@ -929,6 +868,11 @@ export default {
       return (() => {
         this.tableHeight = document.documentElement.clientHeight - 320
       })()
+    }
+  },
+  watch: {
+    filterText(val) {
+      this.$refs.tree2.filter(val)
     }
   }
 }

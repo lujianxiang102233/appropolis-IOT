@@ -105,10 +105,10 @@
           <span class="elli menu">{{data.menu}}</span>
           <span class="elli url">{{data.url}}</span>
           <span class="elli remark">{{data.remark}}</span>
-          <span>
-            <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_addsub')>-1"  plain @click="addsub(scope.row)" >添加</el-button>
-            <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_edit')>-1"  plain @click="edit(scope.row)">编辑</el-button>
-            <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_del')>-1"  plain @click="del(scope.row)">删除</el-button>
+          <span class="handle">
+            <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_addsub')>-1"  plain @click="addsub(data)" >添加</el-button>
+            <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_edit')>-1"  plain @click="edit(data)">编辑</el-button>
+            <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_del')>-1"  plain @click="del(data)">删除</el-button>
           </span>
         </span>
       </el-tree>
@@ -487,7 +487,7 @@ export default {
           if (code === +-3010) {
             this.$message.error(`权限已授权`)
           }
-          if (code === +-3009) {
+          if (code === +-3011) {
             this.$message.error(`权限树版本问题`)
           }
           if (code === +-9999) {
@@ -1027,7 +1027,7 @@ export default {
 .table {
   margin-top: 20px;
   border: 1px solid #999;
-  width: 1009px;
+  // width: 1009px;
   overflow: auto;
   .tableTitle {
     height: 53px;
@@ -1035,12 +1035,13 @@ export default {
     display: flex;
     width: 1200px;
     .permissionName {
-      width: 9%;
+      width: 200px;
       padding-left: 40px;
+      box-sizing: border-box;
     }
     .permissionCode {
       text-align: center;
-      width: 150px;
+      width: 200px;
       padding: 0 10px;
     }
     .menu {
@@ -1050,7 +1051,7 @@ export default {
     }
     .remark {
       text-align: center;
-      width: 150px;
+      width: 170px;
       padding: 0 10px;
     }
     .url {
@@ -1093,8 +1094,14 @@ export default {
     .remark {
       text-align: center;
       display: inline-block;
-      width: 150px;
+      width: 170px;
       padding: 0 10px;
+    }
+    .handle {
+      text-align: center;
+      width: 300px;
+      padding: 0 10px;
+      display: inline-block;
     }
     .elli {
       display: inline-block;
@@ -1117,14 +1124,15 @@ export default {
   }
 }
 .el-tree {
+  width: 1200px;
   /deep/ .el-tree-node__content {
     height: 53px;
     line-height: 53px;
     border-top: 1px solid #ebeef5;
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    // flex: 1;
+    // display: flex;
+    // align-items: center;
+    // justify-content: space-between;
     font-size: 14px;
     padding-right: 8px;
   }

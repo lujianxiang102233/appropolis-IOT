@@ -38,8 +38,7 @@
         <span slot-scope= "{node,data}" class="treeTable">
           <span class="permissionName" >{{data.permissionName}}</span>
           <span class="elli permissionCode" :title="data.permissionCode">{{data.permissionCode}}</span>
-          <!-- <span class="elli menu">{{data.menu}}</span> -->
-          <span  >{{data.menu?'是':'否'}}&nbsp;&nbsp;&nbsp;<span v-show="data.weight>-1">(</span>{{data.weight}}<span v-show="data.weight >-1">)</span></span>
+          <div  class="menu">{{data.menu?'是':'否'}}&nbsp;&nbsp;&nbsp;<span v-show="data.weight>-1">(</span>{{data.weight}}<span v-show="data.weight >-1">)</span></div>
           <span class="elli url" :title="data.url">{{data.url}}</span>
           <span class="elli remark" :title="data.remark">{{data.remark}}</span>
           <span class="handle">
@@ -187,7 +186,58 @@
 let ElTreeGrid = require('element-tree-grid')
 export default {
   data() {
+    const data = [
+      {
+        id: 1,
+        label: '一级 1',
+        children: [
+          {
+            id: 4,
+            label: '二级 1-1',
+            children: [
+              {
+                id: 9,
+                label: '三级 1-1-1'
+              },
+              {
+                id: 10,
+                label: '三级 1-1-2'
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: 2,
+        label: '一级 2',
+        children: [
+          {
+            id: 5,
+            label: '二级 2-1'
+          },
+          {
+            id: 6,
+            label: '二级 2-2'
+          }
+        ]
+      },
+      {
+        id: 3,
+        label: '一级 3',
+        children: [
+          {
+            id: 7,
+            label: '二级 3-1'
+          },
+          {
+            id: 8,
+            label: '二级 3-2'
+          }
+        ]
+      }
+    ]
     return {
+      data5: JSON.parse(JSON.stringify(data)),
       filterText: '',
       addDalogVisible: false,
       addsubDalogVisible: false,
@@ -851,8 +901,6 @@ export default {
       })
     },
     filterNode(value, data) {
-      console.log(value)
-      console.log(data)
       if (!value) return true
       return data.permissionName.indexOf(value) !== -1
     }
@@ -979,111 +1027,120 @@ export default {
   border: 1px solid #999;
   // width: 1009px;
   overflow: auto;
+  .elli {
+    display: inline-block;
+    *display: inline;
+    *zoom: 1;
+    width: 10em;
+    height: 53px;
+    line-height: 53px;
+    // font-size: 12px;
+    overflow: hidden;
+    -ms-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
   .tableTitle {
     height: 53px;
     line-height: 53px;
     display: flex;
     width: 1200px;
     .permissionName {
-      width: 500px;
+      flex: 3;
       padding-left: 10px;
       box-sizing: border-box;
     }
     .permissionCode {
       text-align: center;
-      width: 300px;
+      // width: 300px;
+      flex: 1;
       padding: 0 10px;
     }
     .menu {
       text-align: center;
-      width: 120px;
+      // width: 120px;
+      flex: 1;
       padding: 0 10px;
     }
     .remark {
       text-align: center;
-      width: 170px;
+      // width: 170px;
       padding: 0 10px;
+      flex: 1;
     }
     .url {
       text-align: center;
-      width: 140px;
+      // width: 140px;
       padding: 0 10px;
+      flex: 1;
     }
     .handle {
       text-align: center;
-      width: 300px;
+      // width: 300px;
+      flex: 1;
       padding: 0 10px;
     }
   }
-  .treeTable {
-    flex: 1;
-    display: flex;
-    font-size: 14px;
-    .permissionName {
-      flex: 1;
-    }
-    .elli.permissionCode {
-      text-align: center;
-      display: inline-block;
-      width: 160px;
-      padding: 0 50px;
-    }
-    .elli.menu {
-      text-align: center;
-      display: inline-block;
-      width: 120px;
-      padding: 0 100px;
-    }
-    .elli.url {
-      text-align: center;
-      display: inline-block;
-      width: 140px;
-      padding: 0 10px;
-    }
-    .elli.remark {
-      text-align: center;
-      display: inline-block;
-      width: 170px;
-      padding: 0 10px;
-    }
-    .elli.handle {
-      text-align: center;
-      width: 300px;
-      padding: 0 10px;
-      display: inline-block;
-    }
-    .elli {
-      display: inline-block;
-      *display: inline;
-      *zoom: 1;
-      width: 10em;
+  .el-tree {
+    width: 1200px;
+    /deep/ .el-tree-node__content {
       height: 53px;
       line-height: 53px;
-      // font-size: 12px;
-      overflow: hidden;
-      -ms-text-overflow: ellipsis;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      border-top: 1px solid #ebeef5;
+      // flex: 1;
+      // display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 14px;
+      padding-right: 8px;
+      .treeTable {
+        flex: 1;
+        display: flex;
+        font-size: 14px;
+        .permissionName {
+          flex: 3;
+        }
+        .elli.permissionCode {
+          text-align: center;
+          display: inline-block;
+          // width: 160px;
+          flex: 1;
+          padding: 0 50px;
+        }
+        .elli.url {
+          text-align: center;
+          display: inline-block;
+          width: 170px;
+          // flex: 1;
+          padding: 0 10px;
+        }
+        .elli.remark {
+          text-align: center;
+          display: inline-block;
+          width: 170px;
+          padding: 0 10px;
+        }
+        div.menu {
+          text-align: center;
+          display: inline-block;
+          width: 140px;
+          // flex: 1;
+          padding: 0 10px;
+        }
+        .elli.handle {
+          text-align: center;
+          flex: 1;
+          // width: 300px;
+          padding: 0 10px;
+          display: inline-block;
+        }
+      }
     }
   }
   .overflowClass {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-  }
-}
-.el-tree {
-  width: 1200px;
-  /deep/ .el-tree-node__content {
-    height: 53px;
-    line-height: 53px;
-    border-top: 1px solid #ebeef5;
-    // flex: 1;
-    // display: flex;
-    // align-items: center;
-    // justify-content: space-between;
-    font-size: 14px;
-    padding-right: 8px;
   }
 }
 </style>

@@ -150,14 +150,7 @@ export default {
         editCheckPass: ''
       },
       rules: {
-        oldPass: [
-          { required: true, message: '请输入密码', trigger: 'blur' },
-          {
-            pattern: /^(?![0-9]+$)(?![a-z]+$)(?![A-Z]+$)(?![a-zA-Z]+$)(?![0-9a-z]+$)(?![0-9A-Z]+$)[0-9A-Za-z]{6,16}$/,
-            message: '仅英文及数字，6-16位。至少包括1位数字、大小写英文字符',
-            trigger: 'blur'
-          }
-        ],
+        oldPass: [{ required: true, message: '请输入密码', trigger: 'blur' }],
         pass: [
           { required: true, message: '请输入密码', trigger: 'blur' },
           {

@@ -392,7 +392,7 @@ export default {
             this.$message.error(`Exception Message`)
           }
           if (code === +0) {
-            this.$message.success(`新建角色成功`)
+            this.$message.success(`编辑角色成功`)
             this.getList()
             this.editDalogVisible = false
             this.addForm.roleName = ''

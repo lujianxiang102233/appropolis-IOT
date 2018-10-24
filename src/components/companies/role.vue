@@ -514,7 +514,14 @@ export default {
   },
   created() {
     this.getList()
-    this.tableHeight = `${document.documentElement.clientHeight}` - 300
+    this.tableHeight = document.documentElement.clientHeight - 320
+  },
+  mounted() {
+    window.onresize = () => {
+      return (() => {
+        this.tableHeight = document.documentElement.clientHeight - 320
+      })()
+    }
   }
 }
 </script>

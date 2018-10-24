@@ -52,6 +52,7 @@
     </el-container>
     </el-container>
     <el-dialog
+    data-backdrop="static"
       title="重置用户密码"
       :visible.sync="resetDialogVisible"
       width="30%">

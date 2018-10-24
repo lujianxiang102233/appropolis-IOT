@@ -443,23 +443,31 @@ export default {
       }
       this.coList = JSON.parse(localStorage.getItem('points'))
       let res = await this.axios.get(`/company/permission/${this.companyId}`)
+      console.log(res)
       let { code, data } = res.data.content
       if (code === -9999) {
         this.$message.error(`Exception Message`)
       }
       if (code === 0) {
         let newdata = JSON.parse(data)
-        console.log(newdata.permissionTree)
         getArray(newdata.permissionTree, 0, null)
         this.funcTable = newdata.permissionTree
-        console.log(this.funcTable)
         this.treeList = newdata
       }
     },
     add(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
-          this.treeList.permissionTree.push(this.addForm)
+          // this.treeList.permissionTree.push(this.addForm)
+          // if(this.treeList.permissionTree === undefined){
+          // }
+          if (this.treeList.permissionTree === undefined) {
+            this.treeList.permissionTree = []
+            this.treeList.permissionTree.push(this.addForm)
+          } else {
+            this.treeList.permissionTree.push(this.addForm)
+          }
+          console.log(this.treeList)
           let res = await this.axios.post(
             `/company/permission/${this.$route.query.id}/${
               this.addForm.permissionName

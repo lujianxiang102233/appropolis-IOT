@@ -306,7 +306,7 @@ export default {
       this.addForm = {}
     },
     output() {
-      this.addForm.adminLoginName = this.addForm.companyCode + 'admin'
+      this.addForm.adminLoginName = this.addForm.companyCode + '_admin'
       if (!this.addForm.companyCode) {
         this.addForm.adminLoginName = ''
       }

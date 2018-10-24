@@ -44,8 +44,7 @@
             :filter-node-method= "filterNode"
             ref="tree"
             :default-checked-keys= "checkedKeys"
-            @check = "onCheck()"
-            >
+            @check = "onCheck()">
             <span slot-scope= "{node,data}" class="treeTable">
               <span class="tree">{{data.permissionName}}</span>
               <span class="content overflowClass">
@@ -73,10 +72,6 @@ export default {
   data() {
     return {
       // 下为用
-      // treeTable: {
-      //   permissionName: '',
-      //   permissionCode: ''
-      // },
       filterName: '',
       filterCode: '',
       checkedCodes: [],
@@ -87,28 +82,24 @@ export default {
   },
   created() {
     this.getTreeData()
-    this.getData()
+    this.getCheckedData()
     this.changedKeys(this.treeTableData)
-    // this.setDisabled(this.treeTableData)
+    this.setDisabled(this.treeTableData)
   },
   mounted() {},
   watch: {
-    // keys: {
-    //   handler(cur, old) {
-    //     console.log(old, 'old')
-    //     console.log(cur, 'cur')
-    //     this.changedCodes(this.treeTableData, cur)
-    //   },
-    //   deep: true
+    // keys(cur, old) {
+    //   console.log(old, 'old')
+    //   console.log(cur, 'cur')
+    //   this.changedCodes(this.treeTableData, cur)
     // }
   },
   methods: {
     // 勾选获取
     onCheck(data) {
       this.keys = this.$refs.tree.getCheckedKeys()
-      console.log(this.keys)
       this.codes = []
-      this.changedCodes(this.treeTableData, this.keys)
+      this.changedCodes(this.treeTableData, this.checkedKeys)
     },
     // key转换code值 &&获取codes
     changedCodes(forData, key) {
@@ -121,7 +112,6 @@ export default {
         }
       }
       this.codes = Array.from(new Set(this.codes))
-      console.log(this.codes)
     },
     // 返回上一级
     goBack() {
@@ -143,24 +133,24 @@ export default {
         ) {
           this.checkedKeys.push(item.id)
         } else if (item.children.length > 0) {
+          this.checkedKeys.push(item.id)
           this.changedKeys(item.children)
         }
-        this.checkedKeys.push(item.id)
       }
     },
     // 每个节点添加disabled
-    // setDisabled(forData) {
-    //   if (!this.authEdit) {
-    //     return forData.map(item => {
-    //       if (item.children.length === 0) {
-    //         return Object.assign({}, item, { disabled: true })
-    //       } else if (item.children.length > 0) {
-    //         // console.log(this.item(item))
-    //         return this.setDisabled(item.children)
-    //       }
-    //     })
-    //   }
-    // },
+    setDisabled(forData) {
+      if (!this.authEdit) {
+        for (let item of forData) {
+          if (item.children.length === 0) {
+            Object.assign(item, { disabled: true })
+          } else if (item.children.length > 0) {
+            Object.assign(item, { disabled: true })
+            this.setDisabled(item.children)
+          }
+        }
+      }
+    },
     // 查询
     onSubmit(val) {
       this.$refs.tree.filter(val)
@@ -169,7 +159,7 @@ export default {
     onReset(formInline) {
       this.filterName = ''
       this.getTreeData()
-      this.getData()
+      this.getCheckedData()
     },
     // 取消
     cancal() {
@@ -198,6 +188,7 @@ export default {
           })
       }
       this.putData()
+      this.codes = []
     },
     putData() {
       console.log(this.codes, 'codes')
@@ -218,7 +209,7 @@ export default {
           console.log(error)
         })
     },
-    getData() {
+    getCheckedData() {
       let roleId = this.$route.query.roleId
       let urlRest = `/role/permission/${roleId}`
       this.axios
@@ -226,6 +217,7 @@ export default {
         .then(response => {
           if (response.data.content.code === 0) {
             this.checkedCodes = response.data.content.data
+            console.log(response.data.content.data)
           }
         })
         .catch(error => {

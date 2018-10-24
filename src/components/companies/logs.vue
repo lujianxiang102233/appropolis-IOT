@@ -96,7 +96,7 @@
             @size-change = "handleSizeChange"
             @current-change = "handleCurrentChange"
             :current-page = "currentPage"
-            :page-sizes = "[5,10,15,20]"
+            :page-sizes = "[10,20,50,100]"
             :page-size = "pageSize"
             layout ="total,prev,pager,next,sizes,jumper"
             :total = "total">
@@ -111,7 +111,7 @@ export default {
       companyId: '',
       operationTypeId: '',
       pageIndex: 1,
-      pageSize: 5,
+      pageSize: 10,
       allOperationTypes: [],
       //   form
       formInline: {

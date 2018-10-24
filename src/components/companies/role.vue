@@ -151,8 +151,6 @@
       <el-transfer
         filterable
         :filter-method="filterMethod"
-        :left-default-checked="[2, 3]"
-        :right-default-checked="[1]"
         v-model="value2"
         :titles="['公司成员', '角色成员(角色名称)']"
         :data="data2">
@@ -463,12 +461,12 @@ export default {
     async userBtn(row) {
       this.roleId = row.roleId
       this.userDialogVisible = true
-      let getUrl = `/employee/${this.companyId}/{loginName}/2/{role}/${
+      let getUrl = `/employee/${this.companyId}/{loginName}/-99/{role}/${
         this.epyPageIndex
       }/${this.epyPageSize}`
       let res = await this.axios.get(getUrl)
       let { list } = res.data.content.data
-      // console.log(list)
+      console.log(list)
       let datas = list.map(function(item) {
         return {
           label: item.name + '(' + item.loginName + ')',

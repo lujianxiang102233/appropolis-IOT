@@ -46,13 +46,10 @@ export default {
             ...this.form,
             ...this.code
           })
-          console.log(res.data.content)
           let { code, data } = res.data.content
+          console.log(data.functionPoints)
           if (code === +-3017 || code === +-3016) {
-            console.log(data)
-            console.log(data === undefined)
             if (data === undefined) {
-              console.log(123)
               this.$message.error(`用户名或者密码错误`)
             } else {
               this.$message.error(
@@ -72,7 +69,15 @@ export default {
             localStorage.setItem('companySet', JSON.stringify(data.companySet))
             localStorage.setItem('forceChangePwd', data.forceChangePwd)
             localStorage.setItem('employeeName', data.employeeName)
-            this.$router.push('/')
+            if (data.functionPoints.indexOf('permission_co') > -1) {
+              this.$router.push('/companies')
+            } else if (data.functionPoints.indexOf('permission_role') > -1) {
+              this.$router.push('/role')
+            } else if (data.functionPoints.indexOf('permission_user') > -1) {
+              this.$router.push('/user')
+            } else {
+              this.$router.push('/logs')
+            }
           }
         } else {
           return false

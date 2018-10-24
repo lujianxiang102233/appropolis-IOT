@@ -243,7 +243,7 @@ export default {
             this.$message.error(`新密码不能与原密码一致`)
           }
           this.resetDialogVisible = false
-          this.retForm = {}
+          this.$refs[formName].resetFields()
         } else {
           return false
         }

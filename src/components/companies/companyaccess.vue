@@ -782,9 +782,7 @@ export default {
       }
     },
     async render() {
-      let res = await this.axios.get(
-        `/company/${this.$route.query.companyName}/1/50`
-      )
+      let res = await this.axios.get(`/company/{companyName}/1/50`)
       let {
         code,
         data: { list }

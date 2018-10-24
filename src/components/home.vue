@@ -39,7 +39,7 @@
             </el-dropdown>
             <div class="user" @click="logout">
              <img src="../assets/images/u70.png" @click="collapse">
-             <span>admin</span>
+             <span>{{employeeName}}</span>
              <div class="logout" v-show="isShow">
                <ul>
                  <li @click="editPsd">修改密码</li>
@@ -186,7 +186,8 @@ export default {
         ]
       },
       companySet: {},
-      forceChangePwd: ''
+      forceChangePwd: '',
+      employeeName: ''
     }
   },
   methods: {
@@ -210,6 +211,7 @@ export default {
           localStorage.removeItem('companyTree')
           localStorage.removeItem('companySet')
           localStorage.removeItem('forceChangePwd')
+          localStorage.removeItem('employeeName')
           this.$router.push('./login')
         })
         .catch(() => {
@@ -273,7 +275,6 @@ export default {
             password: this.editForm.editCheckPass
           })
           let { code } = res.data.content
-          console.log(code)
           if (code === +0) {
             this.editDialogVisible = false
             if (this.menusList.indexOf('permission_co') > -1) {
@@ -303,6 +304,7 @@ export default {
   },
   created() {
     this.menusList = JSON.parse(localStorage.getItem('points'))
+    this.employeeName = localStorage.getItem('employeeName')
     let newSet = localStorage.getItem('companySet')
     if (newSet === 'undefined') {
       this.companySet = [{ companyName: '没有数据' }]

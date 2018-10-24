@@ -4,7 +4,7 @@
         <h1>蒙羊牧业有限公司项目后台管理系统</h1>
         <el-form :model="form" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
             <el-form-item prop="loginName" class="loginName">
-                <el-input v-model="form.loginName" placeholder="请输入用户名称" class="user"></el-input>
+                <el-input v-model.trim="form.loginName" placeholder="请输入用户名称" class="user"></el-input>
                 <i v-show="form.loginName.length > 0" class="el-icon-circle-close" @click="clear"></i>
             </el-form-item>
             <el-form-item prop="password">
@@ -49,12 +49,16 @@ export default {
           console.log(res.data.content)
           let { code, data } = res.data.content
           if (code === +-3017 || code === +-3016) {
-            if (data !== undefined) {
+            console.log(data)
+            console.log(data === undefined)
+            if (data === undefined) {
+              console.log(123)
+              this.$message.error(`用户名或者密码错误`)
+            } else {
               this.$message.error(
                 `用户名或者密码错误,还有【${data}】次输入机会`
               )
             }
-            this.$message.error(`用户名或者密码错误`)
           }
           if (code === +-3003) {
             this.$message.error('5次输入错误，账号已锁定，请联系管理员解锁')

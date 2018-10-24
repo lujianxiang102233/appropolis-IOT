@@ -71,6 +71,25 @@
         <el-button type="primary" @click="reset('retForm')">确 定</el-button>
       </span>
     </el-dialog>
+    <el-dialog
+      title="修改密码"
+      :visible.sync="editDialogVisible"
+      width="30%">
+      <span class="judge" v-if="forceChangePwd===1">首次登录请重置账户密码</span>
+      <span class="judge">重置密码后首次登录，请修改账户密码</span>
+      <el-form :model="editForm" status-icon :rules="rules" ref="editForm" label-width="100px" class="demo-ruleForm">
+        <el-form-item label="请输入密码" prop="editPass">
+          <el-input type="password" v-model="editForm.editPass" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="请重复密码" prop="editCheckPass">
+          <el-input type="password" v-model="editForm.editCheckPass" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="editCancel">取 消</el-button>
+        <el-button type="primary" @click="edit('editForm')">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -96,7 +115,27 @@ export default {
         callback()
       }
     }
+    var validatePass3 = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请输入密码'))
+      } else {
+        if (this.editForm.editCheckPass !== '') {
+          this.$refs.editForm.validateField('editCheckPass')
+        }
+        callback()
+      }
+    }
+    var validatePass4 = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请再次输入密码'))
+      } else if (value !== this.editForm.editPass) {
+        callback(new Error('亲，两次输入密码不一致!'))
+      } else {
+        callback()
+      }
+    }
     return {
+      editDialogVisible: false,
       resetDialogVisible: false,
       isCollapse: false,
       isShow: false,
@@ -105,6 +144,10 @@ export default {
         pass: '',
         checkPass: '',
         oldPass: ''
+      },
+      editForm: {
+        editPass: '',
+        editCheckPass: ''
       },
       rules: {
         oldPass: [
@@ -127,9 +170,23 @@ export default {
         checkPass: [
           { required: true, message: '请再次输入密码', trigger: 'blur' },
           { validator: validatePass2, trigger: 'blur' }
+        ],
+        editPass: [
+          { required: true, message: '请输入密码', trigger: 'blur' },
+          {
+            pattern: /^(?![0-9]+$)(?![a-z]+$)(?![A-Z]+$)(?![a-zA-Z]+$)(?![0-9a-z]+$)(?![0-9A-Z]+$)[0-9A-Za-z]{6,16}$/,
+            message: '仅英文及数字，6-16位。至少包括1位数字、大小写英文字符',
+            trigger: 'blur'
+          },
+          { validator: validatePass3, trigger: 'blur' }
+        ],
+        editCheckPass: [
+          { required: true, message: '请再次输入密码', trigger: 'blur' },
+          { validator: validatePass4, trigger: 'blur' }
         ]
       },
-      companySet: {}
+      companySet: {},
+      forceChangePwd: ''
     }
   },
   methods: {
@@ -152,6 +209,7 @@ export default {
           localStorage.removeItem('loginName')
           localStorage.removeItem('companyTree')
           localStorage.removeItem('companySet')
+          localStorage.removeItem('forceChangePwd')
           this.$router.push('./login')
         })
         .catch(() => {
@@ -201,18 +259,59 @@ export default {
       let res = await this.axios.get(`/company/permission/${command}`)
       let { code, data } = res.data.content
       if (code === 0) {
-        console.log(JSON.parse(data))
+        console.log(JSON.parse(data)) // todo
       }
+    },
+    editCancel() {
+      this.editForm = {}
+    },
+    edit(formName) {
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          console.log(123)
+          let res = await this.axios.put(`/employee/password/firstLogin`, {
+            password: this.editForm.editCheckPass
+          })
+          let { code } = res.data.content
+          console.log(code)
+          if (code === +0) {
+            this.editDialogVisible = false
+            if (this.menusList.indexOf('permission_co') > -1) {
+              this.$router.push('/companies')
+            } else if (this.menusList.indexOf('permission_role') > -1) {
+              this.$router.push('/role')
+            } else if (this.menusList.indexOf('permission_user') > -1) {
+              this.$router.push('/user')
+            } else {
+              this.$router.push('/logs')
+            }
+          }
+          if (code === +-9999) {
+            this.$message.error(`Exception Message`)
+          }
+          if (code === +-3007) {
+            this.$message.error(`重置密码与默认密码一致`)
+            // 不能关闭窗口
+            this.editDialogVisible = false
+          }
+          this.retForm = {}
+        } else {
+          return false
+        }
+      })
     }
   },
   created() {
     this.menusList = JSON.parse(localStorage.getItem('points'))
-    // let newSet = JSON.parse(localStorage.getItem('companySet'))
     let newSet = localStorage.getItem('companySet')
     if (newSet === 'undefined') {
       this.companySet = [{ companyName: '没有数据' }]
     } else {
       this.companySet = JSON.parse(newSet)
+    }
+    let forceChangePwd = +localStorage.getItem('forceChangePwd')
+    if (forceChangePwd === 1 || forceChangePwd === 2) {
+      this.editDialogVisible = true
     }
   }
 }
@@ -357,5 +456,12 @@ export default {
     border: 1px solid #3692e8;
     color: #3692e8 !important;
   }
+}
+.el-dialog__body {
+  padding: 20px 20px;
+}
+.judge {
+  color: red;
+  margin-bottom: 10px;
 }
 </style>

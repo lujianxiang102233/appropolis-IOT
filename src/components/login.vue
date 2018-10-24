@@ -61,6 +61,7 @@ export default {
             localStorage.setItem('loginName', data.loginName)
             localStorage.setItem('companyTree', data.companyTree)
             localStorage.setItem('companySet', JSON.stringify(data.companySet))
+            localStorage.setItem('forceChangePwd', data.forceChangePwd)
             this.$router.push('/')
           }
         } else {

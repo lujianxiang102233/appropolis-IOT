@@ -32,12 +32,14 @@
         show-checkbox
         node-key = "id"
         default-expand-all
+        ref="tree2"
         :filter-node-method="filterNode"
         :expand-on-click-node = "false">
         <span slot-scope= "{node,data}" class="treeTable">
           <span class="permissionName" >{{data.permissionName}}</span>
           <span class="elli permissionCode" :title="data.permissionCode">{{data.permissionCode}}</span>
-          <span class="elli menu">{{data.menu}}</span>
+          <!-- <span class="elli menu">{{data.menu}}</span> -->
+          <span  >{{data.menu?'是':'否'}}&nbsp;&nbsp;&nbsp;<span v-show="data.weight>-1">(</span>{{data.weight}}<span v-show="data.weight >-1">)</span></span>
           <span class="elli url" :title="data.url">{{data.url}}</span>
           <span class="elli remark" :title="data.remark">{{data.remark}}</span>
           <span class="handle">
@@ -849,8 +851,10 @@ export default {
       })
     },
     filterNode(value, data) {
+      console.log(value)
+      console.log(data)
       if (!value) return true
-      return data.label.indexOf(value) !== -1
+      return data.permissionName.indexOf(value) !== -1
     }
   },
   components: {
@@ -981,13 +985,13 @@ export default {
     display: flex;
     width: 1200px;
     .permissionName {
-      width: 200px;
-      padding-left: 40px;
+      width: 500px;
+      padding-left: 10px;
       box-sizing: border-box;
     }
     .permissionCode {
       text-align: center;
-      width: 200px;
+      width: 300px;
       padding: 0 10px;
     }
     .menu {
@@ -1016,34 +1020,33 @@ export default {
     display: flex;
     font-size: 14px;
     .permissionName {
-      max-width: 200px;
-      min-width: 200px;
+      flex: 1;
     }
-    .permissionCode {
+    .elli.permissionCode {
       text-align: center;
       display: inline-block;
-      width: 150px;
-      padding: 0 10px;
+      width: 160px;
+      padding: 0 50px;
     }
-    .menu {
+    .elli.menu {
       text-align: center;
       display: inline-block;
       width: 120px;
-      padding: 0 10px;
+      padding: 0 100px;
     }
-    .url {
+    .elli.url {
       text-align: center;
       display: inline-block;
       width: 140px;
       padding: 0 10px;
     }
-    .remark {
+    .elli.remark {
       text-align: center;
       display: inline-block;
       width: 170px;
       padding: 0 10px;
     }
-    .handle {
+    .elli.handle {
       text-align: center;
       width: 300px;
       padding: 0 10px;

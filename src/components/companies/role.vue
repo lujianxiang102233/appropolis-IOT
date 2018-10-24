@@ -488,9 +488,10 @@ export default {
       }
     },
     jump(row) {
-      console.log(row)
       this.$router.push({
-        path: `/roleaccess?roleId=${row.roleId}`
+        name: 'roleaccess',
+        query: { roleId: row.roleId },
+        params: { roleName: row.roleName }
       })
     },
     async members() {
@@ -512,7 +513,14 @@ export default {
   },
   created() {
     this.getList()
-    this.tableHeight = `${document.documentElement.clientHeight}` - 300
+    this.tableHeight = document.documentElement.clientHeight - 320
+  },
+  mounted() {
+    window.onresize = () => {
+      return (() => {
+        this.tableHeight = document.documentElement.clientHeight - 320
+      })()
+    }
   }
 }
 </script>

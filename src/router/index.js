@@ -12,35 +12,47 @@ import roleaccess from '@/components/companies/roleaccess'
 Vue.use(Router)
 
 let router = new Router({
-  routes: [{
-    path: '/login',
-    component: login
-  }, {
-    path: '/',
-    redirect: '/home'
-  }, {
-    path: '/home',
-    component: home,
-    children: [{
-      path: '/companies',
-      component: companies
-    }, {
-      path: '/companyaccess',
-      component: companyaccess
-    }, {
-      path: '/role',
-      component: role
-    }, {
-      path: '/user',
-      component: user
-    }, {
-      path: '/roleaccess',
-      component: roleaccess
-    }, {
-      path: '/logs',
-      component: logs
-    }]
-  }]
+  routes: [
+    {
+      path: '/login',
+      component: login
+    },
+    {
+      path: '/',
+      redirect: '/home'
+    },
+    {
+      path: '/home',
+      component: home,
+      children: [
+        {
+          path: '/companies',
+          component: companies
+        },
+        {
+          path: '/companyaccess',
+          component: companyaccess
+        },
+        {
+          path: '/role',
+          component: role
+        },
+        {
+          path: '/user',
+          component: user
+        },
+        {
+          path: '/roleaccess/:roleName?',
+          name: 'roleaccess',
+          component: roleaccess
+        },
+        {
+          path: '/logs',
+          component: logs
+        }
+      ]
+    }
+  ]
 })
 router.beforeEach((to, from, next) => {
   let token = localStorage.getItem('token')

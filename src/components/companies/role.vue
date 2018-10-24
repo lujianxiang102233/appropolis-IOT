@@ -490,9 +490,10 @@ export default {
       }
     },
     jump(row) {
-      console.log(row)
       this.$router.push({
-        path: `/roleaccess?roleId=${row.roleId}`
+        name: 'roleaccess',
+        query: { roleId: row.roleId },
+        params: { roleName: row.roleName }
       })
     },
     async members() {

@@ -5,7 +5,7 @@
           <el-breadcrumb-item :to= "{ path: '/role' }">角色管理</el-breadcrumb-item>
           <el-breadcrumb-item>角色权限</el-breadcrumb-item>
         </el-breadcrumb>
-        <div class="editCom"><p>编辑【蒙羊牧业有限公司】权限</p></div>
+        <div class="editCom"><p>编辑【{{this.roleName}}】权限</p></div>
         <el-form
           :inline= "true"
           class="role-form">
@@ -37,13 +37,12 @@
             <span class="content">功能描述</span>
           </div>
           <el-tree
+            ref = "tree"
             :data = "treeTableData"
             show-checkbox
             node-key = "id"
             default-expand-all
             :filter-node-method= "filterNode"
-            ref="tree"
-            :default-checked-keys= "checkedKeys"
             @check = "onCheck()">
             <span slot-scope= "{node,data}" class="treeTable">
               <span class="tree">{{data.permissionName}}</span>
@@ -72,6 +71,7 @@ export default {
   data() {
     return {
       // 下为用
+      roleName: '',
       filterName: '',
       filterCode: '',
       checkedCodes: [],
@@ -83,8 +83,8 @@ export default {
   created() {
     this.getTreeData()
     this.getCheckedData()
-    this.changedKeys(this.treeTableData)
     this.setDisabled(this.treeTableData)
+    this.roleName = this.$route.params.roleName
   },
   mounted() {},
   watch: {
@@ -99,7 +99,7 @@ export default {
     onCheck(data) {
       this.keys = this.$refs.tree.getCheckedKeys()
       this.codes = []
-      this.changedCodes(this.treeTableData, this.checkedKeys)
+      this.changedCodes(this.treeTableData, this.keys)
     },
     // key转换code值 &&获取codes
     changedCodes(forData, key) {
@@ -125,16 +125,16 @@ export default {
       return data.permissionName.indexOf(value) !== -1
     },
     // code转换key值 &&获取checkedKeys
-    changedKeys(data) {
-      for (let item of data) {
-        if (
-          item.children.length === 0 &&
-          this.checkedCodes.includes(item.permissionCode)
+    changedKeys(forData, code) {
+      for (let item of forData) {
+        if (item.children.length === 0 && code.includes(item.permissionCode)) {
+          this.checkedKeys.push(item.id)
+        } else if (
+          item.children.length > 0 &&
+          code.includes(item.permissionCode)
         ) {
           this.checkedKeys.push(item.id)
-        } else if (item.children.length > 0) {
-          this.checkedKeys.push(item.id)
-          this.changedKeys(item.children)
+          this.changedKeys(item.children, code)
         }
       }
     },
@@ -197,10 +197,9 @@ export default {
       this.axios
         .put(urlRest, this.codes)
         .then(response => {
-          console.log(response.data)
           if (response.data.content.data === 1) {
             this.$message('提交成功')
-            // this.goBack()
+            this.goBack()
           } else {
             this.$message.error('提交失败')
           }
@@ -217,7 +216,8 @@ export default {
         .then(response => {
           if (response.data.content.code === 0) {
             this.checkedCodes = response.data.content.data
-            console.log(response.data.content.data)
+            this.changedKeys(this.treeTableData, this.checkedCodes)
+            this.$refs.tree.setCheckedKeys(this.checkedKeys)
           }
         })
         .catch(error => {

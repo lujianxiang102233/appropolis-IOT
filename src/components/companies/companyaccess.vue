@@ -38,8 +38,8 @@
           <span class="permissionName" >{{data.permissionName}}</span>
           <span class="elli permissionCode" :title="data.permissionCode">{{data.permissionCode}}</span>
           <span class="elli menu">{{data.menu}}</span>
-          <span class="elli url">{{data.url}}</span>
-          <span class="elli remark">{{data.remark}}</span>
+          <span class="elli url" :title="data.url">{{data.url}}</span>
+          <span class="elli remark" :title="data.remark">{{data.remark}}</span>
           <span class="handle">
             <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_addsub')>-1"  plain @click="addsub(data)" >添加</el-button>
             <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_edit')>-1"  plain @click="edit(data)">编辑</el-button>

@@ -117,7 +117,7 @@ export default {
       formInline: {
         userName: '',
         type: '',
-        date: []
+        date: ''
       },
       //   table
       tableHeight: '',
@@ -169,6 +169,8 @@ export default {
     dateBlur() {
       if (!this.formInline.date) {
         return ''
+      } else if (this.formInline.date[0] === undefined) {
+        this.formInline.date = ''
       }
       let startTime = new Date(this.formInline.date[0])
       let endTime = new Date(this.formInline.date[1])

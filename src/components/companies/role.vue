@@ -216,7 +216,7 @@ export default {
       pageSize: 10,
       total: 1,
       roleName: '',
-      roleState: '',
+      roleState: '2',
       coList: [],
       options: [
         {
@@ -265,12 +265,7 @@ export default {
       let getUrl = `/role/${this.companyId}/${this.roleName}/${
         this.roleState
       }/${this.pageIndex}/${this.pageSize}`
-      if (this.roleName.length === 0 && this.roleState === '') {
-        getUrl = `/role/${this.companyId}/{roleName}/2/${this.pageIndex}/${
-          this.pageSize
-        }`
-      }
-      if (this.roleName.length === 0 && this.roleState !== '') {
+      if (this.roleName.length === 0) {
         getUrl = `/role/${this.companyId}/{roleName}/${this.roleState}/${
           this.pageIndex
         }/${this.pageSize}`

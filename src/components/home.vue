@@ -77,7 +77,7 @@
       :visible.sync="editDialogVisible"
       width="30%">
       <span class="judge" v-if="forceChangePwd===1">首次登录请重置账户密码</span>
-      <span class="judge">重置密码后首次登录，请修改账户密码</span>
+      <span class="judge" v-else>重置密码后首次登录，请修改账户密码</span>
       <el-form :model="editForm" status-icon :rules="rules" ref="editForm" label-width="100px" class="demo-ruleForm">
         <el-form-item label="请输入密码" prop="editPass">
           <el-input type="password" v-model="editForm.editPass" autocomplete="off"></el-input>
@@ -296,6 +296,12 @@ export default {
       })
     }
   },
+  mounted() {
+    this.forceChangePwd = +localStorage.getItem('forceChangePwd')
+    if (this.forceChangePwd === 1 || this.forceChangePwd === 2) {
+      this.editDialogVisible = true
+    }
+  },
   created() {
     this.menusList = JSON.parse(localStorage.getItem('points'))
     this.employeeName = localStorage.getItem('employeeName')
@@ -304,10 +310,6 @@ export default {
       this.companySet = [{ companyName: '没有数据' }]
     } else {
       this.companySet = JSON.parse(newSet)
-    }
-    let forceChangePwd = +localStorage.getItem('forceChangePwd')
-    if (forceChangePwd === 1 || forceChangePwd === 2) {
-      this.editDialogVisible = true
     }
   }
 }

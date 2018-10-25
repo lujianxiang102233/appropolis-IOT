@@ -14,7 +14,7 @@
               <el-input
                 :clearable = "true"
                 size = "mini"
-                v-model = "formInline.userName"
+                v-model.trim = "formInline.userName"
                 placeholder = "请输入"
                 class = "user-form">
               </el-input>

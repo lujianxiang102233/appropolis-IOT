@@ -14,7 +14,7 @@
             <el-input
               :clearable = "true"
               size="mini"
-              v-model= "filterName"
+              v-model.trim= "filterName"
               placeholder= "请输入">
             </el-input>
           </el-form-item>

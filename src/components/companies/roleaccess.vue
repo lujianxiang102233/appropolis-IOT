@@ -109,6 +109,8 @@ export default {
         } else if (item.children.length > 0 && key.includes(item.id)) {
           this.codes.push(item.permissionCode)
           this.changedCodes(item.children, key)
+        } else if (!key.includes(item.id) && item.children.length > 0) {
+          this.changedCodes(item.children, key)
         }
       }
       this.codes = Array.from(new Set(this.codes))
@@ -134,6 +136,11 @@ export default {
           code.includes(item.permissionCode)
         ) {
           this.checkedKeys.push(item.id)
+          this.changedKeys(item.children, code)
+        } else if (
+          !code.includes(item.permissionCode) &&
+          item.children.length > 0
+        ) {
           this.changedKeys(item.children, code)
         }
       }

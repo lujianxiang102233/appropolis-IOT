@@ -41,7 +41,7 @@
             :data = "treeTableData"
             show-checkbox
             node-key = "id"
-            default-expand-all
+            :default-expanded-keys = "expandedKeys"
             :filter-node-method= "filterNode"
             @check = "onCheck()">
             <span slot-scope= "{node,data}" class="treeTable">
@@ -76,8 +76,7 @@ export default {
       filterCode: '',
       checkedCodes: [],
       checkedKeys: [],
-      keys: [],
-      codes: []
+      expandedKeys: []
     }
   },
   created() {
@@ -91,42 +90,34 @@ export default {
     // keys(cur, old) {
     //   console.log(old, 'old')
     //   console.log(cur, 'cur')
-    //   this.changedCodes(this.treeTableData, cur)
     // }
   },
   methods: {
-    // 勾选获取
-    onCheck(data) {
-      this.keys = this.$refs.tree.getCheckedKeys()
-      this.codes = []
-      this.changedCodes(this.treeTableData, this.keys)
+    // 默认展开一二级
+    getExpanded() {
+      this.expandedKeys = this.treeTableData.map(item => {
+        if (item.id) {
+          return item.id
+        } else {
+          return ''
+        }
+      })
     },
-    // key转换code值 &&获取codes
+    // key转换code值 &&获取codes ==修改勾选
     changedCodes(forData, key) {
       for (let item of forData) {
         if (item.children.length === 0 && key.includes(item.id)) {
-          this.codes.push(item.permissionCode)
+          this.checkedCodes.push(item.permissionCode)
         } else if (item.children.length > 0 && key.includes(item.id)) {
-          this.codes.push(item.permissionCode)
+          this.checkedCodes.push(item.permissionCode)
           this.changedCodes(item.children, key)
         } else if (!key.includes(item.id) && item.children.length > 0) {
           this.changedCodes(item.children, key)
         }
       }
-      this.codes = Array.from(new Set(this.codes))
+      this.checkedCodes = Array.from(new Set(this.checkedCodes))
     },
-    // 返回上一级
-    goBack() {
-      this.$router.push({
-        path: '/role'
-      })
-    },
-    // 模糊匹配点击
-    filterNode(value, data) {
-      if (!value) return true
-      return data.permissionName.indexOf(value) !== -1
-    },
-    // code转换key值 &&获取checkedKeys
+    // code转换key值 &&获取checkedKeys ==默认展示
     changedKeys(forData, code) {
       for (let item of forData) {
         if (item.children.length === 0 && code.includes(item.permissionCode)) {
@@ -157,6 +148,23 @@ export default {
           }
         }
       }
+    },
+    // 模糊匹配点击
+    filterNode(value, data) {
+      if (!value) return true
+      return data.permissionName.indexOf(value) !== -1
+    },
+    // 返回上一级
+    goBack() {
+      this.$router.push({
+        path: '/role'
+      })
+    },
+    // 勾选获取
+    onCheck(data) {
+      this.checkedKeys = this.$refs.tree.getCheckedKeys()
+      this.checkedCodes = []
+      this.changedCodes(this.treeTableData, this.checkedKeys)
     },
     // 查询
     onSubmit(val) {
@@ -195,14 +203,13 @@ export default {
           })
       }
       this.putData()
-      this.codes = []
+      this.checkedCodes = []
     },
     putData() {
-      console.log(this.codes, 'codes')
       let roleId = this.$route.query.roleId
       let urlRest = `/role/permission/${roleId}`
       this.axios
-        .put(urlRest, this.codes)
+        .put(urlRest, this.checkedCodes)
         .then(response => {
           if (response.data.content.data === 1) {
             this.$message('提交成功')
@@ -233,6 +240,8 @@ export default {
     },
     getTreeData() {
       this.treeTableData = JSON.parse(localStorage.getItem('companyTree'))
+
+      this.getExpanded()
       // 是否有编辑权限
       // console.log(permission_role_auth_edit)
       this.authEdit = localStorage

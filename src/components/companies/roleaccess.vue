@@ -8,7 +8,8 @@
         <div class="editCom"><p>编辑【{{this.roleName}}】权限</p></div>
         <el-form
           :inline= "true"
-          class="role-form">
+          class="role-form"
+          ref="formInline">
           <div class="filter">筛选</div>
           <el-form-item label="功能点名称">
             <el-input
@@ -30,14 +31,16 @@
             <el-button size="mini" @click = "onReset(filterName)">重置</el-button>
           </el-form-item>
         </el-form>
-        <div class="table">
+        <div class="table" :height = "treeHeight">
           <div class="tableTitle">
             <span class="tree">功能点名称</span>
             <span class="content">FUNCID</span>
             <span class="content">功能描述</span>
           </div>
           <el-tree
-            ref = "tree"
+            ref="tree"
+            id="Wrapper"
+            class="treeWrapper"
             :data = "treeTableData"
             show-checkbox
             node-key = "id"
@@ -70,7 +73,7 @@ export default {
   },
   data() {
     return {
-      // 下为用
+      tableHeight: '',
       roleName: '',
       filterName: '',
       filterCode: '',
@@ -81,11 +84,18 @@ export default {
   },
   created() {
     this.getTreeData()
-    this.getCheckedData()
-    this.setDisabled(this.treeTableData)
     this.roleName = this.$route.params.roleName
+    this.$nextTick(() => {
+      this.treeHeight()
+    })
   },
-  mounted() {},
+  mounted() {
+    window.onresize = () => {
+      return (() => {
+        this.treeHeight()
+      })()
+    }
+  },
   watch: {
     // keys(cur, old) {
     //   console.log(old, 'old')
@@ -93,6 +103,13 @@ export default {
     // }
   },
   methods: {
+    // 树的高度
+    treeHeight() {
+      this.$refs.tree.$el.style.height =
+        document.documentElement.clientHeight -
+        (this.$refs.formInline.$el.offsetHeight + 266) +
+        'px'
+    },
     // 默认展开一二级
     getExpanded() {
       this.expandedKeys = this.treeTableData.map(item => {
@@ -240,13 +257,16 @@ export default {
     },
     getTreeData() {
       this.treeTableData = JSON.parse(localStorage.getItem('companyTree'))
-
-      this.getExpanded()
-      // 是否有编辑权限
-      // console.log(permission_role_auth_edit)
+      // 是否有编辑权限// console.log(permission_role_auth_edit)
       this.authEdit = localStorage
         .getItem('points')
         .includes('permission_role_auth_edit')
+      // 根据权限判断是否可编辑
+      this.setDisabled(this.treeTableData)
+      // 勾选已选中
+      this.getCheckedData()
+      // 默认展示一二级
+      this.getExpanded()
     }
   }
 }
@@ -255,7 +275,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less">
 .roleaccess {
-  @tableHeight: 53px;
+  @tableHeight: 48px;
   @tableBorderBottom: #ebeef5;
   @borderColor: #999;
   .el-breadcrumb__inner {
@@ -265,6 +285,9 @@ export default {
     .el-breadcrumb__inner {
       color: #999;
     }
+  }
+  .el-form-item {
+    margin-bottom: 0;
   }
   .role-form {
     border: 1px solid @borderColor;
@@ -289,6 +312,7 @@ export default {
       height: @tableHeight;
       line-height: @tableHeight;
       display: flex;
+      border-bottom: 1px solid @tableBorderBottom;
       .tree {
         flex: 1;
         padding-left: 40px;
@@ -298,6 +322,9 @@ export default {
         width: 200px;
         padding: 0 10px;
       }
+    }
+    .treeWrapper {
+      overflow: auto;
     }
     .treeTable {
       flex: 1;
@@ -313,6 +340,7 @@ export default {
         padding: 0 10px;
       }
     }
+
     .overflowClass {
       overflow: hidden;
       text-overflow: ellipsis;
@@ -322,7 +350,7 @@ export default {
   .el-tree-node__content {
     height: @tableHeight;
     line-height: @tableHeight;
-    border-top: 1px solid @tableBorderBottom;
+    border-bottom: 1px solid @tableBorderBottom;
   }
 }
 

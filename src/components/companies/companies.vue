@@ -88,10 +88,10 @@
           <el-input v-model="addForm.companyName" placeholder="请输入"></el-input>
         </el-form-item>
         <el-form-item label="公司内码" prop="companyCode">
-          <el-input v-model="addForm.companyCode" placeholder="请输入" @blur="output"></el-input>
+          <el-input v-model="addForm.companyCode" placeholder="请输入" @blur="addOutput"></el-input>
         </el-form-item>
         <el-form-item label="超管用户名" prop="adminLoginName">
-          <el-input v-model="addForm.adminLoginName" placeholder="请输入"></el-input>
+          <el-input v-model="addForm.adminLoginName" placeholder="请输入" :disabled="disabled"></el-input>
         </el-form-item>
         <el-form-item label="超管登录密码" prop="adminPassword">
           <el-input type="password" v-model="addForm.adminPassword" autocomplete="off" placeholder="请输入"></el-input>
@@ -101,7 +101,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="addCancel">取 消</el-button>
+        <el-button @click="addCancel('addForm')">取 消</el-button>
         <el-button type="primary" @click="add('addForm')">确 定</el-button>
       </span>
     </el-dialog>
@@ -109,7 +109,7 @@
       title="重置超管密码"
       :visible.sync="resetDalogVisible"
       width="40%">
-      <el-form :model="retForm" :rules="rules" ref="retForm" status-icon label-width="120px" class="demo-ruleForm">
+      <el-form :model="retForm" :rules="rules" ref="retForm" label-width="120px" class="demo-ruleForm">
         <el-form-item label="公司名称">
           <el-input v-model="retForm.companyName" placeholder="请输入"></el-input>
         </el-form-item>
@@ -124,7 +124,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="retCancel">取 消</el-button>
+        <el-button @click="retCancel('retForm')">取 消</el-button>
         <el-button type="primary" @click="reset('retForm')">确 定</el-button>
       </span>
     </el-dialog>
@@ -241,7 +241,8 @@ export default {
       pageIndex: 1,
       pageSize: 10,
       total: 1,
-      coList: []
+      coList: [],
+      disabled: false
     }
   },
   methods: {
@@ -295,21 +296,24 @@ export default {
             this.getList()
             this.addDalogVisible = false
             this.addForm = {}
+            this.disabled = false
           }
         } else {
           return false
         }
       })
     },
-    addCancel() {
+    addCancel(formName) {
       this.addDalogVisible = false
-      this.addForm = {}
+      this.$refs[formName].resetFields()
+      this.disabled = false
     },
-    output() {
+    addOutput() {
       this.addForm.adminLoginName = this.addForm.companyCode + '_admin'
       if (!this.addForm.companyCode) {
         this.addForm.adminLoginName = ''
       }
+      this.disabled = true
     },
     resetAdmin(row) {
       this.resetDalogVisible = true
@@ -343,9 +347,9 @@ export default {
         }
       })
     },
-    retCancel() {
+    retCancel(formName) {
       this.resetDalogVisible = false
-      this.retForm = {}
+      this.$refs[formName].resetFields()
     },
     jump(row) {
       this.$router.push({

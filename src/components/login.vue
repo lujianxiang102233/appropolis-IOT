@@ -47,7 +47,6 @@ export default {
             ...this.code
           })
           let { code, data } = res.data.content
-          console.log(data.functionPoints)
           if (code === +-3017 || code === +-3016) {
             if (data === undefined) {
               this.$message.error(`用户名或者密码错误`)
@@ -69,14 +68,18 @@ export default {
             localStorage.setItem('companySet', JSON.stringify(data.companySet))
             localStorage.setItem('forceChangePwd', data.forceChangePwd)
             localStorage.setItem('employeeName', data.employeeName)
-            if (data.functionPoints.indexOf('permission_co') > -1) {
-              this.$router.push('/companies')
-            } else if (data.functionPoints.indexOf('permission_role') > -1) {
-              this.$router.push('/role')
-            } else if (data.functionPoints.indexOf('permission_user') > -1) {
-              this.$router.push('/user')
+            if (data.forceChangePwd > 0) {
+              this.$router.push('/home')
             } else {
-              this.$router.push('/logs')
+              if (data.functionPoints.indexOf('permission_co') > -1) {
+                this.$router.push('/companies')
+              } else if (data.functionPoints.indexOf('permission_role') > -1) {
+                this.$router.push('/role')
+              } else if (data.functionPoints.indexOf('permission_user') > -1) {
+                this.$router.push('/user')
+              } else {
+                this.$router.push('/logs')
+              }
             }
           }
         } else {

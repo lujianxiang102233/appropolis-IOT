@@ -79,7 +79,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="addCancel">取 消</el-button>
+        <el-button @click="addCancel('addForm')">取 消</el-button>
         <el-button type="primary" @click="add('addForm')">确 定</el-button>
       </span>
     </el-dialog>
@@ -119,7 +119,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="addsubCancel">取 消</el-button>
+        <el-button @click="addsubCancel('addsubForm')">取 消</el-button>
         <el-button type="primary" @click="addSubTrue('addsubForm')">确 定</el-button>
       </span>
     </el-dialog>
@@ -405,18 +405,6 @@ export default {
     }
   },
   methods: {
-    // expandedAll() {
-    //   return function _ExpandAll(children, isexpand) {
-    //     for (var i in children) {
-    //       if (children[i].expanded !== isexpand) {
-    //         children[i].expanded = isexpand
-    //       }
-    //       if (children[i].$children.length > 0) {
-    //         _ExpandAll(children[i].children, isexpand)
-    //       }
-    //     }
-    //   }
-    // },
     onSubmit() {
       this.pageIndex = 1
       this.getList()
@@ -430,7 +418,6 @@ export default {
         for (var i in data) {
           if (data[i].permissionCode !== undefined) {
             data[i].id = ++indexi
-            // data[i].label = data[i].permissionName
             data[i].depth = depth
             data[i].parentId = parentId
             data[i].child_num = data[i].children.length
@@ -443,7 +430,6 @@ export default {
       }
       this.coList = JSON.parse(localStorage.getItem('points'))
       let res = await this.axios.get(`/company/permission/${this.companyId}`)
-      console.log(res)
       let { code, data } = res.data.content
       if (code === -9999) {
         this.$message.error(`Exception Message`)
@@ -458,16 +444,12 @@ export default {
     add(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
-          // this.treeList.permissionTree.push(this.addForm)
-          // if(this.treeList.permissionTree === undefined){
-          // }
           if (this.treeList.permissionTree === undefined) {
             this.treeList.permissionTree = []
             this.treeList.permissionTree.push(this.addForm)
           } else {
             this.treeList.permissionTree.push(this.addForm)
           }
-          console.log(this.treeList)
           let res = await this.axios.post(
             `/company/permission/${this.$route.query.id}/${
               this.addForm.permissionName
@@ -494,34 +476,18 @@ export default {
             this.getList()
             this.addDalogVisible = false
             this.$message.success('新建一级功能点成功')
-            this.addForm.permissionName = ''
-            this.addForm.permissionCode = ''
-            this.addForm.url = ''
-            this.addForm.weight = ''
-            this.addForm.menu = 'true'
-            this.addForm.newTab = 'true'
-            this.addForm.remark = ''
-            this.addForm.children = []
-            // console.log(this.expandedAll())
+            this.$refs[formName].resetFields()
           }
         } else {
           return false
         }
       })
     },
-    addCancel() {
+    addCancel(formName) {
       this.addDalogVisible = false
-      this.addForm.permissionName = ''
-      this.addForm.permissionCode = ''
-      this.addForm.url = ''
-      this.addForm.weight = ''
-      this.addForm.menu = 'true'
-      this.addForm.newTab = 'true'
-      this.addForm.remark = ''
-      this.addForm.children = []
+      this.$refs[formName].resetFields()
     },
     addsub(row) {
-      console.log(row)
       this.addsubDalogVisible = true
       this.paipermissionName = row.permissionName
       this.paipermissionCode = row.permissionCode
@@ -568,30 +534,16 @@ export default {
             this.getList()
             this.addsubDalogVisible = false
             this.$message.success('添加功能点成功')
-            this.addsubForm.permissionName = ''
-            this.addsubForm.permissionCode = ''
-            this.addsubForm.url = ''
-            this.addsubForm.weight = ''
-            this.addsubForm.menu = 'true'
-            this.addsubForm.newTab = 'true'
-            this.addsubForm.remark = ''
-            this.addsubForm.children = []
+            this.$refs[formName].resetFields()
           }
         } else {
           return false
         }
       })
     },
-    addsubCancel() {
+    addsubCancel(formName) {
       this.addsubDalogVisible = false
-      this.addsubForm.permissionName = ''
-      this.addsubForm.permissionCode = ''
-      this.addsubForm.url = ''
-      this.addsubForm.weight = ''
-      this.addsubForm.menu = 'true'
-      this.addsubForm.newTab = 'true'
-      this.addsubForm.remark = ''
-      this.addsubForm.children = []
+      this.$refs[formName].resetFields()
     },
     async edit(row) {
       let {

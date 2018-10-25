@@ -140,7 +140,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="addCancel">取 消</el-button>
+        <el-button @click="addCancel('addForm')">取 消</el-button>
         <el-button type="primary" @click="add('addForm')">确 定</el-button>
       </span>
     </el-dialog>
@@ -207,7 +207,7 @@
       title="重置用户密码"
       :visible.sync="resetDialogVisible"
       width="30%">
-      <el-form :model="retForm" status-icon :rules="rules" ref="retForm" label-width="100px" class="demo-ruleForm">
+      <el-form :model="retForm" :rules="rules" ref="retForm" label-width="100px" class="demo-ruleForm">
         <el-form-item label="密码" prop="pass">
           <el-input  v-model="retForm.pass" autocomplete="off"></el-input>
         </el-form-item>
@@ -216,7 +216,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="retCancel">取 消</el-button>
+        <el-button @click="retCancel('retForm')">取 消</el-button>
         <el-button type="primary" @click="reset('retForm')">确 定</el-button>
       </span>
     </el-dialog>
@@ -473,13 +473,7 @@ export default {
             this.getList()
             this.addDalogVisible = false
             this.disabled = false
-            this.addForm.loginName = ''
-            this.addForm.name = ''
-            this.addForm.password = ''
-            this.addForm.phone = ''
-            this.addForm.email = ''
-            this.addForm.roleList = []
-            this.addForm.enable = 1
+            this.$refs[formName].resetFields()
           }
         } else {
           return false
@@ -540,16 +534,10 @@ export default {
     editCancel() {
       this.editDalogVisible = false
     },
-    addCancel() {
+    addCancel(formName) {
       this.addDalogVisible = false
       this.disabled = false
-      this.addForm.loginName = ''
-      this.addForm.name = ''
-      this.addForm.password = ''
-      this.addForm.phone = ''
-      this.addForm.email = ''
-      this.addForm.roleList = []
-      this.addForm.enable = 1
+      this.$refs[formName].resetFields()
     },
     edit(formName) {
       this.$refs[formName].validate(async valid => {
@@ -628,9 +616,9 @@ export default {
       this.resetDialogVisible = true
       this.loginName = row.loginName
     },
-    retCancel() {
+    retCancel(formName) {
       this.resetDialogVisible = false
-      this.retForm = {}
+      this.$refs[formName].resetFields()
     },
     reset(formName) {
       this.$refs[formName].validate(async valid => {
@@ -653,7 +641,7 @@ export default {
             this.$message.error(`重置密码与原密码一样`)
           }
           this.resetDialogVisible = false
-          this.retForm = {}
+          this.$refs[formName].resetFields()
         } else {
           return false
         }
@@ -714,7 +702,7 @@ export default {
 }
 .el-input {
   /deep/ .el-input__inner {
-    width: 120px;
+    width: 70%;
   }
 }
 .el-input.filter-ipt {

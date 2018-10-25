@@ -108,7 +108,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="addCancel">取 消</el-button>
+        <el-button @click="addCancel('addForm')">取 消</el-button>
         <el-button type="primary" @click="add('addForm')">确 定</el-button>
       </span>
     </el-dialog>
@@ -116,21 +116,21 @@
       title="新增/编辑角色"
       :visible.sync="editDalogVisible"
       width="40%">
-      <el-form :model="addForm" :rules="rules" ref="addForm" label-width="120px" class="demo-ruleForm">
+      <el-form :model="editForm" :rules="rules" ref="editForm" label-width="120px" class="demo-ruleForm">
         <el-form-item label="角色名称" prop="roleName">
-          <el-input v-model="addForm.roleName" placeholder="请输入"></el-input>
+          <el-input v-model="editForm.roleName" placeholder="请输入"></el-input>
         </el-form-item>
         <el-form-item label="角色描述" prop="remark">
-          <el-input type="textarea" v-model="addForm.remark"></el-input>
+          <el-input type="textarea" v-model="editForm.remark"></el-input>
         </el-form-item>
         <el-form-item label="角色状态" prop="adminLoginName">
-          <el-radio v-model="addForm.enable" :label="1">开启</el-radio>
-          <el-radio v-model="addForm.enable" :label="0">关闭</el-radio>
+          <el-radio v-model="editForm.enable" :label="1">开启</el-radio>
+          <el-radio v-model="editForm.enable" :label="0">关闭</el-radio>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="editCancel">取 消</el-button>
-        <el-button type="primary" @click="edit('addForm')">确 定</el-button>
+        <el-button @click="editCancel('editForm')">取 消</el-button>
+        <el-button type="primary" @click="edit('editForm')">确 定</el-button>
       </span>
     </el-dialog>
     <el-dialog
@@ -179,6 +179,11 @@ export default {
       editDalogVisible: false,
       userDialogVisible: false,
       addForm: {
+        roleName: '',
+        remark: '',
+        enable: 1
+      },
+      editForm: {
         roleName: '',
         remark: '',
         enable: 1,
@@ -307,8 +312,7 @@ export default {
             this.$message.success(`新建角色成功`)
             this.getList()
             this.addDalogVisible = false
-            this.addForm.roleName = ''
-            this.addForm.remark = ''
+            this.$refs[formName].resetFields()
           }
         } else {
           return false
@@ -351,34 +355,27 @@ export default {
       this.editDalogVisible = true
       console.log(row)
       let { enable, remark, roleId, roleName } = row
-      this.addForm.enable = Number(enable ? '1' : '0')
-      this.addForm.roleName = roleName
-      this.addForm.roleId = roleId
-      this.addForm.remark = remark
+      this.editForm.enable = Number(enable ? '1' : '0')
+      this.editForm.roleName = roleName
+      this.editForm.roleId = roleId
+      this.editForm.remark = remark
     },
-    editCancel() {
+    editCancel(formName) {
       this.editDalogVisible = false
-      this.addForm.enable = 1
-      this.addForm.roleName = ''
-      this.addForm.roleId = ''
-      this.addForm.remark = ''
-      this.addDalogVisible = false
+      this.$refs[formName].resetFields()
     },
-    addCancel() {
+    addCancel(formName) {
       this.addDalogVisible = false
-      this.addForm.enable = 1
-      this.addForm.roleName = ''
-      this.addForm.roleId = ''
-      this.addForm.remark = ''
-      this.addDalogVisible = false
+      this.$refs[formName].resetFields()
     },
     edit(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
           let res = await this.axios.put(
-            `/role/${this.addForm.roleId}`,
-            this.addForm
+            `/role/${this.editForm.roleId}`,
+            this.editForm
           )
+          console.log(res)
           let { code } = res.data.content
           if (code === +-3015) {
             this.$message.error(`角色已存在`)
@@ -390,8 +387,7 @@ export default {
             this.$message.success(`编辑角色成功`)
             this.getList()
             this.editDalogVisible = false
-            this.addForm.roleName = ''
-            this.addForm.remark = ''
+            this.$refs[formName].resetFields()
           }
         } else {
           return false

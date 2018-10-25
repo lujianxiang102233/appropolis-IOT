@@ -68,7 +68,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="retCancel">取 消</el-button>
+        <el-button @click="retCancel('retForm')">取 消</el-button>
         <el-button type="primary" @click="reset('retForm')">确 定</el-button>
       </span>
     </el-dialog>
@@ -87,7 +87,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="editCancel">取 消</el-button>
+        <el-button @click="editCancel('editForm')">取 消</el-button>
         <el-button type="primary" @click="edit('editForm')">确 定</el-button>
       </span>
     </el-dialog>
@@ -218,9 +218,9 @@ export default {
     editPsd() {
       this.resetDialogVisible = true
     },
-    retCancel() {
+    retCancel(formName) {
+      this.$refs[formName].resetFields()
       this.resetDialogVisible = false
-      this.retForm = {}
     },
     reset(formName) {
       this.$refs[formName].validate(async valid => {
@@ -258,13 +258,13 @@ export default {
         console.log(JSON.parse(data)) // todo
       }
     },
-    editCancel() {
-      this.editForm = {}
+    editCancel(formName) {
+      this.$refs[formName].resetFields()
+      this.editDialogVisible = false
     },
     edit(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
-          console.log(123)
           let res = await this.axios.put(`/employee/password/firstLogin`, {
             password: this.editForm.editCheckPass
           })
@@ -297,9 +297,8 @@ export default {
     }
   },
   mounted() {
-    this.forceChangePwd = +localStorage.getItem('forceChangePwd')
-    if (this.forceChangePwd === 1 || this.forceChangePwd === 2) {
-      this.editDialogVisible = true
+    if (this.editDialogVisible === false) {
+      console.log(1)
     }
   },
   created() {
@@ -310,6 +309,10 @@ export default {
       this.companySet = [{ companyName: '没有数据' }]
     } else {
       this.companySet = JSON.parse(newSet)
+    }
+    this.forceChangePwd = +localStorage.getItem('forceChangePwd')
+    if (this.forceChangePwd === 1 || this.forceChangePwd === 2) {
+      this.editDialogVisible = true
     }
   }
 }

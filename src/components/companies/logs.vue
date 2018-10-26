@@ -21,7 +21,6 @@
           </el-form-item>
           <el-form-item label = "行为分类">
               <el-select
-                :clearable = "true"
                 size = "mini"
                 v-model = "formInline.type"
                 placeholder = "请选择">
@@ -216,6 +215,7 @@ export default {
             this.allOperationTypes = listAll.map(item => {
               return { value: item[0], id: item[1] }
             })
+            this.allOperationTypes.unshift({ value: '全部', id: -1 })
           }
         })
         .catch(error => {

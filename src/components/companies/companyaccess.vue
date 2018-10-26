@@ -89,10 +89,10 @@
       width="40%">
       <el-form :model="addsubForm" :rules="rules" ref="addsubForm" label-width="140px" class="demo-ruleForm">
         <el-form-item label="父级功能点名称" prop="paipermissionName">
-          <el-input v-model="paipermissionName" placeholder="请输入"></el-input>
+          <el-input :disabled="true" v-model="paipermissionName" placeholder="请输入"></el-input>
         </el-form-item>
         <el-form-item label="父级FUNCID" prop="paipermissionCode">
-          <el-input v-model="paipermissionCode" placeholder="请输入"></el-input>
+          <el-input :disabled="true" v-model="paipermissionCode" placeholder="请输入"></el-input>
         </el-form-item>
         <el-form-item label="功能点名称" prop="permissionName">
           <el-input v-model="addsubForm.permissionName" placeholder="请输入"></el-input>

@@ -39,7 +39,7 @@
             </el-dropdown>
             <div class="user" @click="logout">
              <img src="../assets/images/u70.png" @click="collapse">
-             <span>{{employeeName}}</span>
+             <span>{{loginName}}</span>
              <div class="logout" v-show="isShow">
                <ul>
                  <li @click="editPsd">修改密码</li>
@@ -186,7 +186,8 @@ export default {
       },
       companySet: {},
       forceChangePwd: '',
-      employeeName: ''
+      employeeName: '',
+      loginName: ''
     }
   },
   methods: {
@@ -311,6 +312,7 @@ export default {
   created() {
     this.menusList = JSON.parse(localStorage.getItem('points'))
     this.employeeName = localStorage.getItem('employeeName')
+    this.loginName = localStorage.getItem('loginName')
     let newSet = localStorage.getItem('companySet')
     if (newSet === 'undefined') {
       this.companySet = [{ companyName: '没有数据' }]

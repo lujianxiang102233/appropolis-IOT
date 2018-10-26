@@ -369,8 +369,7 @@ export default {
       roleId: '',
       enable: '',
       employeeId: '',
-      loginName: '',
-      loginNameMy: '',
+      retLoginName: '',
       queryForm: {
         loginName: '',
         queryState: '',
@@ -618,7 +617,6 @@ export default {
         }
       })
       this.data2 = newPlatForm
-      // console.log(newPlatForm)
       let res2 = await this.axios.get(`/employee/company/${row.employeeId}`)
       let { code, data } = res2.data.content
       if (code === 0) {
@@ -632,7 +630,7 @@ export default {
     },
     resetPsd(row) {
       this.resetDialogVisible = true
-      this.loginName = row.loginName
+      this.retLoginName = row.loginName
     },
     retCancel(formName) {
       this.resetDialogVisible = false
@@ -643,7 +641,7 @@ export default {
         if (valid) {
           let res = await this.axios.put(`/employee/password/adminReset`, {
             password: this.retForm.checkPass,
-            loginName: this.loginName
+            loginName: this.retLoginName
           })
           let { code } = res.data.content
           if (code === +0) {

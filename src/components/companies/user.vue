@@ -348,20 +348,20 @@ export default {
       coList: [],
       options: [
         {
-          value: '2',
-          label: '锁定'
+          value: '-99',
+          label: '【全部】'
         },
         {
           value: '1',
-          label: '开启'
+          label: '【开启】'
+        },
+        {
+          value: '2',
+          label: '【锁定】'
         },
         {
           value: '0',
-          label: '关闭'
-        },
-        {
-          value: '-99',
-          label: '全部'
+          label: '【关闭】'
         }
       ],
       addOptions: [],

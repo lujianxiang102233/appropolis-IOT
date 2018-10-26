@@ -209,10 +209,10 @@
       width="30%">
       <el-form :model="retForm" :rules="rules" ref="retForm" label-width="100px" class="demo-ruleForm">
         <el-form-item label="密码" prop="pass">
-          <el-input  v-model="retForm.pass" autocomplete="off"></el-input>
+          <el-input type="password" v-model="retForm.pass" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="确认密码" prop="checkPass">
-          <el-input  v-model="retForm.checkPass" autocomplete="off"></el-input>
+          <el-input type="password" v-model="retForm.checkPass" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -624,7 +624,7 @@ export default {
       this.$refs[formName].validate(async valid => {
         if (valid) {
           let res = await this.axios.put(`/employee/password/adminReset`, {
-            password: this.retForm.retCheckAdminPassword,
+            password: this.retForm.checkPass,
             loginName: this.loginName
           })
           let { code } = res.data.content

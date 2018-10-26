@@ -54,8 +54,11 @@
     <el-dialog
     data-backdrop="static"
       title="重置用户密码"
+      class="reset"
       :visible.sync="resetDialogVisible"
-      width="30%">
+      :close-on-click-modal=false
+      width="30%"
+      :before-close="resetHandleClose">
       <el-form :model="retForm" status-icon :rules="rules" ref="retForm" label-width="100px" class="demo-ruleForm">
         <el-form-item label="原密码" prop="oldPass">
           <el-input type="password" v-model="retForm.oldPass" autocomplete="off"></el-input>
@@ -75,6 +78,8 @@
     <el-dialog
       title="修改密码"
       :visible.sync="editDialogVisible"
+      :before-close="handleClose"
+      class="edit"
       width="30%">
       <span class="judge" v-if="forceChangePwd===1">首次登录请重置账户密码</span>
       <span class="judge" v-else>重置密码后首次登录，请修改账户密码</span>
@@ -87,7 +92,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="editCancel('editForm')">取 消</el-button>
+        <el-button @click="editCancel('editForm')">清 空</el-button>
         <el-button type="primary" @click="edit('editForm')">确 定</el-button>
       </span>
     </el-dialog>
@@ -225,7 +230,6 @@ export default {
     reset(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
-          console.log(this.retForm)
           let res = await this.axios.put(`/employee/password`, {
             currentPassword: this.retForm.oldPass,
             newPassword: this.retForm.pass
@@ -260,7 +264,6 @@ export default {
     },
     editCancel(formName) {
       this.$refs[formName].resetFields()
-      this.editDialogVisible = false
     },
     edit(formName) {
       this.$refs[formName].validate(async valid => {
@@ -271,6 +274,7 @@ export default {
           let { code } = res.data.content
           if (code === +0) {
             this.editDialogVisible = false
+            localStorage.removeItem('forceChangePwd')
             if (this.menusList.indexOf('permission_co') > -1) {
               this.$router.push('/companies')
             } else if (this.menusList.indexOf('permission_role') > -1) {
@@ -287,19 +291,17 @@ export default {
           if (code === +-3007) {
             this.$message.error(`重置密码与默认密码一致`)
             // 不能关闭窗口
-            this.editDialogVisible = false
           }
           this.retForm = {}
         } else {
           return false
         }
       })
-    }
-  },
-  mounted() {
-    if (this.editDialogVisible === false) {
-      console.log(1)
-    }
+    },
+    resetHandleClose(done) {
+      done()
+    },
+    handleClose(done) {}
   },
   created() {
     this.menusList = JSON.parse(localStorage.getItem('points'))
@@ -464,5 +466,8 @@ export default {
 .judge {
   color: red;
   margin-bottom: 10px;
+}
+.edit .el-icon-close::before {
+  content: '';
 }
 </style>

@@ -755,6 +755,14 @@ export default {
             companyName: item.companyName
           }
         })
+        let index = ''
+        this.copyList.forEach((value, i) => {
+          if (Number(value.companyId) === Number(this.$route.query.id)) {
+            index += i
+          }
+        })
+        this.copyList.splice(index, 1)
+        console.log(this.copyList)
       }
       if (code === -9999) {
         this.$message.error(`Exception Message`)
@@ -1004,7 +1012,7 @@ export default {
     display: flex;
     width: 1200px;
     .permissionName {
-      flex: 3;
+      flex: 1.5;
       padding-left: 10px;
       box-sizing: border-box;
     }

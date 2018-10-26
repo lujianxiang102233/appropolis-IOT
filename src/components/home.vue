@@ -300,6 +300,7 @@ export default {
     },
     resetHandleClose(done) {
       done()
+      this.$refs.retForm.resetFields()
     },
     handleClose(done) {}
   },

@@ -190,7 +190,7 @@
       title="编辑用户可查看公司"
       :visible.sync="wrtDialogVisible"
       width="50%">
-      <h2>请选择XXX拥有查看权限的公司</h2>
+      <h2>请选择【{{loginName}}】拥有查看权限的公司</h2>
         <el-transfer
           filterable
           :filter-method="filterMethod"
@@ -344,8 +344,7 @@ export default {
       pageIndex: 1,
       pageSize: 10,
       total: 1,
-      roleName: '',
-      roleState: '',
+      loginName: '',
       coList: [],
       options: [
         {
@@ -605,6 +604,7 @@ export default {
       this.render()
     },
     async warrant(row) {
+      this.loginName = row.loginName
       this.employeeId = row.employeeId
       this.wrtDialogVisible = true
       let res1 = await this.axios.get(`/company/{companyName}/1/100`)

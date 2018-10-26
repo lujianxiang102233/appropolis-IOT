@@ -202,16 +202,20 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       })
-        .then(() => {
-          localStorage.removeItem('token')
-          localStorage.removeItem('companyId')
-          localStorage.removeItem('points')
-          localStorage.removeItem('loginName')
-          localStorage.removeItem('companyTree')
-          localStorage.removeItem('companySet')
-          localStorage.removeItem('forceChangePwd')
-          localStorage.removeItem('employeeName')
-          this.$router.push('./login')
+        .then(async () => {
+          let res = await this.axios.get(`/employee/logout`)
+          let { code } = res.data.content
+          if (code === 0) {
+            this.$router.push('./login')
+            localStorage.removeItem('token')
+            localStorage.removeItem('companyId')
+            localStorage.removeItem('points')
+            localStorage.removeItem('loginName')
+            localStorage.removeItem('companyTree')
+            localStorage.removeItem('companySet')
+            localStorage.removeItem('forceChangePwd')
+            localStorage.removeItem('employeeName')
+          }
         })
         .catch(() => {
           this.$message({

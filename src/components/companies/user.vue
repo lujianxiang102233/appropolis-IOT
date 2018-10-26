@@ -402,9 +402,7 @@ export default {
     async getList() {
       this.coList = JSON.parse(localStorage.getItem('points'))
       this.companyId = localStorage.getItem('companyId')
-      let getUrl = `/employee/${this.companyId}/${this.queryForm.loginName}/${
-        this.queryForm.queryState
-      }/${this.queryForm.roleName}/${this.pageIndex}/${this.pageSize}`
+      let getUrl
       if (
         this.queryForm.loginName.length === 0 &&
         this.queryForm.roleName.length === 0 &&
@@ -429,11 +427,36 @@ export default {
         getUrl = `/employee/${this.companyId}/{loginName}/${
           this.queryForm.queryState
         }/${this.queryForm.roleName}/${this.pageIndex}/${this.pageSize}`
-      } else {
+      } else if (
+        this.queryForm.loginName.length !== 0 &&
+        this.queryForm.roleName.length === 0 &&
+        this.queryForm.queryState.length !== 0
+      ) {
         getUrl = `/employee/${this.companyId}/${this.queryForm.loginName}/${
           this.queryForm.queryState
         }/{role}/${this.pageIndex}/${this.pageSize}`
+      } else if (
+        this.queryForm.loginName.length === 0 &&
+        this.queryForm.roleName.length !== 0 &&
+        this.queryForm.queryState.length === 0
+      ) {
+        getUrl = `/employee/${this.companyId}/{loginName}/-99/${
+          this.queryForm.roleName
+        }/${this.pageIndex}/${this.pageSize}`
+      } else if (
+        this.queryForm.loginName.length !== 0 &&
+        this.queryForm.roleName.length !== 0 &&
+        this.queryForm.queryState.length === 0
+      ) {
+        getUrl = `/employee/${this.companyId}/${this.queryForm.loginName}/-99/${
+          this.queryForm.roleName
+        }/${this.pageIndex}/${this.pageSize}`
+      } else {
+        getUrl = `/employee/${this.companyId}/${this.queryForm.loginName}/${
+          this.queryForm.queryState
+        }/${this.queryForm.roleName}/${this.pageIndex}/${this.pageSize}`
       }
+      console.log(getUrl)
       let res = await this.axios.get(getUrl)
       let {
         code,
@@ -450,7 +473,6 @@ export default {
           return (item.newRoleList = newData.join(','))
         })
         this.tableData = list
-        console.log(this.tableData[0].lastLoginDate === undefined)
       }
       if (code === -9999) {
         this.$message.error(`Exception Message`)

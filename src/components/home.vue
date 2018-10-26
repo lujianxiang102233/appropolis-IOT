@@ -2,7 +2,7 @@
   <div class="home" style="height:100%">
     <el-container>
     <el-menu
-        default-active="1"
+        :default-active="active"
         class="el-menu-vertical-demo"
         background-color="#001529"
         text-color="#9F9F8D"
@@ -187,7 +187,8 @@ export default {
       companySet: {},
       forceChangePwd: '',
       employeeName: '',
-      loginName: ''
+      loginName: '',
+      active: ''
     }
   },
   methods: {
@@ -282,11 +283,15 @@ export default {
             localStorage.removeItem('forceChangePwd')
             if (this.menusList.indexOf('permission_co') > -1) {
               this.$router.push('/companies')
+              this.active = '/companies'
             } else if (this.menusList.indexOf('permission_role') > -1) {
+              this.active = '/role'
               this.$router.push('/role')
             } else if (this.menusList.indexOf('permission_user') > -1) {
+              this.active = '/user'
               this.$router.push('/user')
             } else {
+              this.active = '/logs'
               this.$router.push('/logs')
             }
           }
@@ -322,6 +327,15 @@ export default {
     this.forceChangePwd = +localStorage.getItem('forceChangePwd')
     if (this.forceChangePwd === 1 || this.forceChangePwd === 2) {
       this.editDialogVisible = true
+    }
+    if (this.menusList.indexOf('permission_co') > -1) {
+      this.active = '/companies'
+    } else if (this.menusList.indexOf('permission_role') > -1) {
+      this.active = '/role'
+    } else if (this.menusList.indexOf('permission_user') > -1) {
+      this.active = '/user'
+    } else {
+      this.active = '/logs'
     }
   }
 }
@@ -368,6 +382,7 @@ export default {
       line-height: 64px;
       cursor: pointer;
       position: relative;
+      margin-right: 20px;
       img {
         display: block;
         float: left;

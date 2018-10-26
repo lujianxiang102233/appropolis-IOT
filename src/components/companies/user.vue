@@ -212,7 +212,7 @@
           <el-input type="password" v-model="retForm.pass" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="确认密码" prop="checkPass">
-          <el-input type="password" v-model="retForm.checkPass" autocomplete="off"></el-input>
+          <el-input type="password"  v-model="retForm.checkPass" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">

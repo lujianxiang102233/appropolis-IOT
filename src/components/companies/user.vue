@@ -194,7 +194,7 @@
         <el-transfer
           filterable
           :filter-method="filterMethod"
-          filter-placeholder="请输入城市拼音"
+          filter-placeholder=""
           v-model="value2"
           :titles="['平台公司', '可查看公司']"
           :data="data2">

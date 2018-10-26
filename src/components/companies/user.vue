@@ -372,7 +372,7 @@ export default {
       retLoginName: '',
       queryForm: {
         loginName: '',
-        queryState: '',
+        queryState: '-99',
         roleName: ''
       }
     }
@@ -404,14 +404,6 @@ export default {
       if (
         this.queryForm.loginName.length === 0 &&
         this.queryForm.roleName.length === 0 &&
-        this.queryForm.queryState.length === 0
-      ) {
-        getUrl = `/employee/${this.companyId}/{loginName}/-99/{role}/${
-          this.pageIndex
-        }/${this.pageSize}`
-      } else if (
-        this.queryForm.loginName.length === 0 &&
-        this.queryForm.roleName.length === 0 &&
         this.queryForm.queryState.length !== 0
       ) {
         getUrl = `/employee/${this.companyId}/{loginName}/${
@@ -433,22 +425,6 @@ export default {
         getUrl = `/employee/${this.companyId}/${this.queryForm.loginName}/${
           this.queryForm.queryState
         }/{role}/${this.pageIndex}/${this.pageSize}`
-      } else if (
-        this.queryForm.loginName.length === 0 &&
-        this.queryForm.roleName.length !== 0 &&
-        this.queryForm.queryState.length === 0
-      ) {
-        getUrl = `/employee/${this.companyId}/{loginName}/-99/${
-          this.queryForm.roleName
-        }/${this.pageIndex}/${this.pageSize}`
-      } else if (
-        this.queryForm.loginName.length !== 0 &&
-        this.queryForm.roleName.length !== 0 &&
-        this.queryForm.queryState.length === 0
-      ) {
-        getUrl = `/employee/${this.companyId}/${this.queryForm.loginName}/-99/${
-          this.queryForm.roleName
-        }/${this.pageIndex}/${this.pageSize}`
       } else {
         getUrl = `/employee/${this.companyId}/${this.queryForm.loginName}/${
           this.queryForm.queryState

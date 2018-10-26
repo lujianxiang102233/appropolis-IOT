@@ -189,10 +189,8 @@ export default {
       this.codes = this.treeTableData.map(item => {
         return item.permissionCode
       })
-      this.checkedCodes.forEach(item => {
-        if (this.codes.includes(item)) {
-          this.checkedCodes.splice(this.checkedCodes.indexOf(item), 1)
-        }
+      this.checkedCodes = this.checkedCodes.filter(item => {
+        return !this.codes.includes(item)
       })
     },
     // key转换code值 &&获取codes ==修改勾选
@@ -280,7 +278,6 @@ export default {
     // 获取treedata
     getTreeData() {
       this.treeTableData = JSON.parse(localStorage.getItem('companyTree'))
-      console.log(this.treeTableData)
       // 是否有编辑权限// console.log(permission_role_auth_edit)
       this.authEdit = localStorage
         .getItem('points')

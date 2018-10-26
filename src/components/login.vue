@@ -116,10 +116,10 @@ h1 {
   .el-form {
     margin: 60px auto;
     width: 400px;
-    background-color: #fff;
     background-size: cover;
     border-radius: 20px;
     position: relative;
+    right: 50px;
     .user {
       position: relative;
       &::before {

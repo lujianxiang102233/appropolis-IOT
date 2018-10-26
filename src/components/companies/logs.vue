@@ -14,14 +14,13 @@
               <el-input
                 :clearable = "true"
                 size = "mini"
-                v-model = "formInline.userName"
+                v-model.trim = "formInline.userName"
                 placeholder = "请输入"
                 class = "user-form">
               </el-input>
           </el-form-item>
           <el-form-item label = "行为分类">
               <el-select
-                :clearable = "true"
                 size = "mini"
                 v-model = "formInline.type"
                 placeholder = "请选择">
@@ -117,7 +116,7 @@ export default {
       formInline: {
         userName: '',
         type: '',
-        date: []
+        date: ''
       },
       //   table
       tableHeight: '',
@@ -169,6 +168,8 @@ export default {
     dateBlur() {
       if (!this.formInline.date) {
         return ''
+      } else if (this.formInline.date[0] === undefined) {
+        this.formInline.date = ''
       }
       let startTime = new Date(this.formInline.date[0])
       let endTime = new Date(this.formInline.date[1])
@@ -214,6 +215,7 @@ export default {
             this.allOperationTypes = listAll.map(item => {
               return { value: item[0], id: item[1] }
             })
+            this.allOperationTypes.unshift({ value: '全部', id: -1 })
           }
         })
         .catch(error => {

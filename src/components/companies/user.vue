@@ -175,7 +175,7 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="角色状态" prop="enable">
+        <el-form-item label="用户状态" prop="enable">
           <el-radio v-model="editForm.enable" :label="1">开启</el-radio>
           <el-radio v-model="editForm.enable" :label="0">关闭</el-radio>
           <el-radio v-model="editForm.enable" :label="2">锁定</el-radio>

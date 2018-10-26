@@ -84,7 +84,8 @@
         align="center"
         label="创建最后登录时间">
           <template slot-scope="scope">
-            {{ scope.row.lastLoginDate | time}}
+            <span v-if="scope.row.lastLoginDate !== undefined">{{ scope.row.lastLoginDate | time}}</span>
+            <span v-else></span>
           </template>
       </el-table-column>
       <el-table-column
@@ -439,7 +440,6 @@ export default {
         data: { list, total }
       } = res.data.content
       if (code === 0) {
-        this.tableData = list
         this.total = total
         list.forEach(function(item) {
           let roleList = item.roleList
@@ -449,6 +449,8 @@ export default {
           })
           return (item.newRoleList = newData.join(','))
         })
+        this.tableData = list
+        console.log(this.tableData[0].lastLoginDate === undefined)
       }
       if (code === -9999) {
         this.$message.error(`Exception Message`)

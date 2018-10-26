@@ -2,7 +2,8 @@
   <div class="home" style="height:100%">
     <el-container>
     <el-menu
-        :default-active="active"
+        :default-active="$route.path"
+        :default-openeds="openeds"
         class="el-menu-vertical-demo"
         background-color="#001529"
         text-color="#9F9F8D"
@@ -188,7 +189,7 @@ export default {
       forceChangePwd: '',
       employeeName: '',
       loginName: '',
-      active: ''
+      openeds: ['1']
     }
   },
   methods: {
@@ -283,15 +284,11 @@ export default {
             localStorage.removeItem('forceChangePwd')
             if (this.menusList.indexOf('permission_co') > -1) {
               this.$router.push('/companies')
-              this.active = '/companies'
             } else if (this.menusList.indexOf('permission_role') > -1) {
-              this.active = '/role'
               this.$router.push('/role')
             } else if (this.menusList.indexOf('permission_user') > -1) {
-              this.active = '/user'
               this.$router.push('/user')
             } else {
-              this.active = '/logs'
               this.$router.push('/logs')
             }
           }
@@ -327,15 +324,6 @@ export default {
     this.forceChangePwd = +localStorage.getItem('forceChangePwd')
     if (this.forceChangePwd === 1 || this.forceChangePwd === 2) {
       this.editDialogVisible = true
-    }
-    if (this.menusList.indexOf('permission_co') > -1) {
-      this.active = '/companies'
-    } else if (this.menusList.indexOf('permission_role') > -1) {
-      this.active = '/role'
-    } else if (this.menusList.indexOf('permission_user') > -1) {
-      this.active = '/user'
-    } else {
-      this.active = '/logs'
     }
   }
 }

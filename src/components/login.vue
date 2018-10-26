@@ -4,7 +4,7 @@
         <h1>蒙羊牧业有限公司项目后台管理系统</h1>
         <el-form :model="form" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
             <el-form-item prop="loginName" class="loginName">
-                <el-input v-model="form.loginName" placeholder="请输入用户名称" class="user"></el-input>
+                <el-input v-model.trim="form.loginName" placeholder="请输入用户名称" class="user"></el-input>
                 <i v-show="form.loginName.length > 0" class="el-icon-circle-close" @click="clear"></i>
             </el-form-item>
             <el-form-item prop="password">
@@ -16,7 +16,6 @@
         </el-form>
     </div>
 </template>
-
 <script>
 export default {
   data() {

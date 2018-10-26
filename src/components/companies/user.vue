@@ -121,7 +121,7 @@
           <el-input v-model="addForm.name"></el-input>
         </el-form-item>
         <el-form-item label="用户密码" prop="password">
-          <el-input  v-model="addForm.password"></el-input>
+          <el-input type="password" v-model="addForm.password"></el-input>
         </el-form-item>
         <el-form-item label="电话" prop="phone">
           <el-input  v-model="addForm.phone"></el-input>
@@ -156,8 +156,8 @@
         <el-form-item label="真实姓名" prop="name">
           <el-input v-model="editForm.name"></el-input>
         </el-form-item>
-        <el-form-item label="用户密码" prop="password">
-          <el-input :disabled="true" v-model="editForm.password"></el-input>
+        <el-form-item label="用户密码" prop="editPassword">
+          <el-input :disabled="true" v-model="editForm.editPassword"></el-input>
         </el-form-item>
         <el-form-item label="电话" prop="phone">
           <el-input  v-model="editForm.phone"></el-input>
@@ -270,7 +270,7 @@ export default {
       editForm: {
         loginName: '',
         name: '',
-        password: '',
+        editPassword: '',
         phone: '',
         email: '',
         roleList: [],
@@ -311,9 +311,9 @@ export default {
         phone: [
           { required: false, message: '请输入', trigger: 'blur' },
           {
-            min: 3,
-            max: 6,
-            message: '长度在 3 到 6 个字符',
+            min: 0,
+            max: 50,
+            message: '长度在 0 到 50 个字符',
             trigger: 'blur'
           }
         ],
@@ -456,7 +456,6 @@ export default {
           this.queryForm.queryState
         }/${this.queryForm.roleName}/${this.pageIndex}/${this.pageSize}`
       }
-      console.log(getUrl)
       let res = await this.axios.get(getUrl)
       let {
         code,

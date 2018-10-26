@@ -364,7 +364,6 @@ export default {
     .user {
       float: right;
       line-height: 64px;
-      width: 100px;
       cursor: pointer;
       position: relative;
       img {

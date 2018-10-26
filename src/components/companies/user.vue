@@ -115,7 +115,7 @@
       width="40%">
       <el-form :model="addForm" :rules="rules" ref="addForm" label-width="120px" class="demo-ruleForm">
         <el-form-item label="用户名" prop="loginName">
-          <el-input  :disabled="disabled" v-model="addForm.loginName" placeholder="请输入" @blur="output"></el-input>
+          <el-input  :disabled="disabled" v-model="addForm.loginName" placeholder="请输入"></el-input>
         </el-form-item>
         <el-form-item label="真实姓名" prop="name">
           <el-input v-model="addForm.name"></el-input>
@@ -151,7 +151,7 @@
       width="40%">
       <el-form :model="editForm" :rules="rules" ref="editForm" label-width="120px" class="demo-ruleForm">
         <el-form-item label="用户名" prop="loginName">
-          <el-input  :disabled="true" v-model="editForm.loginName" placeholder="请输入" @blur="output"></el-input>
+          <el-input  :disabled="true" v-model="editForm.loginName" placeholder="请输入"></el-input>
         </el-form-item>
         <el-form-item label="真实姓名" prop="name">
           <el-input v-model="editForm.name"></el-input>
@@ -590,11 +590,6 @@ export default {
           return false
         }
       })
-    },
-    output() {
-      if (this.addForm.loginName.length > 0) {
-        this.disabled = true
-      }
     },
     async render() {
       let res = await this.axios.get(

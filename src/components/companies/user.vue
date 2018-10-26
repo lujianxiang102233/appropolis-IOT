@@ -652,10 +652,10 @@ export default {
           if (code === +-9999) {
             this.$message.error(`Exception Message`)
           }
-          if (code === +-3007) {
+          if (code === +-3014) {
             this.$message.error(`用户无法重置自身账号密码`)
           }
-          if (code === +-3014) {
+          if (code === +-3007) {
             this.$message.error(`重置密码与原密码一样`)
           }
           this.resetDialogVisible = false

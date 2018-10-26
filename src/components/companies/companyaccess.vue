@@ -31,7 +31,7 @@
         :data = "funcTable"
         show-checkbox
         node-key = "id"
-        default-expand-all
+        :default-expanded-keys = "expandedKeys"
         ref="tree2"
         :filter-node-method="filterNode"
         :expand-on-click-node = "false">
@@ -401,7 +401,7 @@ export default {
         children: 'children',
         label: 'label'
       },
-      ccc: [5]
+      expandedKeys: []
     }
   },
   methods: {
@@ -438,6 +438,13 @@ export default {
         let newdata = JSON.parse(data)
         getArray(newdata.permissionTree, 0, null)
         this.funcTable = newdata.permissionTree
+        this.expandedKeys = this.funcTable.map(item => {
+          if (item.id) {
+            return item.id
+          } else {
+            return ''
+          }
+        })
         this.treeList = newdata
       }
     },
@@ -875,7 +882,6 @@ export default {
     'el-table-tree-column': ElTreeGrid
   },
   created() {
-    this.ccc = [5]
     this.companyId = this.$route.query.id
     this.getList()
     this.tableHeight = `${document.documentElement.clientHeight}` - 320

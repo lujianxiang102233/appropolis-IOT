@@ -5,7 +5,7 @@
         <el-form :model="form" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
             <el-form-item prop="loginName" class="loginName">
                 <el-input v-model.trim="form.loginName" placeholder="请输入用户名称" class="user"></el-input>
-                <i v-show="form.loginName.length > 0" class="el-icon-circle-close" @click="clear"></i>
+                <i style="color:#ccc;" v-show="form.loginName.length > 0" class="el-icon-circle-close" @click="clear"></i>
             </el-form-item>
             <el-form-item prop="password">
                 <el-input v-model="form.password" placeholder="请输入登录密码" class="psd" type="password"></el-input>

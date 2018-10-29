@@ -202,10 +202,12 @@
           :filter-method="filterMethod"
           v-model="value2"
           :titles="['平台公司', '可查看公司']"
+          @left-check-change="leftHhandleChange"
+          @right-check-change="rightHandleChange"
           :data="data2">
         </el-transfer>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="wrtDialogVisible = false">取 消</el-button>
+        <el-button @click="wrtCancel('wrtForm')">取 消</el-button>
         <el-button type="primary" @click="stateTrue">确 定</el-button>
       </span>
     </el-dialog>
@@ -224,7 +226,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="retCancel('retForm')">取 消</el-button>
+        <el-button @click="retCancel">取 消</el-button>
         <el-button type="primary" @click="reset('retForm')">确 定</el-button>
       </span>
     </el-dialog>
@@ -253,6 +255,8 @@ export default {
       }
     }
     return {
+      leftList: [],
+      rightList: [],
       tableHeight: '',
       data2: [],
       value2: [],
@@ -616,9 +620,8 @@ export default {
       this.resetDialogVisible = true
       this.retLoginName = row.loginName
     },
-    retCancel(formName) {
+    retCancel() {
       this.resetDialogVisible = false
-      this.$refs[formName].resetFields()
     },
     reset(formName) {
       this.$refs[formName].validate(async valid => {
@@ -661,6 +664,17 @@ export default {
     retHandleClose(done) {
       done()
       this.$refs.retForm.resetFields()
+    },
+    wrtCancel() {
+      this.wrtDialogVisible = false
+      // this.leftList = []
+      // this.rightList = []
+    },
+    leftHhandleChange(value) {
+      this.leftList = value
+    },
+    rightHandleChange(value) {
+      this.rightList = value
     }
   },
   created() {

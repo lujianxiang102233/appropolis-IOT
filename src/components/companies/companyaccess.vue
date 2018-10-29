@@ -49,9 +49,20 @@
         </span>
       </el-tree>
     </div>
+   <!-- <el-table
+      :data="funcTable"
+      style="width: 100%">
+      <el-table-column
+        type="expand"
+        label="功能点名称"
+        width="180">
+      </el-table-column>
+    </el-table> -->
     <el-dialog
       title="新建一级功能点"
       :visible.sync="addDalogVisible"
+      :before-close="addHandleClose"
+      :close-on-click-modal=false
       width="40%">
       <el-form :model="addForm" :rules="rules" ref="addForm" label-width="120px" class="demo-ruleForm">
         <el-form-item label="功能点名称" prop="permissionName">
@@ -86,6 +97,8 @@
     <el-dialog
       title="新建功能点"
       :visible.sync="addsubDalogVisible"
+      :before-close="addsubHandleClose"
+      :close-on-click-modal=false
       width="40%">
       <el-form :model="addsubForm" :rules="rules" ref="addsubForm" label-width="140px" class="demo-ruleForm">
         <el-form-item label="父级功能点名称" prop="paipermissionName">
@@ -126,6 +139,8 @@
      <el-dialog
       title="编辑功能点"
       :visible.sync="editDalogVisible"
+      :before-close="editHandleClose"
+      :close-on-click-modal=false
       width="40%">
       <el-form :model="editForm" :rules="rules" ref="editForm" label-width="120px" class="demo-ruleForm">
         <el-form-item label="功能点名称" prop="permissionName">
@@ -160,6 +175,8 @@
      <el-dialog
       title="请选择模板公司"
       :visible.sync="copyDalogVisible"
+      :before-close="copyHandleClose"
+      :close-on-click-modal=false
       width="40%">
       <el-form :model="copyForm" :rules="rules" ref="copyForm" label-width="120px" class="demo-ruleForm">
         <el-form-item label="公司名称" prop="state">
@@ -176,7 +193,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="copyCancel">取 消</el-button>
+        <el-button @click="copyCancel('copyForm')">取 消</el-button>
         <el-button type="primary" @click="copy('copyForm')">确 定</el-button>
       </span>
     </el-dialog>
@@ -775,9 +792,9 @@ export default {
         this.$message.error(`Exception Message`)
       }
     },
-    copyCancel() {
+    copyCancel(formName) {
       this.copyDalogVisible = false
-      this.copyForm.state = ''
+      this.$refs[formName].resetFields()
     },
     querySearch(queryString, cb) {
       var restaurants = this.copyList
@@ -876,6 +893,22 @@ export default {
     filterNode(value, data) {
       if (!value) return true
       return data.permissionName.indexOf(value) !== -1
+    },
+    addHandleClose(done) {
+      done()
+      this.$refs.addForm.resetFields()
+    },
+    addsubHandleClose(done) {
+      done()
+      this.$refs.addsubForm.resetFields()
+    },
+    editHandleClose(done) {
+      done()
+      this.$refs.editForm.resetFields()
+    },
+    copyHandleClose(done) {
+      done()
+      this.$refs.copyForm.resetFields()
     }
   },
   components: {
@@ -1016,7 +1049,7 @@ export default {
     height: 53px;
     line-height: 53px;
     display: flex;
-    width: 1200px;
+    width: 1300px;
     .permissionName {
       flex: 1.5;
       padding-left: 10px;
@@ -1054,7 +1087,7 @@ export default {
     }
   }
   .el-tree {
-    width: 1200px;
+    width: 1300px;
     /deep/ .el-tree-node__content {
       height: 53px;
       line-height: 53px;
@@ -1075,9 +1108,9 @@ export default {
         .elli.permissionCode {
           text-align: center;
           display: inline-block;
-          // width: 160px;
-          flex: 1;
-          padding: 0 50px;
+          width: 160px;
+          // flex: 1;
+          padding: 0 10px;
         }
         .elli.url {
           text-align: center;
@@ -1095,7 +1128,7 @@ export default {
         div.menu {
           text-align: center;
           display: inline-block;
-          width: 140px;
+          width: 221px;
           // flex: 1;
           padding: 0 10px;
         }

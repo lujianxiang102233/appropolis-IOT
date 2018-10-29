@@ -94,6 +94,8 @@
     <el-dialog
       title="新增/编辑角色"
       :visible.sync="addDalogVisible"
+      :before-close="addHandleClose"
+      :close-on-click-modal=false
       width="40%">
       <el-form :model="addForm" :rules="rules" ref="addForm" label-width="120px" class="demo-ruleForm">
         <el-form-item label="角色名称" prop="roleName">
@@ -115,6 +117,8 @@
     <el-dialog
       title="新增/编辑角色"
       :visible.sync="editDalogVisible"
+      :before-close="editHandleClose"
+      :close-on-click-modal=false
       width="40%">
       <el-form :model="editForm" :rules="rules" ref="editForm" label-width="120px" class="demo-ruleForm">
         <el-form-item label="角色名称" prop="roleName">
@@ -147,16 +151,19 @@
     <el-dialog
       title="角色成员编辑"
       :visible.sync="userDialogVisible"
+      :before-close="userHandleClose"
+      :close-on-click-modal=false
+      ref="userForm"
       width="50%">
       <el-transfer
         filterable
         :filter-method="filterMethod"
-        v-model="value2"
+        v-model="userForm.value2"
         :titles="['公司成员', '角色成员(角色名称)']"
         :data="data2">
       </el-transfer>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="userDialogVisible=false">取 消</el-button>
+        <el-button @click="userCancel">取 消</el-button>
         <el-button type="primary" @click="members">确 定</el-button>
       </span>
     </el-dialog>
@@ -168,7 +175,9 @@ export default {
     return {
       tableHeight: '',
       data2: [],
-      value2: [],
+      userForm: {
+        value2: []
+      },
       filterMethod(query, item) {
         return item.cities.indexOf(query) > -1
       },
@@ -456,7 +465,6 @@ export default {
       }/${this.epyPageSize}`
       let res = await this.axios.get(getUrl)
       let { list } = res.data.content.data
-      console.log(list)
       let datas = list.map(function(item) {
         return {
           label: item.name + '(' + item.loginName + ')',
@@ -468,8 +476,7 @@ export default {
       let res2 = await this.axios.get(`/role/members/${row.roleId}`)
       let { code, data } = res2.data.content
       if (code === 0) {
-        console.log(data)
-        this.value2 = data.map(item => {
+        this.userForm.value2 = data.map(item => {
           return item.employeeId
         })
       }
@@ -487,7 +494,7 @@ export default {
     async members() {
       let res = await this.axios.put(
         `/role/members/${this.roleId}`,
-        this.value2
+        this.userForm.value2
       )
       let { code } = res.data.content
       if (code === 0) {
@@ -499,6 +506,20 @@ export default {
       if (code === -9999) {
         this.$message.error('Exception Message')
       }
+    },
+    addHandleClose(done) {
+      done()
+      this.$refs.addForm.resetFields()
+    },
+    editHandleClose(done) {
+      done()
+      this.$refs.editForm.resetFields()
+    },
+    userHandleClose(done) {
+      done()
+    },
+    userCancel() {
+      this.userDialogVisible = false
     }
   },
   created() {

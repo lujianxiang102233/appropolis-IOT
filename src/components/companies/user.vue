@@ -112,6 +112,8 @@
       id="add"
       title="新建用户"
       :visible.sync="addDalogVisible"
+      :before-close="addHandleClose"
+      :close-on-click-modal=false
       width="40%">
       <el-form :model="addForm" :rules="rules" ref="addForm" label-width="120px" class="demo-ruleForm">
         <el-form-item label="用户名" prop="loginName">
@@ -148,6 +150,8 @@
     <el-dialog
       title="编辑用户"
       :visible.sync="editDalogVisible"
+      :before-close="editHandleClose"
+      :close-on-click-modal=false
       width="40%">
       <el-form :model="editForm" :rules="rules" ref="editForm" label-width="120px" class="demo-ruleForm">
         <el-form-item label="用户名" prop="loginName">
@@ -189,6 +193,8 @@
     <el-dialog
       title="编辑用户可查看公司"
       :visible.sync="wrtDialogVisible"
+      :before-close="wrtHandleClose"
+      :close-on-click-modal=false
       width="50%">
       <h2>请选择【{{loginName}}】拥有查看权限的公司</h2>
         <el-transfer
@@ -206,6 +212,8 @@
     </el-dialog>
     <el-dialog
       title="重置用户密码"
+      :before-close="retHandleClose"
+      :close-on-click-modal=false
       :visible.sync="resetDialogVisible"
       width="30%">
       <el-form :model="retForm" :rules="rules" ref="retForm" label-width="100px" class="demo-ruleForm">
@@ -638,6 +646,21 @@ export default {
           return false
         }
       })
+    },
+    addHandleClose(done) {
+      done()
+      this.$refs.addForm.resetFields()
+    },
+    editHandleClose(done) {
+      done()
+      this.$refs.editForm.resetFields()
+    },
+    wrtHandleClose(done) {
+      done()
+    },
+    retHandleClose(done) {
+      done()
+      this.$refs.retForm.resetFields()
     }
   },
   created() {

@@ -52,6 +52,8 @@
     <el-dialog
       title="新建一级功能点"
       :visible.sync="addDalogVisible"
+      :before-close="addHandleClose"
+      :close-on-click-modal=false
       width="40%">
       <el-form :model="addForm" :rules="rules" ref="addForm" label-width="120px" class="demo-ruleForm">
         <el-form-item label="功能点名称" prop="permissionName">
@@ -86,6 +88,8 @@
     <el-dialog
       title="新建功能点"
       :visible.sync="addsubDalogVisible"
+      :before-close="addsubHandleClose"
+      :close-on-click-modal=false
       width="40%">
       <el-form :model="addsubForm" :rules="rules" ref="addsubForm" label-width="140px" class="demo-ruleForm">
         <el-form-item label="父级功能点名称" prop="paipermissionName">
@@ -126,6 +130,8 @@
      <el-dialog
       title="编辑功能点"
       :visible.sync="editDalogVisible"
+      :before-close="editHandleClose"
+      :close-on-click-modal=false
       width="40%">
       <el-form :model="editForm" :rules="rules" ref="editForm" label-width="120px" class="demo-ruleForm">
         <el-form-item label="功能点名称" prop="permissionName">
@@ -160,6 +166,8 @@
      <el-dialog
       title="请选择模板公司"
       :visible.sync="copyDalogVisible"
+      :before-close="copyHandleClose"
+      :close-on-click-modal=false
       width="40%">
       <el-form :model="copyForm" :rules="rules" ref="copyForm" label-width="120px" class="demo-ruleForm">
         <el-form-item label="公司名称" prop="state">
@@ -176,7 +184,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="copyCancel">取 消</el-button>
+        <el-button @click="copyCancel('copyForm')">取 消</el-button>
         <el-button type="primary" @click="copy('copyForm')">确 定</el-button>
       </span>
     </el-dialog>
@@ -775,9 +783,9 @@ export default {
         this.$message.error(`Exception Message`)
       }
     },
-    copyCancel() {
+    copyCancel(formName) {
       this.copyDalogVisible = false
-      this.copyForm.state = ''
+      this.$refs[formName].resetFields()
     },
     querySearch(queryString, cb) {
       var restaurants = this.copyList
@@ -876,6 +884,22 @@ export default {
     filterNode(value, data) {
       if (!value) return true
       return data.permissionName.indexOf(value) !== -1
+    },
+    addHandleClose(done) {
+      done()
+      this.$refs.addForm.resetFields()
+    },
+    addsubHandleClose(done) {
+      done()
+      this.$refs.addsubForm.resetFields()
+    },
+    editHandleClose(done) {
+      done()
+      this.$refs.editForm.resetFields()
+    },
+    copyHandleClose(done) {
+      done()
+      this.$refs.copyForm.resetFields()
     }
   },
   components: {

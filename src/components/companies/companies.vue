@@ -83,6 +83,8 @@
     <el-dialog
       title="新建公司"
       :visible.sync="addDalogVisible"
+      :before-close="addHandleClose"
+      :close-on-click-modal=false
       width="40%">
       <el-form :model="addForm" :rules="rules" ref="addForm" label-width="120px" class="demo-ruleForm">
         <el-form-item label="公司名称" prop="companyName">
@@ -109,6 +111,8 @@
     <el-dialog
       title="重置超管密码"
       :visible.sync="resetDalogVisible"
+      :before-close="resetHandleClose"
+      :close-on-click-modal=false
       width="40%">
       <el-form :model="retForm" :rules="rules" ref="retForm" label-width="120px" class="demo-ruleForm">
         <el-form-item label="公司名称">
@@ -296,8 +300,9 @@ export default {
           if (code === +0) {
             this.getList()
             this.addDalogVisible = false
-            this.addForm = {}
+            this.$refs[formName].resetFields()
             this.disabled = false
+            this.$message.success(`新建公司成功`)
           }
         } else {
           return false
@@ -361,6 +366,14 @@ export default {
     },
     indexMethod(index) {
       return (this.pageIndex - 1) * this.pageSize + index + 1
+    },
+    addHandleClose(done) {
+      done()
+      this.$refs.addForm.resetFields()
+    },
+    resetHandleClose(done) {
+      done()
+      this.$refs.retForm.resetFields()
     }
   },
   created() {

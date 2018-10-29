@@ -31,7 +31,7 @@
         :data = "funcTable"
         show-checkbox
         node-key = "id"
-        default-expand-all
+        :default-expanded-keys = "expandedKeys"
         ref="tree2"
         :filter-node-method="filterNode"
         :expand-on-click-node = "false">
@@ -89,10 +89,10 @@
       width="40%">
       <el-form :model="addsubForm" :rules="rules" ref="addsubForm" label-width="140px" class="demo-ruleForm">
         <el-form-item label="父级功能点名称" prop="paipermissionName">
-          <el-input v-model="paipermissionName" placeholder="请输入"></el-input>
+          <el-input :disabled="true" v-model="paipermissionName" placeholder="请输入"></el-input>
         </el-form-item>
         <el-form-item label="父级FUNCID" prop="paipermissionCode">
-          <el-input v-model="paipermissionCode" placeholder="请输入"></el-input>
+          <el-input :disabled="true" v-model="paipermissionCode" placeholder="请输入"></el-input>
         </el-form-item>
         <el-form-item label="功能点名称" prop="permissionName">
           <el-input v-model="addsubForm.permissionName" placeholder="请输入"></el-input>
@@ -401,7 +401,7 @@ export default {
         children: 'children',
         label: 'label'
       },
-      ccc: [5]
+      expandedKeys: []
     }
   },
   methods: {
@@ -438,6 +438,13 @@ export default {
         let newdata = JSON.parse(data)
         getArray(newdata.permissionTree, 0, null)
         this.funcTable = newdata.permissionTree
+        this.expandedKeys = this.funcTable.map(item => {
+          if (item.id) {
+            return item.id
+          } else {
+            return ''
+          }
+        })
         this.treeList = newdata
       }
     },
@@ -755,6 +762,14 @@ export default {
             companyName: item.companyName
           }
         })
+        let index = ''
+        this.copyList.forEach((value, i) => {
+          if (Number(value.companyId) === Number(this.$route.query.id)) {
+            index += i
+          }
+        })
+        this.copyList.splice(index, 1)
+        console.log(this.copyList)
       }
       if (code === -9999) {
         this.$message.error(`Exception Message`)
@@ -867,7 +882,6 @@ export default {
     'el-table-tree-column': ElTreeGrid
   },
   created() {
-    this.ccc = [5]
     this.companyId = this.$route.query.id
     this.getList()
     this.tableHeight = `${document.documentElement.clientHeight}` - 320
@@ -1004,7 +1018,7 @@ export default {
     display: flex;
     width: 1200px;
     .permissionName {
-      flex: 3;
+      flex: 1.5;
       padding-left: 10px;
       box-sizing: border-box;
     }

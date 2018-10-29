@@ -111,10 +111,10 @@
       width="40%">
       <el-form :model="retForm" :rules="rules" ref="retForm" label-width="120px" class="demo-ruleForm">
         <el-form-item label="公司名称">
-          <el-input v-model="retForm.companyName" placeholder="请输入"></el-input>
+          <el-input :disabled="true" v-model="retForm.companyName" placeholder="请输入"></el-input>
         </el-form-item>
         <el-form-item label="超管用户名" prop="adminLoginName">
-          <el-input v-model="retForm.adminLoginName" placeholder="请输入"></el-input>
+          <el-input :disabled="true" v-model="retForm.adminLoginName" placeholder="请输入"></el-input>
         </el-form-item>
         <el-form-item label="超管登录密码" prop="retAdminPassword">
           <el-input type="password" v-model="retForm.retAdminPassword" autocomplete="off" placeholder="请输入"></el-input>

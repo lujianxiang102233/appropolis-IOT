@@ -84,7 +84,8 @@
         align="center"
         label="创建最后登录时间">
           <template slot-scope="scope">
-            {{ scope.row.lastLoginDate | time}}
+            <span v-if="scope.row.lastLoginDate !== undefined">{{ scope.row.lastLoginDate | time}}</span>
+            <span v-else></span>
           </template>
       </el-table-column>
       <el-table-column
@@ -114,13 +115,13 @@
       width="40%">
       <el-form :model="addForm" :rules="rules" ref="addForm" label-width="120px" class="demo-ruleForm">
         <el-form-item label="用户名" prop="loginName">
-          <el-input  :disabled="disabled" v-model="addForm.loginName" placeholder="请输入" @blur="output"></el-input>
+          <el-input  :disabled="disabled" v-model="addForm.loginName" placeholder="请输入"></el-input>
         </el-form-item>
         <el-form-item label="真实姓名" prop="name">
           <el-input v-model="addForm.name"></el-input>
         </el-form-item>
         <el-form-item label="用户密码" prop="password">
-          <el-input  v-model="addForm.password"></el-input>
+          <el-input type="password" v-model="addForm.password"></el-input>
         </el-form-item>
         <el-form-item label="电话" prop="phone">
           <el-input  v-model="addForm.phone"></el-input>
@@ -150,13 +151,13 @@
       width="40%">
       <el-form :model="editForm" :rules="rules" ref="editForm" label-width="120px" class="demo-ruleForm">
         <el-form-item label="用户名" prop="loginName">
-          <el-input  :disabled="true" v-model="editForm.loginName" placeholder="请输入" @blur="output"></el-input>
+          <el-input  :disabled="true" v-model="editForm.loginName" placeholder="请输入"></el-input>
         </el-form-item>
         <el-form-item label="真实姓名" prop="name">
           <el-input v-model="editForm.name"></el-input>
         </el-form-item>
-        <el-form-item label="用户密码" prop="password">
-          <el-input :disabled="true" v-model="editForm.password"></el-input>
+        <el-form-item label="用户密码" prop="editPassword">
+          <el-input :disabled="true" v-model="editForm.editPassword"></el-input>
         </el-form-item>
         <el-form-item label="电话" prop="phone">
           <el-input  v-model="editForm.phone"></el-input>
@@ -174,7 +175,7 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="角色状态" prop="enable">
+        <el-form-item label="用户状态" prop="enable">
           <el-radio v-model="editForm.enable" :label="1">开启</el-radio>
           <el-radio v-model="editForm.enable" :label="0">关闭</el-radio>
           <el-radio v-model="editForm.enable" :label="2">锁定</el-radio>
@@ -189,11 +190,11 @@
       title="编辑用户可查看公司"
       :visible.sync="wrtDialogVisible"
       width="50%">
-      <h2>请选择XXX拥有查看权限的公司</h2>
+      <h2>请选择【{{loginName}}】拥有查看权限的公司</h2>
         <el-transfer
           filterable
           :filter-method="filterMethod"
-          filter-placeholder="请输入城市拼音"
+          filter-placeholder=""
           v-model="value2"
           :titles="['平台公司', '可查看公司']"
           :data="data2">
@@ -209,10 +210,10 @@
       width="30%">
       <el-form :model="retForm" :rules="rules" ref="retForm" label-width="100px" class="demo-ruleForm">
         <el-form-item label="密码" prop="pass">
-          <el-input  v-model="retForm.pass" autocomplete="off"></el-input>
+          <el-input type="password" v-model="retForm.pass" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="确认密码" prop="checkPass">
-          <el-input  v-model="retForm.checkPass" autocomplete="off"></el-input>
+          <el-input type="password"  v-model="retForm.checkPass" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -269,7 +270,7 @@ export default {
       editForm: {
         loginName: '',
         name: '',
-        password: '',
+        editPassword: '',
         phone: '',
         email: '',
         roleList: [],
@@ -310,9 +311,9 @@ export default {
         phone: [
           { required: false, message: '请输入', trigger: 'blur' },
           {
-            min: 3,
-            max: 6,
-            message: '长度在 3 到 6 个字符',
+            min: 0,
+            max: 50,
+            message: '长度在 0 到 50 个字符',
             trigger: 'blur'
           }
         ],
@@ -343,25 +344,24 @@ export default {
       pageIndex: 1,
       pageSize: 10,
       total: 1,
-      roleName: '',
-      roleState: '',
+      loginName: '',
       coList: [],
       options: [
         {
-          value: '2',
-          label: '锁定'
+          value: '-99',
+          label: '【全部】'
         },
         {
           value: '1',
-          label: '开启'
+          label: '【开启】'
+        },
+        {
+          value: '2',
+          label: '【锁定】'
         },
         {
           value: '0',
-          label: '关闭'
-        },
-        {
-          value: '-99',
-          label: '全部'
+          label: '【关闭】'
         }
       ],
       addOptions: [],
@@ -369,11 +369,10 @@ export default {
       roleId: '',
       enable: '',
       employeeId: '',
-      loginName: '',
-      loginNameMy: '',
+      retLoginName: '',
       queryForm: {
         loginName: '',
-        queryState: '',
+        queryState: '-99',
         roleName: ''
       }
     }
@@ -401,18 +400,8 @@ export default {
     async getList() {
       this.coList = JSON.parse(localStorage.getItem('points'))
       this.companyId = localStorage.getItem('companyId')
-      let getUrl = `/employee/${this.companyId}/${this.queryForm.loginName}/${
-        this.queryForm.queryState
-      }/${this.queryForm.roleName}/${this.pageIndex}/${this.pageSize}`
+      let getUrl
       if (
-        this.queryForm.loginName.length === 0 &&
-        this.queryForm.roleName.length === 0 &&
-        this.queryForm.queryState.length === 0
-      ) {
-        getUrl = `/employee/${this.companyId}/{loginName}/-99/{role}/${
-          this.pageIndex
-        }/${this.pageSize}`
-      } else if (
         this.queryForm.loginName.length === 0 &&
         this.queryForm.roleName.length === 0 &&
         this.queryForm.queryState.length !== 0
@@ -428,10 +417,18 @@ export default {
         getUrl = `/employee/${this.companyId}/{loginName}/${
           this.queryForm.queryState
         }/${this.queryForm.roleName}/${this.pageIndex}/${this.pageSize}`
-      } else {
+      } else if (
+        this.queryForm.loginName.length !== 0 &&
+        this.queryForm.roleName.length === 0 &&
+        this.queryForm.queryState.length !== 0
+      ) {
         getUrl = `/employee/${this.companyId}/${this.queryForm.loginName}/${
           this.queryForm.queryState
         }/{role}/${this.pageIndex}/${this.pageSize}`
+      } else {
+        getUrl = `/employee/${this.companyId}/${this.queryForm.loginName}/${
+          this.queryForm.queryState
+        }/${this.queryForm.roleName}/${this.pageIndex}/${this.pageSize}`
       }
       let res = await this.axios.get(getUrl)
       let {
@@ -439,7 +436,6 @@ export default {
         data: { list, total }
       } = res.data.content
       if (code === 0) {
-        this.tableData = list
         this.total = total
         list.forEach(function(item) {
           let roleList = item.roleList
@@ -449,6 +445,7 @@ export default {
           })
           return (item.newRoleList = newData.join(','))
         })
+        this.tableData = list
       }
       if (code === -9999) {
         this.$message.error(`Exception Message`)
@@ -567,11 +564,6 @@ export default {
         }
       })
     },
-    output() {
-      if (this.addForm.loginName.length > 0) {
-        this.disabled = true
-      }
-    },
     async render() {
       let res = await this.axios.get(
         `/role/${localStorage.getItem('companyId')}/{roleName}/2/1/100`
@@ -587,6 +579,7 @@ export default {
       this.render()
     },
     async warrant(row) {
+      this.loginName = row.loginName
       this.employeeId = row.employeeId
       this.wrtDialogVisible = true
       let res1 = await this.axios.get(`/company/{companyName}/1/100`)
@@ -600,7 +593,6 @@ export default {
         }
       })
       this.data2 = newPlatForm
-      // console.log(newPlatForm)
       let res2 = await this.axios.get(`/employee/company/${row.employeeId}`)
       let { code, data } = res2.data.content
       if (code === 0) {
@@ -614,7 +606,7 @@ export default {
     },
     resetPsd(row) {
       this.resetDialogVisible = true
-      this.loginName = row.loginName
+      this.retLoginName = row.loginName
     },
     retCancel(formName) {
       this.resetDialogVisible = false
@@ -624,8 +616,8 @@ export default {
       this.$refs[formName].validate(async valid => {
         if (valid) {
           let res = await this.axios.put(`/employee/password/adminReset`, {
-            password: this.retForm.retCheckAdminPassword,
-            loginName: this.loginName
+            password: this.retForm.checkPass,
+            loginName: this.retLoginName
           })
           let { code } = res.data.content
           if (code === +0) {
@@ -634,10 +626,10 @@ export default {
           if (code === +-9999) {
             this.$message.error(`Exception Message`)
           }
-          if (code === +-3007) {
+          if (code === +-3014) {
             this.$message.error(`用户无法重置自身账号密码`)
           }
-          if (code === +-3014) {
+          if (code === +-3007) {
             this.$message.error(`重置密码与原密码一样`)
           }
           this.resetDialogVisible = false

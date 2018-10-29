@@ -2,7 +2,8 @@
   <div class="home" style="height:100%">
     <el-container>
     <el-menu
-        default-active="1"
+        :default-active="$route.path"
+        :default-openeds="openeds"
         class="el-menu-vertical-demo"
         background-color="#001529"
         text-color="#9F9F8D"
@@ -40,7 +41,7 @@
             </el-dropdown>
             <div class="user" @click="logout">
              <img src="../assets/images/u70.png" @click="collapse">
-             <span>{{employeeName}}</span>
+             <span>{{loginName}}</span>
              <div class="logout" v-show="isShow">
                <ul>
                  <li @click="editPsd">修改密码</li>
@@ -55,8 +56,11 @@
     <el-dialog
     data-backdrop="static"
       title="重置用户密码"
+      class="reset"
       :visible.sync="resetDialogVisible"
-      width="30%">
+      :close-on-click-modal=false
+      width="30%"
+      :before-close="resetHandleClose">
       <el-form :model="retForm" status-icon :rules="rules" ref="retForm" label-width="100px" class="demo-ruleForm">
         <el-form-item label="原密码" prop="oldPass">
           <el-input type="password" v-model="retForm.oldPass" autocomplete="off"></el-input>
@@ -76,6 +80,8 @@
     <el-dialog
       title="修改密码"
       :visible.sync="editDialogVisible"
+      :before-close="handleClose"
+      class="edit"
       width="30%">
       <span class="judge" v-if="forceChangePwd===1">首次登录请重置账户密码</span>
       <span class="judge" v-else>重置密码后首次登录，请修改账户密码</span>
@@ -88,7 +94,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="editCancel('editForm')">取 消</el-button>
+        <el-button @click="editCancel('editForm')">清 空</el-button>
         <el-button type="primary" @click="edit('editForm')">确 定</el-button>
       </span>
     </el-dialog>
@@ -182,7 +188,9 @@ export default {
       },
       companySet: {},
       forceChangePwd: '',
-      employeeName: ''
+      employeeName: '',
+      loginName: '',
+      openeds: ['1']
     }
   },
   methods: {
@@ -198,16 +206,20 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       })
-        .then(() => {
-          localStorage.removeItem('token')
-          localStorage.removeItem('companyId')
-          localStorage.removeItem('points')
-          localStorage.removeItem('loginName')
-          localStorage.removeItem('companyTree')
-          localStorage.removeItem('companySet')
-          localStorage.removeItem('forceChangePwd')
-          localStorage.removeItem('employeeName')
-          this.$router.push('./login')
+        .then(async () => {
+          let res = await this.axios.get(`/employee/logout`)
+          let { code } = res.data.content
+          if (code === 0) {
+            this.$router.push('./login')
+            localStorage.removeItem('token')
+            localStorage.removeItem('companyId')
+            localStorage.removeItem('points')
+            localStorage.removeItem('loginName')
+            localStorage.removeItem('companyTree')
+            localStorage.removeItem('companySet')
+            localStorage.removeItem('forceChangePwd')
+            localStorage.removeItem('employeeName')
+          }
         })
         .catch(() => {
           this.$message({
@@ -226,7 +238,6 @@ export default {
     reset(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
-          console.log(this.retForm)
           let res = await this.axios.put(`/employee/password`, {
             currentPassword: this.retForm.oldPass,
             newPassword: this.retForm.pass
@@ -261,7 +272,6 @@ export default {
     },
     editCancel(formName) {
       this.$refs[formName].resetFields()
-      this.editDialogVisible = false
     },
     edit(formName) {
       this.$refs[formName].validate(async valid => {
@@ -272,6 +282,7 @@ export default {
           let { code } = res.data.content
           if (code === +0) {
             this.editDialogVisible = false
+            localStorage.removeItem('forceChangePwd')
             if (this.menusList.indexOf('permission_co') > -1) {
               this.$router.push('/companies')
             } else if (this.menusList.indexOf('permission_role') > -1) {
@@ -288,23 +299,23 @@ export default {
           if (code === +-3007) {
             this.$message.error(`重置密码与默认密码一致`)
             // 不能关闭窗口
-            this.editDialogVisible = false
           }
           this.retForm = {}
         } else {
           return false
         }
       })
-    }
-  },
-  mounted() {
-    if (this.editDialogVisible === false) {
-      console.log(1)
-    }
+    },
+    resetHandleClose(done) {
+      done()
+      this.$refs.retForm.resetFields()
+    },
+    handleClose(done) {}
   },
   created() {
     this.menusList = JSON.parse(localStorage.getItem('points'))
     this.employeeName = localStorage.getItem('employeeName')
+    this.loginName = localStorage.getItem('loginName')
     let newSet = localStorage.getItem('companySet')
     if (newSet === 'undefined') {
       this.companySet = [{ companyName: '没有数据' }]
@@ -358,9 +369,9 @@ export default {
     .user {
       float: right;
       line-height: 64px;
-      width: 100px;
       cursor: pointer;
       position: relative;
+      margin-right: 20px;
       img {
         display: block;
         float: left;
@@ -465,5 +476,8 @@ export default {
 .judge {
   color: red;
   margin-bottom: 10px;
+}
+.edit .el-icon-close::before {
+  content: '';
 }
 </style>

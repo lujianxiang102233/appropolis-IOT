@@ -218,6 +218,8 @@ export default {
             localStorage.removeItem('companySet')
             localStorage.removeItem('forceChangePwd')
             localStorage.removeItem('employeeName')
+            localStorage.removeItem('employeeName')
+            localStorage.removeItem('storeList')
           }
         })
         .catch(() => {

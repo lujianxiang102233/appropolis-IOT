@@ -34,7 +34,22 @@ export default {
       },
       code: {
         companyCode: 'CP01'
-      }
+      },
+      others: [
+        'permission_co_func_query',
+        'permission_log_query',
+        'permission_co_func',
+        'permission_log',
+        'permission',
+        'permission_user',
+        'permission_role_auth_query',
+        'permission_co_query',
+        'permission_role_query',
+        'permission_user_query',
+        'permission_co',
+        'permission_role',
+        'permission_role_auth'
+      ]
     }
   },
   methods: {
@@ -58,6 +73,9 @@ export default {
           if (code === +-3003) {
             this.$message.error('5次输入错误，账号已锁定，请联系管理员解锁')
           }
+          if (code === +-3004) {
+            this.$message.error('账号停用')
+          }
           if (code === +0) {
             localStorage.setItem('token', data.token)
             localStorage.setItem('points', JSON.stringify(data.functionPoints))
@@ -67,6 +85,11 @@ export default {
             localStorage.setItem('companySet', JSON.stringify(data.companySet))
             localStorage.setItem('forceChangePwd', data.forceChangePwd)
             localStorage.setItem('employeeName', data.employeeName)
+            localStorage.setItem('fixedPoints', this.others)
+            localStorage.setItem(
+              'storeList',
+              JSON.stringify(data.functionPoints)
+            )
             if (data.forceChangePwd > 0) {
               this.$router.push('/home')
             } else {

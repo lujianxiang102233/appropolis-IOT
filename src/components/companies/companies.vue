@@ -21,6 +21,7 @@
       style="width: 100%">
       <el-table-column
         type="index"
+        label="序号"
         :index="indexMethod"
         width="50">
       </el-table-column>
@@ -46,7 +47,7 @@
       </el-table-column>
      <el-table-column
         align="center"
-        label="登入入口"
+        label="登录入口"
         width="180">
         <template slot-scope="scope">
           <div class="elli" :title="scope.row.companyUrl">{{scope.row.companyUrl}}</div>

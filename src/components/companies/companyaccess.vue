@@ -49,6 +49,15 @@
         </span>
       </el-tree>
     </div>
+   <!-- <el-table
+      :data="funcTable"
+      style="width: 100%">
+      <el-table-column
+        type="expand"
+        label="功能点名称"
+        width="180">
+      </el-table-column>
+    </el-table> -->
     <el-dialog
       title="新建一级功能点"
       :visible.sync="addDalogVisible"
@@ -1002,21 +1011,6 @@ export default {
   .el-autocomplete {
     position: relative;
   }
-
-  // .elliSpan {
-  //   color: red;
-  //   // display: inline-block;
-  //   *display: inline;
-  //   *zoom: 1;
-  //   width: 10em;
-  //   height: 23px;
-  //   line-height: 23px;
-  //   // font-size: 12px;
-  //   overflow: hidden;
-  //   -ms-text-overflow: ellipsis;
-  //   text-overflow: ellipsis;
-  //   white-space: nowrap;
-  // }
 }
 .table {
   margin-top: 20px;
@@ -1040,9 +1034,10 @@ export default {
     height: 53px;
     line-height: 53px;
     display: flex;
-    width: 1200px;
+    flex: 1;
+    width: 1300px;
     .permissionName {
-      flex: 1.5;
+      flex: 2;
       padding-left: 10px;
       box-sizing: border-box;
     }
@@ -1078,13 +1073,13 @@ export default {
     }
   }
   .el-tree {
-    width: 1200px;
+    width: 1300px;
     /deep/ .el-tree-node__content {
       height: 53px;
       line-height: 53px;
       border-top: 1px solid #ebeef5;
       // flex: 1;
-      // display: flex;
+      display: flex;
       align-items: center;
       justify-content: space-between;
       font-size: 14px;
@@ -1100,7 +1095,7 @@ export default {
           text-align: center;
           display: inline-block;
           // width: 160px;
-          flex: 1;
+          // flex: 1;
           padding: 0 50px;
         }
         .elli.url {

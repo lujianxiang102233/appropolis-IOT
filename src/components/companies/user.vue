@@ -186,7 +186,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="editCancel">取 消</el-button>
+        <el-button @click="editCancel('editForm')">取 消</el-button>
         <el-button type="primary" @click="edit('editForm')">确 定</el-button>
       </span>
     </el-dialog>
@@ -200,7 +200,6 @@
         <el-transfer
           filterable
           :filter-method="filterMethod"
-          filter-placeholder=""
           v-model="value2"
           :titles="['平台公司', '可查看公司']"
           :data="data2">
@@ -536,8 +535,9 @@ export default {
         return item.roleId
       })
     },
-    editCancel() {
+    editCancel(formName) {
       this.editDalogVisible = false
+      this.$refs[formName].resetFields()
     },
     addCancel(formName) {
       this.addDalogVisible = false

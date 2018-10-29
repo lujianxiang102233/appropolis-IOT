@@ -18,11 +18,20 @@
             <img src="../assets/images/u59.png" alt="" id="u59" style=" height: 14px">
             <span slot="title" style="color:#fff">权限管理</span>
             </template>
+            <!-- <template>
+              <el-submenu index="1-2">
+                <template>
+                 <span slot="title" style="color:#fff">权限管理</span>
+               </template>
+               <el-menu-item>
+                 <span slot="title" style="color:#fff">权限管理</span>
+               </el-menu-item>
+              </el-submenu>
+            </template> -->
             <el-menu-item index="/companies" style="padding-left: 48px;" v-if="menusList.indexOf('permission_co')>-1">公司管理</el-menu-item>
             <el-menu-item index="/role" style="padding-left: 48px;" v-if="menusList.indexOf('permission_role')>-1">角色管理</el-menu-item>
             <el-menu-item index="/user" style="padding-left: 48px;" v-if="menusList.indexOf('permission_user')>-1">用户管理</el-menu-item>
             <el-menu-item index="/logs" style="padding-left: 48px;" v-if="menusList.indexOf('permission_log')>-1">操作日志</el-menu-item>
-            <el-menu-item index="/show" style="padding-left: 48px;">实例展示</el-menu-item>
         </el-submenu>
     </el-menu>
     <el-container>

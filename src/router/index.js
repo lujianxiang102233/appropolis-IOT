@@ -9,7 +9,7 @@ import user from '@/components/companies/user'
 import logs from '@/components/companies/logs'
 
 import roleaccess from '@/components/companies/roleaccess'
-import show from '@/components/companies/show'
+
 Vue.use(Router)
 
 let router = new Router({
@@ -50,10 +50,6 @@ let router = new Router({
         {
           path: '/logs',
           component: logs
-        },
-        {
-          path: '/show',
-          component: show
         }
       ]
     }

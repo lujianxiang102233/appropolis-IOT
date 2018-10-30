@@ -447,7 +447,6 @@ export default {
         }
       }
       this.coList = JSON.parse(localStorage.getItem('points'))
-      console.log('渲染id', this.nowCompanyId)
       let res = await this.axios.get(`/company/permission/${this.nowCompanyId}`)
       let { code, data } = res.data.content
       if (code === -9999) {
@@ -818,10 +817,8 @@ export default {
       this.copyForm.state = ''
     },
     async copyRender() {
-      console.log('被复制公司', this.lastId)
-      console.log('复制到公司', this.nowCompanyId)
       let res = await this.axios.post(
-        `/company/permission/copy/${this.lastId}/${this.nowCompanyId}`
+        `/company/permission/copy/${this.nowCompanyId}/${this.lastId}`
       )
       let { data } = res.data.content
       if (data === 1) {

@@ -198,6 +198,7 @@
       width="50%">
       <h2>请选择【{{loginName}}】拥有查看权限的公司</h2>
         <el-transfer
+          ref="aaa"
           filterable
           :filter-method="filterMethod"
           v-model="value2"
@@ -207,7 +208,7 @@
           :data="data2">
         </el-transfer>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="wrtCancel('wrtForm')">取 消</el-button>
+        <el-button @click="wrtCancel">取 消</el-button>
         <el-button type="primary" @click="stateTrue">确 定</el-button>
       </span>
     </el-dialog>
@@ -260,7 +261,9 @@ export default {
       tableHeight: '',
       data2: [],
       value2: [],
+      query: '',
       filterMethod(query, item) {
+        this.query = query
         return item.cities.indexOf(query) > -1
       },
       tableData: [],
@@ -389,6 +392,9 @@ export default {
     }
   },
   methods: {
+    clearQuery(data) {
+      console.log(data)
+    },
     onSubmit() {
       this.pageIndex = 1
       this.getList()
@@ -660,6 +666,8 @@ export default {
     },
     wrtHandleClose(done) {
       done()
+      this.leftList.splice(0, this.leftList.length)
+      this.rightList.splice(0, this.rightList.length)
     },
     retHandleClose(done) {
       done()
@@ -667,8 +675,10 @@ export default {
     },
     wrtCancel() {
       this.wrtDialogVisible = false
-      // this.leftList = []
-      // this.rightList = []
+      this.leftList.splice(0, this.leftList.length)
+      this.rightList.splice(0, this.rightList.length)
+      // this.query = ''
+      console.log(this.$refs.aaa.$el)
     },
     leftHhandleChange(value) {
       this.leftList = value

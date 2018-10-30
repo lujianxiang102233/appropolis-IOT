@@ -293,7 +293,7 @@ export default {
       copyForm: {
         state: ''
       },
-      companyId: '',
+      nowCompanyId: '',
       companyName: '',
       rules: {
         permissionName: [
@@ -418,7 +418,8 @@ export default {
         children: 'children',
         label: 'label'
       },
-      expandedKeys: []
+      expandedKeys: [],
+      lastId: ''
     }
   },
   methods: {
@@ -446,7 +447,8 @@ export default {
         }
       }
       this.coList = JSON.parse(localStorage.getItem('points'))
-      let res = await this.axios.get(`/company/permission/${this.companyId}`)
+      console.log('渲染id', this.nowCompanyId)
+      let res = await this.axios.get(`/company/permission/${this.nowCompanyId}`)
       let { code, data } = res.data.content
       if (code === -9999) {
         this.$message.error(`Exception Message`)
@@ -455,13 +457,15 @@ export default {
         let newdata = JSON.parse(data)
         getArray(newdata.permissionTree, 0, null)
         this.funcTable = newdata.permissionTree
-        this.expandedKeys = this.funcTable.map(item => {
-          if (item.id) {
-            return item.id
-          } else {
-            return ''
-          }
-        })
+        if (this.funcTable !== undefined) {
+          this.expandedKeys = this.funcTable.map(item => {
+            if (item.id) {
+              return item.id
+            } else {
+              return ''
+            }
+          })
+        }
         this.treeList = newdata
       }
     },
@@ -786,7 +790,6 @@ export default {
           }
         })
         this.copyList.splice(index, 1)
-        console.log(this.copyList)
       }
       if (code === -9999) {
         this.$message.error(`Exception Message`)
@@ -814,6 +817,21 @@ export default {
     clear() {
       this.copyForm.state = ''
     },
+    async copyRender() {
+      console.log('被复制公司', this.lastId)
+      console.log('复制到公司', this.nowCompanyId)
+      let res = await this.axios.post(
+        `/company/permission/copy/${this.lastId}/${this.nowCompanyId}`
+      )
+      let { data } = res.data.content
+      if (data === 1) {
+        this.getList()
+        this.lastId = this.nowCompanyId
+      }
+      if (data === 0) {
+        this.$message.error('复制其他公司权限失败')
+      }
+    },
     copy(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
@@ -824,7 +842,7 @@ export default {
               type: 'warning'
             })
               .then(async () => {
-                this.getList()
+                this.copyRender()
                 this.$message.success(`已复制【${this.companyName}】配置权限`)
                 this.copyDalogVisible = false
               })
@@ -835,7 +853,7 @@ export default {
                 })
               })
           } else {
-            this.getList()
+            this.copyRender()
             this.$message.success(`已复制【${this.companyName}】配置权限`)
             this.copyDalogVisible = false
           }
@@ -845,7 +863,8 @@ export default {
       })
     },
     handleSelect(item) {
-      this.companyId = item.companyId
+      this.nowCompanyId = item.companyId
+      this.companyName = item.companyName
     },
     editTrue(formName) {
       function getAddArray(data, id, child) {
@@ -915,7 +934,8 @@ export default {
     'el-table-tree-column': ElTreeGrid
   },
   created() {
-    this.companyId = this.$route.query.id
+    this.nowCompanyId = this.$route.query.id
+    this.lastId = this.$route.query.id
     this.getList()
     this.tableHeight = `${document.documentElement.clientHeight}` - 320
   },

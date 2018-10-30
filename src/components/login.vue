@@ -7,11 +7,12 @@
                 <el-input v-model.trim="form.loginName" placeholder="请输入用户名称" class="user"></el-input>
                 <i style="color:#ccc;" v-show="form.loginName.length > 0" class="el-icon-circle-close" @click="clear"></i>
             </el-form-item>
-            <el-form-item prop="password">
-                <el-input v-model="form.password" placeholder="请输入登录密码" class="psd" type="password"></el-input>
+            <el-form-item prop="password" class="password">
+                <el-input v-model="form.password" placeholder="请输入登录密码" class="psd" :type="password"></el-input>
+                <span :class="{show:isShow,hide:isHide}" v-show="form.password.length > 0" @click="pwsShow"></span>
             </el-form-item>
             <el-form-item>
-                 <el-button type="primary" style="width: 100%" @click="login('ruleForm')">登录</el-button>
+                 <el-button type="primary" style="width: 100%" @click="login('ruleForm')" >登录</el-button>
             </el-form-item>
         </el-form>
     </div>
@@ -20,6 +21,9 @@
 export default {
   data() {
     return {
+      isShow: false,
+      isHide: true,
+      password: 'password',
       form: {
         loginName: '',
         password: ''
@@ -54,6 +58,7 @@ export default {
   },
   methods: {
     login(formName) {
+      console.log(formName)
       this.$refs[formName].validate(async valid => {
         if (valid) {
           let res = await this.axios.post(`/employee/login`, {
@@ -111,8 +116,24 @@ export default {
     },
     clear() {
       this.form.loginName = ''
+    },
+    pwsShow() {
+      if (this.password === 'password') {
+        this.password = ''
+        this.isShow = true
+        this.isHide = false
+      } else {
+        this.password = 'password'
+        this.isShow = false
+        this.isHide = true
+      }
     }
   }
+  // watch: {
+  //   password(value) {
+  //     console.log(value)
+  //   }
+  // }
 }
 </script>
 
@@ -184,7 +205,26 @@ h1 {
       .el-icon-circle-close {
         position: absolute;
         top: 18px;
-        right: 6px;
+        right: 15px;
+      }
+    }
+    .password {
+      position: relative;
+      .hide {
+        position: absolute;
+        top: 15px;
+        right: 10px;
+        background: url(../assets/images/untitled_89a26e01.svg) no-repeat;
+        height: 14px;
+        width: 21px;
+      }
+      .show {
+        position: absolute;
+        top: 15px;
+        right: 10px;
+        background: url(../assets/images/untitled_b4b45d06.svg) no-repeat;
+        height: 19px;
+        width: 21px;
       }
     }
   }

@@ -43,6 +43,10 @@
         align="center"
         label="真实姓名"
         width="160">
+        <template slot-scope="scope">
+          <span v-if="scope.row.roleList[0].roleName === 'super_admin'">---</span>
+          <span v-else>{{scope.row.name}}</span>
+        </template>
       </el-table-column>
       <el-table-column
         width="130"
@@ -68,7 +72,7 @@
           <span v-if="scope.row.enable == 1" style="color:red;">开启</span>
           <span v-else-if="scope.row.enable == 0">关闭</span>
           <span v-else-if="scope.row.enable == 2">锁定</span>
-          <span v-else>--</span>
+          <span v-else>---</span>
         </template>
       </el-table-column>
       <el-table-column
@@ -93,9 +97,12 @@
        align="center"
         label="操作">
           <template slot-scope="scope">
-            <el-button type="primary" size="mini" v-if="coList.indexOf('permission_user_edit')>-1" plain @click="editAdmin(scope.row)">编辑</el-button>
-            <el-button type="success" size="mini" v-if="coList.indexOf('permission_user_auth')>-1" plain @click="warrant(scope.row)">授权管理</el-button>
-            <el-button type="success" size="mini" v-if="coList.indexOf('permission_user_reset')>-1" plain @click="resetPsd(scope.row)">重置密码</el-button>
+            <span v-if="scope.row.roleList[0].roleName === 'super_admin'">---</span>
+            <span v-else>
+              <el-button type="primary" size="mini" v-if="coList.indexOf('permission_user_edit')>-1" plain @click="editAdmin(scope.row)">编辑</el-button>
+              <el-button type="success" size="mini" v-if="coList.indexOf('permission_user_auth')>-1" plain @click="warrant(scope.row)">授权管理</el-button>
+              <el-button type="success" size="mini" v-if="coList.indexOf('permission_user_reset')>-1" plain @click="resetPsd(scope.row)">重置密码</el-button>
+            </span>
           </template>
       </el-table-column>
     </el-table>
@@ -463,6 +470,7 @@ export default {
           return (item.newRoleList = newData.join(','))
         })
         this.tableData = list
+        console.log(this.tableData)
       }
       if (code === -9999) {
         this.$message.error(`Exception Message`)

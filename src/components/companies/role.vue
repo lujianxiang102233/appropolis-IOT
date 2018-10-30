@@ -290,7 +290,7 @@ export default {
         }/${this.pageSize}`
       }
       let res = await this.axios.get(getUrl)
-      console.log(res.data.content.data.list)
+      console.log(res.data.content)
       res.data.content.data.list.forEach(function(v, i) {
         if (v.enable === 1) {
           v.enable = true

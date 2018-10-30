@@ -52,6 +52,8 @@
         align="center"
         width="130">
         <template slot-scope="scope">
+          <span v-if="scope.row.roleName === 'super_admin'">---</span>
+          <span v-else>
             <el-switch
             v-model="scope.row.enable"
             active-color="#409EFF"
@@ -59,7 +61,7 @@
             v-if="scope.row.enable !== -1"
             @change="changeStatus(scope.row)">
           </el-switch>
-          <span v-if="scope.row.enable === -1">---</span>
+          </span>
         </template>
       </el-table-column>
       <el-table-column
@@ -75,7 +77,7 @@
        align="center"
         label="操作">
           <template slot-scope="scope">
-            <span v-if="false">---</span>
+            <span v-if="scope.row.roleName === 'super_admin'">---</span>
             <span v-else>
               <el-button type="primary" size="mini" v-if="coList.indexOf('permission_role_edit')>-1" plain @click="editAdmin(scope.row)">编辑</el-button>
               <el-button type="success" size="mini" v-if="coList.indexOf('permission_role_user')>-1" plain @click="userBtn(scope.row)">成员</el-button>
@@ -288,6 +290,7 @@ export default {
         }/${this.pageSize}`
       }
       let res = await this.axios.get(getUrl)
+      console.log(res.data.content.data.list)
       res.data.content.data.list.forEach(function(v, i) {
         if (v.enable === 1) {
           v.enable = true

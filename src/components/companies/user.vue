@@ -44,7 +44,7 @@
         label="真实姓名"
         width="160">
         <template slot-scope="scope">
-          <span v-if="scope.row.roleList[0].roleName === 'super_admin'">---</span>
+          <span v-if="scope.row.roleList.length > 0 && scope.row.roleList[0].roleName === 'super_admin'">---</span>
           <span v-else>{{scope.row.name}}</span>
         </template>
       </el-table-column>
@@ -97,7 +97,7 @@
        align="center"
         label="操作">
           <template slot-scope="scope">
-            <span v-if="scope.row.roleList[0].roleName === 'super_admin'">---</span>
+            <span v-if="scope.row.roleList.length > 0 && scope.row.roleList[0].roleName === 'super_admin'">---</span>
             <span v-else>
               <el-button type="primary" size="mini" v-if="coList.indexOf('permission_user_edit')>-1" plain @click="editAdmin(scope.row)">编辑</el-button>
               <el-button type="success" size="mini" v-if="coList.indexOf('permission_user_auth')>-1" plain @click="warrant(scope.row)">授权管理</el-button>

@@ -4,13 +4,13 @@
       <el-breadcrumb-item>权限管理</el-breadcrumb-item>
       <el-breadcrumb-item>角色管理</el-breadcrumb-item>
     </el-breadcrumb>
-    <el-form :inline="true" class="clearfix demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_role_query')>-1">
+    <el-form v-model="formInline" :inline="true" class="clearfix demo-form-inline" ref="formInline" v-if="coList.indexOf('permission_role_query')>-1">
       <div class="filter">筛选</div>
       <el-form-item label="角色名称">
-        <el-input v-model="roleName" size="mini" placeholder="请输入" class="filter-ipt"></el-input>
+        <el-input v-model="formInline.roleName" size="mini" placeholder="请输入" class="filter-ipt"></el-input>
       </el-form-item>
       <el-form-item label="角色状态">
-        <el-select v-model="roleState" size="mini" placeholder="请选择">
+        <el-select v-model="formInline.roleState" size="mini" placeholder="请选择">
           <el-option
             v-for="item in options"
             :key="item.value"
@@ -21,7 +21,7 @@
       </el-form-item>
       <el-form-item class="fr">
         <el-button type="primary" @click="onSubmit" size="mini">查询</el-button>
-        <el-button @click="resetForm('ruleForm')" size="mini">重置</el-button>
+        <el-button @click="resetForm('formInline')" size="mini">重置</el-button>
       </el-form-item>
     </el-form>
      <el-button type="primary" style="margin-top: 10px;" size="mini" @click="addDalogVisible = true" v-if="coList.indexOf('permission_role_add')>-1">+ 新建角色</el-button>
@@ -165,6 +165,8 @@
         :filter-method="filterMethod"
         v-model="userForm.value2"
         :titles="['公司成员', '角色成员(角色名称)']"
+        @left-check-change="leftHhandleChange"
+        @right-check-change="rightHandleChange"
         :data="data2">
       </el-transfer>
       <span slot="footer" class="dialog-footer">
@@ -234,8 +236,10 @@ export default {
       pageIndex: 1,
       pageSize: 10,
       total: 1,
-      roleName: '',
-      roleState: '2',
+      formInline: {
+        roleName: '',
+        roleState: '2'
+      },
       coList: [],
       options: [
         {
@@ -256,7 +260,9 @@ export default {
       enable: '',
       stateName: '',
       epyPageIndex: 1,
-      epyPageSize: 1000
+      epyPageSize: 1000,
+      leftList: [],
+      rightList: []
     }
   },
   methods: {
@@ -265,8 +271,9 @@ export default {
       this.getList()
     },
     resetForm(formName) {
-      this.roleName = ''
-      this.roleState = ''
+      // this.$refs[formName].resetFields()
+      this.formInline.roleName = ''
+      this.formInline.roleState = '2'
       this.getList()
     },
     handleSizeChange(val) {
@@ -281,16 +288,16 @@ export default {
     async getList() {
       this.coList = JSON.parse(localStorage.getItem('points'))
       this.companyId = localStorage.getItem('companyId')
-      let getUrl = `/role/${this.companyId}/${this.roleName}/${
-        this.roleState
+      let getUrl = `/role/${this.companyId}/${this.formInline.roleName}/${
+        this.formInline.roleState
       }/${this.pageIndex}/${this.pageSize}`
-      if (this.roleName.length === 0) {
-        getUrl = `/role/${this.companyId}/{roleName}/${this.roleState}/${
-          this.pageIndex
-        }/${this.pageSize}`
+      if (this.formInline.roleName.length === 0) {
+        getUrl = `/role/${this.companyId}/{roleName}/${
+          this.formInline.roleState
+        }/${this.pageIndex}/${this.pageSize}`
       }
+      console.log(getUrl)
       let res = await this.axios.get(getUrl)
-      console.log(res.data.content)
       res.data.content.data.list.forEach(function(v, i) {
         if (v.enable === 1) {
           v.enable = true
@@ -367,7 +374,6 @@ export default {
     },
     editAdmin(row) {
       this.editDalogVisible = true
-      console.log(row)
       let { enable, remark, roleId, roleName } = row
       this.editForm.enable = Number(enable ? '1' : '0')
       this.editForm.roleName = roleName
@@ -523,9 +529,19 @@ export default {
     },
     userHandleClose(done) {
       done()
+      this.leftList.splice(0, this.leftList.length)
+      this.rightList.splice(0, this.rightList.length)
     },
     userCancel() {
       this.userDialogVisible = false
+      this.leftList.splice(0, this.leftList.length)
+      this.rightList.splice(0, this.rightList.length)
+    },
+    leftHhandleChange(value) {
+      this.leftList = value
+    },
+    rightHandleChange(value) {
+      this.rightList = value
     }
   },
   created() {

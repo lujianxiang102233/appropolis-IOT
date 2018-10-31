@@ -409,8 +409,9 @@ export default {
     resetForm(formName) {
       this.queryForm.loginName = ''
       this.queryForm.roleName = ''
-      this.queryForm.queryState = ''
+      this.queryForm.queryState = '-99'
       this.getList()
+      console.log(123)
     },
     handleSizeChange(val) {
       this.pageSize = val
@@ -454,6 +455,7 @@ export default {
           this.queryForm.queryState
         }/${this.queryForm.roleName}/${this.pageIndex}/${this.pageSize}`
       }
+      console.log(getUrl)
       let res = await this.axios.get(getUrl)
       let {
         code,
@@ -470,7 +472,6 @@ export default {
           return (item.newRoleList = newData.join(','))
         })
         this.tableData = list
-        console.log(this.tableData)
       }
       if (code === -9999) {
         this.$message.error(`Exception Message`)

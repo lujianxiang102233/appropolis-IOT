@@ -80,7 +80,7 @@
             <span v-if="scope.row.roleName === 'super_admin'">---</span>
             <span v-else>
               <el-button type="primary" size="mini" v-if="coList.indexOf('permission_role_edit')>-1" plain @click="editAdmin(scope.row)">编辑</el-button>
-              <el-button type="success" size="mini" v-if="coList.indexOf('permission_role_user')>-1" plain @click="userBtn(scope.row)">成员</el-button>
+              <el-button type="success" size="mini" v-if="coList.indexOf('permission_role_user')>-1" plain @click="userBtn(scope.row)"  :disabled="scope.row.enable?false:true">成员</el-button>
               <el-button type="success" size="mini" v-if="coList.indexOf('permission_role_auth')>-1" plain @click="jump(scope.row)">权限</el-button>
               <el-button type="success" size="mini" v-if="coList.indexOf('permission_role_del')>-1" plain @click="del(scope.row)">删除</el-button>
           </span>
@@ -91,7 +91,7 @@
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
       :currentPage="pageIndex"
-      :page-sizes="[10, 20, 50, 100]"
+      :page-sizes="[5, 10, 15, 20]"
       :page-size="pageSize"
       layout="total, prev, pager, next, sizes, jumper"
       :total="total">
@@ -234,7 +234,7 @@ export default {
       },
       companyName: '',
       pageIndex: 1,
-      pageSize: 10,
+      pageSize: 5,
       total: 1,
       formInline: {
         roleName: '',
@@ -312,6 +312,7 @@ export default {
       } = res.data.content
       if (code === 0) {
         this.tableData = list
+        console.log(list)
         this.total = total
       }
       if (code === -9999) {

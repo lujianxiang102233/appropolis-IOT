@@ -9,7 +9,7 @@
     <el-form :inline="true" class="clearfix demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_co_func_query')>-1" :model="queryTable">
       <div class="filter">筛选</div>
       <el-form-item label="功能点名称">
-        <el-input size="mini" v-model="filterText" placeholder="请输入" class="filter-ipt"></el-input>
+        <el-input size="mini" v-model.trim="filterText" placeholder="请输入" class="filter-ipt"></el-input>
       </el-form-item>
       <el-form-item class="fr">
         <el-button type="primary" @click="onSubmit" size="mini">查询</el-button>
@@ -49,15 +49,6 @@
         </span>
       </el-tree>
     </div>
-   <!-- <el-table
-      :data="funcTable"
-      style="width: 100%">
-      <el-table-column
-        type="expand"
-        label="功能点名称"
-        width="180">
-      </el-table-column>
-    </el-table> -->
     <el-dialog
       title="新建一级功能点"
       :visible.sync="addDalogVisible"

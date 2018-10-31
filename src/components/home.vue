@@ -23,13 +23,13 @@
                 <template>
                  <span slot="title">商品管理</span>
                </template>
-               <el-menu-item>
+               <el-menu-item  index="1-2-1">
                  <span slot="title">商品分类</span>
                </el-menu-item>
-               <el-menu-item>
-                 <span slot="title">商品分类</span>
+               <el-menu-item index="1-2-2">
+                 <span  slot="title">商品分类</span>
                </el-menu-item>
-               <el-menu-item>
+               <el-menu-item  index="1-2-3">
                  <span slot="title">商品分类</span>
                </el-menu-item>
               </el-submenu>
@@ -39,10 +39,10 @@
                 <template>
                  <span slot="title">列表管理</span>
                </template>
-               <el-menu-item>
+               <el-menu-item index="1-3-2" >
                  <span slot="title">列表分类</span>
                </el-menu-item>
-               <el-menu-item>
+               <el-menu-item index="1-3-3" >
                  <span slot="title">列表分类</span>
                </el-menu-item>
               </el-submenu>

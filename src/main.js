@@ -30,10 +30,7 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(function (response) {
   if (response.data.content.code === -2000) {
     router.replace({
-      path: 'login',
-      query: {
-        redirect: router.currentRoute.fullPath
-      }
+      path: 'login'
     })
   }
   return response

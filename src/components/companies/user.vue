@@ -455,7 +455,6 @@ export default {
           this.queryForm.queryState
         }/${this.queryForm.roleName}/${this.pageIndex}/${this.pageSize}`
       }
-      console.log(getUrl)
       let res = await this.axios.get(getUrl)
       let {
         code,
@@ -596,10 +595,16 @@ export default {
         `/role/${localStorage.getItem('companyId')}/{roleName}/2/1/100`
       )
       let { list } = res.data.content.data
-      let hh = list.map(function(item, index) {
+      this.addOptions = list.map(function(item, index) {
         return { value: item.roleId, label: item.roleName }
       })
-      this.addOptions = hh
+      let index = ''
+      this.addOptions.forEach((item, i) => {
+        if (item.label === 'super_admin') {
+          index += i
+        }
+      })
+      this.addOptions.splice(index, 1)
     },
     addClick() {
       this.addDalogVisible = true
@@ -611,7 +616,6 @@ export default {
       this.wrtDialogVisible = true
       let res1 = await this.axios.get(`/company/{companyName}/1/100`)
       let platformList = res1.data.content.data.list
-      // console.log(platformList)
       let newPlatForm = platformList.map((item, index) => {
         return {
           label: item.companyName + '(' + item.companyCode + ')',

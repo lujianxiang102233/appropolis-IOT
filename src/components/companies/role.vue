@@ -296,7 +296,7 @@ export default {
           this.formInline.roleState
         }/${this.pageIndex}/${this.pageSize}`
       }
-      console.log(getUrl)
+      // console.log(getUrl)
       let res = await this.axios.get(getUrl)
       res.data.content.data.list.forEach(function(v, i) {
         if (v.enable === 1) {
@@ -312,7 +312,7 @@ export default {
       } = res.data.content
       if (code === 0) {
         this.tableData = list
-        console.log(list)
+        // console.log(list)
         this.total = total
       }
       if (code === -9999) {
@@ -504,7 +504,7 @@ export default {
         params: { roleName: row.roleName }
       })
     },
-    async members() {
+    async editMembers() {
       let res = await this.axios.put(
         `/role/members/${this.roleId}`,
         this.userForm.value2
@@ -518,6 +518,21 @@ export default {
       }
       if (code === -9999) {
         this.$message.error('Exception Message')
+      }
+    },
+    members() {
+      if (this.userForm.value2.length <= 0) {
+        this.$confirm('角色尚未设置用户成员, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
+          .then(() => {
+            this.editMembers()
+          })
+          .catch(() => {})
+      } else {
+        this.editMembers()
       }
     },
     addHandleClose(done) {

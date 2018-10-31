@@ -208,7 +208,7 @@ export default {
         companyCode: [
           { required: true, message: '请输入公司内码', trigger: 'blur' },
           {
-            pattern: /^([a-zA-Z]){1,100}$/,
+            pattern: /^([a-zA-Z]){1,20}$/,
             message: '最长20个英文字符，仅英文',
             trigger: 'blur'
           }

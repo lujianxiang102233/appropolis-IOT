@@ -8,11 +8,11 @@
                 <i style="color:#ccc;" v-show="form.loginName.length > 0" class="el-icon-circle-close" @click="clear"></i>
             </el-form-item>
             <el-form-item prop="password" class="password">
-                <el-input v-model="form.password" placeholder="请输入登录密码" class="psd" :type="password"></el-input>
+                <el-input v-model="form.password" placeholder="请输入登录密码" class="psd" :type="cut"></el-input>
                 <span :class="{show:isShow,hide:isHide}" v-show="form.password.length > 0" @click="pwsShow"></span>
             </el-form-item>
             <el-form-item>
-                 <el-button type="primary" style="width: 100%" @click="login('ruleForm')" >登录</el-button>
+                 <el-button type="primary" style="width: 100%" @click="login('ruleForm')" :disabled="disabled">登录</el-button>
             </el-form-item>
         </el-form>
     </div>
@@ -23,7 +23,7 @@ export default {
     return {
       isShow: false,
       isHide: true,
-      password: 'password',
+      cut: 'password',
       form: {
         loginName: '',
         password: ''
@@ -53,7 +53,8 @@ export default {
         'permission_co',
         'permission_role',
         'permission_role_auth'
-      ]
+      ],
+      disabled: false
     }
   },
   methods: {
@@ -61,6 +62,7 @@ export default {
       console.log(formName)
       this.$refs[formName].validate(async valid => {
         if (valid) {
+          this.disabled = false
           let res = await this.axios.post(`/employee/login`, {
             ...this.form,
             ...this.code
@@ -74,14 +76,18 @@ export default {
                 `用户名或者密码错误,还有【${data}】次输入机会`
               )
             }
+            this.disabled = true
           }
           if (code === +-3003) {
             this.$message.error('5次输入错误，账号已锁定，请联系管理员解锁')
+            this.disabled = true
           }
           if (code === +-3004) {
             this.$message.error('账号停用')
+            this.disabled = true
           }
           if (code === +0) {
+            this.disabled = true
             localStorage.setItem('token', data.token)
             localStorage.setItem('points', JSON.stringify(data.functionPoints))
             localStorage.setItem('companyId', data.companyId)
@@ -118,22 +124,17 @@ export default {
       this.form.loginName = ''
     },
     pwsShow() {
-      if (this.password === 'password') {
-        this.password = ''
+      if (this.cut === 'password') {
+        this.cut = ''
         this.isShow = true
         this.isHide = false
       } else {
-        this.password = 'password'
+        this.cut = 'password'
         this.isShow = false
         this.isHide = true
       }
     }
   }
-  // watch: {
-  //   password(value) {
-  //     console.log(value)
-  //   }
-  // }
 }
 </script>
 

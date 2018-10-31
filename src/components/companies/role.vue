@@ -161,6 +161,7 @@
       ref="userForm"
       width="50%">
       <el-transfer
+        ref="transfer"
         filterable
         :filter-method="filterMethod"
         v-model="userForm.value2"
@@ -547,11 +548,15 @@ export default {
       done()
       this.leftList.splice(0, this.leftList.length)
       this.rightList.splice(0, this.rightList.length)
+      this.$refs.transfer.$children[0].query = ''
+      this.$refs.transfer.$children[3].query = ''
     },
     userCancel() {
       this.userDialogVisible = false
       this.leftList.splice(0, this.leftList.length)
       this.rightList.splice(0, this.rightList.length)
+      this.$refs.transfer.$children[0].query = ''
+      this.$refs.transfer.$children[3].query = ''
     },
     leftHhandleChange(value) {
       this.leftList = value

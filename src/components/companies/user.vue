@@ -205,7 +205,7 @@
       width="50%">
       <h2>请选择【{{loginName}}】拥有查看权限的公司</h2>
         <el-transfer
-          ref="aaa"
+          ref="transfer"
           filterable
           :filter-method="filterMethod"
           v-model="value2"
@@ -399,9 +399,6 @@ export default {
     }
   },
   methods: {
-    clearQuery(data) {
-      console.log(data)
-    },
     onSubmit() {
       this.pageIndex = 1
       this.getList()
@@ -411,7 +408,6 @@ export default {
       this.queryForm.roleName = ''
       this.queryForm.queryState = '-99'
       this.getList()
-      console.log(123)
     },
     handleSizeChange(val) {
       this.pageSize = val
@@ -681,6 +677,8 @@ export default {
       done()
       this.leftList.splice(0, this.leftList.length)
       this.rightList.splice(0, this.rightList.length)
+      this.$refs.transfer.$children[0].query = ''
+      this.$refs.transfer.$children[3].query = ''
     },
     retHandleClose(done) {
       done()
@@ -690,8 +688,8 @@ export default {
       this.wrtDialogVisible = false
       this.leftList.splice(0, this.leftList.length)
       this.rightList.splice(0, this.rightList.length)
-      // this.query = ''
-      console.log(this.$refs.aaa.$el)
+      this.$refs.transfer.$children[0].query = ''
+      this.$refs.transfer.$children[3].query = ''
     },
     leftHhandleChange(value) {
       this.leftList = value

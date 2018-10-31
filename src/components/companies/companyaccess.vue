@@ -9,11 +9,11 @@
     <el-form :inline="true" class="clearfix demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_co_func_query')>-1" :model="queryTable">
       <div class="filter">筛选</div>
       <el-form-item label="功能点名称">
-        <el-input size="mini" v-model.trim="filterText" placeholder="请输入" class="filter-ipt"></el-input>
+        <el-input size="mini" v-model.trim="filterText" placeholder="请输入" class="filter-ipt" :clearable = "true"></el-input>
       </el-form-item>
       <el-form-item class="fr">
-        <el-button type="primary" @click="onSubmit" size="mini">查询</el-button>
-        <el-button @click="resetForm('ruleForm')" size="mini">重置</el-button>
+        <el-button type="primary" @click="onSubmit(filterText)" size="mini">查询</el-button>
+        <el-button @click="resetForm(filterText)" size="mini">重置</el-button>
       </el-form-item>
     </el-form>
      <el-button type="primary" style="margin-top: 10px;" size="mini" @click="addDalogVisible = true" v-if="coList.indexOf('permission_co_func_add')>-1">+ 新建一级功能点</el-button>
@@ -414,12 +414,12 @@ export default {
     }
   },
   methods: {
-    onSubmit() {
-      this.pageIndex = 1
-      this.getList()
+    onSubmit(val) {
+      this.$refs.tree2.filter(val)
     },
-    resetForm(formName) {
-      this.$refs[formName].resetFields()
+    resetForm(formInline) {
+      this.filterText = ''
+      this.getList()
     },
     async getList() {
       let indexi = 0
@@ -934,11 +934,6 @@ export default {
         this.tableHeight = document.documentElement.clientHeight - 320
       })()
     }
-  },
-  watch: {
-    filterText(val) {
-      this.$refs.tree2.filter(val)
-    }
   }
 }
 </script>
@@ -985,6 +980,7 @@ export default {
 .el-input.filter-ipt {
   /deep/ .el-input__inner {
     height: 30px;
+    width: 100%;
   }
 }
 .editCom {

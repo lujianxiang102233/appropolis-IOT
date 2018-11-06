@@ -59,7 +59,6 @@ export default {
   },
   methods: {
     login(formName) {
-      console.log(formName)
       this.$refs[formName].validate(async valid => {
         if (valid) {
           this.disabled = false

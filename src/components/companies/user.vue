@@ -1,15 +1,15 @@
 <template>
-  <div class="compaines" style="padding-left: 34px;">
+  <div class="compaines" >
     <el-breadcrumb separator="/">
-      <el-breadcrumb-item>权限管理</el-breadcrumb-item>
-      <el-breadcrumb-item>用户管理</el-breadcrumb-item>
+      <el-breadcrumb-item class="first">权限管理</el-breadcrumb-item>
+      <el-breadcrumb-item class="two">用户管理</el-breadcrumb-item>
     </el-breadcrumb>
-    <el-form :inline="true" :model="queryForm" class="clearfix demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_role_query')>-1">
+    <el-form :inline="true" :model="queryForm" class="clearfix demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_user_query')>-1">
       <div class="filter">筛选</div>
-      <el-form-item label="用户名">
+      <el-form-item label="用户名" class="userName">
         <el-input size="mini" v-model="queryForm.loginName" placeholder="请输入" class="filter-ipt"></el-input>
       </el-form-item>
-      <el-form-item label="状态">
+      <el-form-item label="状态" class="state">
         <el-select v-model="queryForm.queryState" placeholder="请选择" size="mini">
           <el-option
             v-for="item in options"
@@ -19,7 +19,7 @@
           </el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="角色">
+      <el-form-item label="角色" class="role">
         <el-input size="mini" v-model="queryForm.roleName" placeholder="请输入" class="filter-ipt"></el-input>
       </el-form-item>
       <el-form-item class="fr">
@@ -27,7 +27,7 @@
         <el-button @click="resetForm('ruleForm')" size="mini">重置</el-button>
       </el-form-item>
     </el-form>
-     <el-button type="primary" style="margin-top: 10px;" size="mini" @click="addClick" v-if="coList.indexOf('permission_user_add')>-1">+ 新增用户</el-button>
+     <el-button type="primary" class="top-button"  @click="addClick" v-if="coList.indexOf('permission_user_add')>-1"><img src="../../assets/images/role-icon.png"  class="fl"><span class="btn-text fr">新增用户</span></el-button>
      <el-table
       :data="tableData"
       :height= 'tableHeight'
@@ -93,15 +93,15 @@
           </template>
       </el-table-column>
       <el-table-column
-       width="380"
        align="center"
+       width="250"
         label="操作">
           <template slot-scope="scope">
             <span v-if="scope.row.roleList.length > 0 && scope.row.roleList[0].roleName === 'super_admin'">---</span>
             <span v-else>
-              <el-button type="primary" size="mini" v-if="coList.indexOf('permission_user_edit')>-1" plain @click="editAdmin(scope.row)">编辑</el-button>
-              <el-button type="success" size="mini" v-if="coList.indexOf('permission_user_auth')>-1" plain @click="warrant(scope.row)">授权管理</el-button>
-              <el-button type="success" size="mini" v-if="coList.indexOf('permission_user_reset')>-1" plain @click="resetPsd(scope.row)">重置密码</el-button>
+              <el-button class="operation" v-if="coList.indexOf('permission_user_edit')>-1" plain @click="editAdmin(scope.row)">编辑</el-button>
+              <el-button class="operation last" v-if="coList.indexOf('permission_user_auth')>-1" plain @click="warrant(scope.row)">授权管理</el-button>
+              <el-button class="operation last" v-if="coList.indexOf('permission_user_reset')>-1" plain @click="resetPsd(scope.row)">重置密码</el-button>
             </span>
           </template>
       </el-table-column>
@@ -120,8 +120,7 @@
       title="新建用户"
       :visible.sync="addDalogVisible"
       :before-close="addHandleClose"
-      :close-on-click-modal=false
-      width="40%">
+      :close-on-click-modal=false>
       <el-form :model="addForm" :rules="rules" ref="addForm" label-width="120px" class="demo-ruleForm">
         <el-form-item label="用户名" prop="loginName">
           <el-input  :disabled="disabled" v-model="addForm.loginName" placeholder="请输入"></el-input>
@@ -158,8 +157,7 @@
       title="编辑用户"
       :visible.sync="editDalogVisible"
       :before-close="editHandleClose"
-      :close-on-click-modal=false
-      width="40%">
+      :close-on-click-modal=false>
       <el-form :model="editForm" :rules="rules" ref="editForm" label-width="120px" class="demo-ruleForm">
         <el-form-item label="用户名" prop="loginName">
           <el-input  :disabled="true" v-model="editForm.loginName" placeholder="请输入"></el-input>
@@ -186,7 +184,7 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="用户状态" prop="enable">
+        <el-form-item label="用户状态" prop="enable" class="dRadio">
           <el-radio v-model="editForm.enable" :label="1">开启</el-radio>
           <el-radio v-model="editForm.enable" :label="0">关闭</el-radio>
           <el-radio v-model="editForm.enable" :label="2">锁定</el-radio>
@@ -201,9 +199,8 @@
       title="编辑用户可查看公司"
       :visible.sync="wrtDialogVisible"
       :before-close="wrtHandleClose"
-      :close-on-click-modal=false
-      width="50%">
-      <h2>请选择【{{loginName}}】拥有查看权限的公司</h2>
+      :close-on-click-modal=false>
+      <h2 class="dDransferHeader">请选择【{{loginName}}】拥有查看权限的公司</h2>
         <el-transfer
           ref="transfer"
           filterable
@@ -223,8 +220,7 @@
       title="重置用户密码"
       :before-close="retHandleClose"
       :close-on-click-modal=false
-      :visible.sync="resetDialogVisible"
-      width="30%">
+      :visible.sync="resetDialogVisible">
       <el-form :model="retForm" :rules="rules" ref="retForm" label-width="100px" class="demo-ruleForm">
         <el-form-item label="密码" prop="pass">
           <el-input type="password" v-model="retForm.pass" autocomplete="off"></el-input>
@@ -234,7 +230,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="retCancel">取 消</el-button>
+        <el-button @click="retCancel('retForm')">取 消</el-button>
         <el-button type="primary" @click="reset('retForm')">确 定</el-button>
       </span>
     </el-dialog>
@@ -309,7 +305,7 @@ export default {
             pattern: /^[\u4E00-\u9FA5a-zA-Z0-9_-]*$/,
             message:
               '仅限中英文字符及英文下划线”_”、中划线”-“。最长50个中文字符',
-            trigger: 'change'
+            trigger: 'blur'
           }
         ],
         name: [
@@ -318,7 +314,7 @@ export default {
             min: 0,
             max: 50,
             message: '长度在 0 到 50 个字符',
-            trigger: 'change'
+            trigger: 'blur'
           }
         ],
         password: [
@@ -326,7 +322,7 @@ export default {
           {
             pattern: /^(?![0-9]+$)(?![a-z]+$)(?![A-Z]+$)(?![a-zA-Z]+$)(?![0-9a-z]+$)(?![0-9A-Z]+$)[0-9A-Za-z]{6,16}$/,
             message: '仅英文及数字。6-16位，至少包括1位数字、大小写英文字符',
-            trigger: 'change'
+            trigger: 'blur'
           }
         ],
         phone: [
@@ -344,7 +340,7 @@ export default {
             min: 0,
             max: 50,
             message: '长度在 0 到 50 个字符',
-            trigger: 'change'
+            trigger: 'blur'
           }
         ],
         pass: [
@@ -370,19 +366,19 @@ export default {
       options: [
         {
           value: '-99',
-          label: '【全部】'
+          label: '全部'
         },
         {
           value: '1',
-          label: '【开启】'
+          label: '开启'
         },
         {
           value: '2',
-          label: '【锁定】'
+          label: '锁定'
         },
         {
           value: '0',
-          label: '【关闭】'
+          label: '关闭'
         }
       ],
       addOptions: [],
@@ -395,7 +391,8 @@ export default {
         loginName: '',
         queryState: '-99',
         roleName: ''
-      }
+      },
+      userQuery: ''
     }
   },
   methods: {
@@ -421,6 +418,9 @@ export default {
     async getList() {
       this.coList = JSON.parse(localStorage.getItem('points'))
       this.companyId = localStorage.getItem('companyId')
+      this.userQuery = localStorage
+        .getItem('points')
+        .includes('permission_user_query')
       let getUrl
       if (
         this.queryForm.loginName.length === 0 &&
@@ -635,8 +635,9 @@ export default {
       this.resetDialogVisible = true
       this.retLoginName = row.loginName
     },
-    retCancel() {
+    retCancel(formName) {
       this.resetDialogVisible = false
+      this.$refs[formName].resetFields()
     },
     reset(formName) {
       this.$refs[formName].validate(async valid => {
@@ -696,17 +697,35 @@ export default {
     },
     rightHandleChange(value) {
       this.rightList = value
+    },
+    flexTableHeight() {
+      this.tableHeight =
+        document.documentElement.clientHeight -
+        (this.$refs.ruleForm.$el.offsetHeight + 245)
+    },
+    fixedTableHeight() {
+      this.tableHeight = document.documentElement.clientHeight - 420
     }
   },
   created() {
     this.getList()
-    this.tableHeight = `${document.documentElement.clientHeight}` - 320
+    if (this.userQuery) {
+      this.$nextTick(() => {
+        this.flexTableHeight()
+      })
+      this.fixedTableHeight()
+    }
   },
   mounted() {
     window.onresize = () => {
       return (() => {
-        this.tableHeight = document.documentElement.clientHeight - 320
+        this.fixedTableHeight()
       })()
+    }
+  },
+  beforeDestroy() {
+    window.onresize = () => {
+      return ''
     }
   }
 }
@@ -715,60 +734,127 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
 .el-breadcrumb__item {
+  height: 58px;
+  line-height: 58px;
   /deep/ .el-breadcrumb__inner {
-    color: #999;
+    font-size: 16px;
+  }
+  &.first {
+    /deep/ .el-breadcrumb__inner,
+    /deep/ .el-breadcrumb__separator {
+      color: #3e3f42;
+      font-weight: 700;
+    }
+  }
+  &.two {
+    /deep/ .el-breadcrumb__inner {
+      color: #9ea0a5;
+    }
   }
 }
 .demo-form-inline {
-  border: 1px solid #999;
-  margin-top: 10px;
-  padding: 10px;
+  border: 1px solid #ebeef5;
   min-height: 60px;
   .el-form-item {
     margin-bottom: 0;
+    height: 64px;
+    line-height: 64px;
+    padding-left: 30px;
+    /deep/ .el-form-item__label {
+      padding-right: 20px;
+      font-size: 16px;
+    }
+    /deep/ .el-form-item__content {
+      height: 64px;
+      line-height: 64px;
+      width: 150px;
+      margin-right: 20px;
+      .filter-ipt .el-input__inner {
+        height: 36px;
+        width: 150px;
+      }
+      .el-button {
+        height: 36px;
+        width: 105px;
+        letter-spacing: 20px;
+        text-indent: 15px;
+        font-size: 14px;
+      }
+      .el-button--default span {
+        color: #606266;
+      }
+      .el-button--primary {
+        background-color: #1989fa;
+      }
+    }
+  }
+  .el-form-item.userName {
+    margin-right: 0px;
+  }
+  .el-form-item.state {
+    padding-left: 0px;
+    margin-right: 27px;
+    /deep/ .el-form-item__content {
+      margin-right: 0px;
+      .el-select .el-input .el-input__inner {
+        height: 36px;
+      }
+    }
+  }
+  .el-form-item.role {
+    padding-left: 0px;
+  }
+  .el-form-item.fr {
+    padding-left: 0px;
+    /deep/ .el-form-item__content {
+      width: 225px;
+    }
   }
   .filter {
-    font-size: 14px;
+    font-size: 16px;
     font-weight: bold;
+    height: 41px;
+    line-height: 41px;
+    padding-left: 58px;
+    position: relative;
+    border-bottom: 1px solid #ebeef5;
+    &::before {
+      content: '';
+      height: 16px;
+      width: 16px;
+      background: url(../../assets/images/icon_筛选.png) no-repeat center center;
+      position: absolute;
+      top: 13px;
+      left: 30px;
+    }
   }
 }
 .el-table {
   border: 1px solid #999;
-  margin-top: 10px;
-}
-.el-dialog__wrapper {
-  /deep/ .el-dialog {
-    .el-dialog__header {
-      background-color: #3ba1ff !important;
-      .el-dialog__title {
-        color: #fff;
-      }
-    }
-  }
 }
 .el-pagination {
   float: right;
   margin-top: 10px;
 }
-.el-input {
-  /deep/ .el-input__inner {
-    width: 70%;
-  }
-}
+// .el-input {
+//   /deep/ .el-input__inner {
+//     width: 70%;
+//   }
+// }
 .el-input.filter-ipt {
   /deep/ .el-input__inner {
     height: 30px;
   }
 }
 .el-table {
+  border: 1px solid #ebeef5;
   /deep/ .cell .elli {
     display: inline-block;
     *display: inline;
     *zoom: 1;
     width: 10em;
-    height: 30px;
-    line-height: 30px;
-    // font-size: 12px;
+    height: 17px;
+    line-height: 17px;
     overflow: hidden;
     -ms-text-overflow: ellipsis;
     text-overflow: ellipsis;
@@ -779,21 +865,12 @@ export default {
     line-height: 25px;
   }
   /deep/ .cell {
-    height: 30px;
-    line-height: 30px;
+    height: 23px;
+    line-height: 23px;
   }
 }
-.el-dialog__wrapper {
-  /deep/ .el-dialog {
-    margin-top: 30px !important;
-  }
-  /deep/ .el-dialog__body {
-    padding: 10px 20px;
-  }
-}
-.el-transfer {
-  /deep/ .el-transfer-panel {
-    width: 268px;
-  }
+
+.top-button {
+  width: 140px;
 }
 </style>

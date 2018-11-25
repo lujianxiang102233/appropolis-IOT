@@ -1,16 +1,17 @@
 <template>
-  <div class="compaines" style="padding-left: 34px;">
+  <div class="compaines" >
     <el-breadcrumb separator="/">
-      <el-breadcrumb-item>权限管理</el-breadcrumb-item>
-      <el-breadcrumb-item>角色管理</el-breadcrumb-item>
+      <el-breadcrumb-item class="first">权限管理</el-breadcrumb-item>
+      <el-breadcrumb-item class="two">角色管理</el-breadcrumb-item>
     </el-breadcrumb>
-    <el-form v-model="formInline" :inline="true" class="clearfix demo-form-inline" ref="formInline" v-if="coList.indexOf('permission_role_query')>-1">
+    <div v-if="roleQuery">
+    <el-form v-model="formInline" :inline="true" class="clearfix demo-form-inline" ref="formInline">
       <div class="filter">筛选</div>
-      <el-form-item label="角色名称">
+      <el-form-item label="角色名称" class="roleName">
         <el-input v-model="formInline.roleName" size="mini" placeholder="请输入" class="filter-ipt"></el-input>
       </el-form-item>
-      <el-form-item label="角色状态">
-        <el-select v-model="formInline.roleState" size="mini" placeholder="请选择">
+      <el-form-item label="角色状态" class="roleState">
+        <el-select v-model="formInline.roleState" size="mini" placeholder="请选择" class="select">
           <el-option
             v-for="item in options"
             :key="item.value"
@@ -24,8 +25,9 @@
         <el-button @click="resetForm('formInline')" size="mini">重置</el-button>
       </el-form-item>
     </el-form>
-     <el-button type="primary" style="margin-top: 10px;" size="mini" @click="addDalogVisible = true" v-if="coList.indexOf('permission_role_add')>-1">+ 新建角色</el-button>
+     <el-button type="primary" class="top-button"  size="mini" @click="addDalogVisible = true" v-if="coList.indexOf('permission_role_add')>-1"><img src="../../assets/images/role-icon.png"  class="fl"> <span class="btn-text fr">新建角色</span></el-button>
      <el-table
+      ref="table"
       :data="tableData"
       :height='tableHeight'
       style="width: 100%">
@@ -73,16 +75,15 @@
           </template>
       </el-table-column>
       <el-table-column
-       width="300"
        align="center"
         label="操作">
           <template slot-scope="scope">
             <span v-if="scope.row.roleName === 'super_admin'">---</span>
             <span v-else>
-              <el-button type="primary" size="mini" v-if="coList.indexOf('permission_role_edit')>-1" plain @click="editAdmin(scope.row)">编辑</el-button>
-              <el-button type="success" size="mini" v-if="coList.indexOf('permission_role_user')>-1" plain @click="userBtn(scope.row)"  :disabled="scope.row.enable?false:true">成员</el-button>
-              <el-button type="success" size="mini" v-if="coList.indexOf('permission_role_auth')>-1" plain @click="jump(scope.row)">权限</el-button>
-              <el-button type="success" size="mini" v-if="coList.indexOf('permission_role_del')>-1" plain @click="del(scope.row)">删除</el-button>
+              <el-button class="operation" v-if="coList.indexOf('permission_role_edit')>-1" plain @click="editAdmin(scope.row)">编辑</el-button>
+              <el-button class="operation last" :disabled="scope.row.enable?false:true" v-if="coList.indexOf('permission_role_user')>-1" plain @click="userBtn(scope.row)">成员</el-button>
+              <el-button class="operation last" v-if="coList.indexOf('permission_role_auth')>-1" plain @click="jump(scope.row)">权限</el-button>
+              <el-button class="operation last delete" v-if="coList.indexOf('permission_role_del')>-1" plain @click="del(scope.row)">删除</el-button>
           </span>
           </template>
       </el-table-column>
@@ -91,7 +92,7 @@
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
       :currentPage="pageIndex"
-      :page-sizes="[5, 10, 15, 20]"
+      :page-sizes="[10, 20, 50, 100]"
       :page-size="pageSize"
       layout="total, prev, pager, next, sizes, jumper"
       :total="total">
@@ -100,8 +101,7 @@
       title="新增/编辑角色"
       :visible.sync="addDalogVisible"
       :before-close="addHandleClose"
-      :close-on-click-modal=false
-      width="40%">
+      :close-on-click-modal=false>
       <el-form :model="addForm" :rules="rules" ref="addForm" label-width="120px" class="demo-ruleForm">
         <el-form-item label="角色名称" prop="roleName">
           <el-input v-model="addForm.roleName" placeholder="请输入"></el-input>
@@ -109,7 +109,7 @@
         <el-form-item label="角色描述" prop="remark">
           <el-input type="textarea" v-model="addForm.remark"></el-input>
         </el-form-item>
-        <el-form-item label="角色状态" prop="enable">
+        <el-form-item label="角色状态" prop="enable" class="dRadio">
           <el-radio v-model="addForm.enable" :label="1">开启</el-radio>
           <el-radio v-model="addForm.enable" :label="0">关闭</el-radio>
         </el-form-item>
@@ -123,8 +123,7 @@
       title="新增/编辑角色"
       :visible.sync="editDalogVisible"
       :before-close="editHandleClose"
-      :close-on-click-modal=false
-      width="40%">
+      :close-on-click-modal=false>
       <el-form :model="editForm" :rules="rules" ref="editForm" label-width="120px" class="demo-ruleForm">
         <el-form-item label="角色名称" prop="roleName">
           <el-input v-model="editForm.roleName" placeholder="请输入"></el-input>
@@ -132,7 +131,7 @@
         <el-form-item label="角色描述" prop="remark">
           <el-input type="textarea" v-model="editForm.remark"></el-input>
         </el-form-item>
-        <el-form-item label="角色状态" prop="adminLoginName">
+        <el-form-item label="角色状态" prop="adminLoginName" class="dRadio">
           <el-radio v-model="editForm.enable" :label="1">开启</el-radio>
           <el-radio v-model="editForm.enable" :label="0">关闭</el-radio>
         </el-form-item>
@@ -145,6 +144,8 @@
     <el-dialog
       title="提示"
       :visible.sync="dialogVisible"
+      :before-close="tipHandleClose"
+      :close-on-click-modal=false
       width="30%">
       <span v-if="enable===false">确认要停用【{{ stateName }}】吗？</span>
       <span v-else>确认要启用【{{ stateName }}】吗？</span>
@@ -158,8 +159,7 @@
       :visible.sync="userDialogVisible"
       :before-close="userHandleClose"
       :close-on-click-modal=false
-      ref="userForm"
-      width="50%">
+      ref="userForm">
       <el-transfer
         ref="transfer"
         filterable
@@ -175,12 +175,15 @@
         <el-button type="primary" @click="members">确 定</el-button>
       </span>
     </el-dialog>
+    </div>
+    <div class="noText" v-else>您没有当前api访问权限 ~</div>
   </div>
 </template>
 <script>
 export default {
   data() {
     return {
+      roleQuery: '',
       tableHeight: '',
       data2: [],
       userForm: {
@@ -220,7 +223,7 @@ export default {
             min: 0,
             max: 50,
             message: '长度在 0 到 50 个字符',
-            trigger: 'change'
+            trigger: 'blur'
           }
         ],
         remark: [
@@ -229,13 +232,13 @@ export default {
             min: 0,
             max: 50,
             message: '长度在 0 到 50 个字符',
-            trigger: 'change'
+            trigger: 'blur'
           }
         ]
       },
       companyName: '',
       pageIndex: 1,
-      pageSize: 5,
+      pageSize: 10,
       total: 1,
       formInline: {
         roleName: '',
@@ -288,6 +291,9 @@ export default {
     },
     async getList() {
       this.coList = JSON.parse(localStorage.getItem('points'))
+      this.roleQuery = localStorage
+        .getItem('points')
+        .includes('permission_role_query')
       this.companyId = localStorage.getItem('companyId')
       let getUrl = `/role/${this.companyId}/${this.formInline.roleName}/${
         this.formInline.roleState
@@ -297,7 +303,6 @@ export default {
           this.formInline.roleState
         }/${this.pageIndex}/${this.pageSize}`
       }
-      // console.log(getUrl)
       let res = await this.axios.get(getUrl)
       res.data.content.data.list.forEach(function(v, i) {
         if (v.enable === 1) {
@@ -313,7 +318,6 @@ export default {
       } = res.data.content
       if (code === 0) {
         this.tableData = list
-        // console.log(list)
         this.total = total
       }
       if (code === -9999) {
@@ -350,7 +354,6 @@ export default {
         this.$message.error(`Exception Message`)
       }
       if (code === +0) {
-        console.log(this.enable)
         if (this.enable === false) {
           this.$message(`【${this.stateName}】已停用`)
         }
@@ -429,6 +432,7 @@ export default {
             let { code } = res.data.content
             if (code === +0) {
               this.$message.success('【' + roleName + '】' + '已删除')
+              this.pageIndex = 1
               this.getList()
             }
             if (code === -9999) {
@@ -460,6 +464,7 @@ export default {
             let { code } = res.data.content
             if (code === +0) {
               this.$message.success('【' + roleName + '】' + '已删除')
+              this.pageIndex = 1
               this.getList()
             }
           })
@@ -500,9 +505,10 @@ export default {
     },
     jump(row) {
       this.$router.push({
-        name: 'roleaccess',
-        query: { roleId: row.roleId },
-        params: { roleName: row.roleName }
+        name: 'role-access',
+        // query: { roleId: row.roleId },
+        // params: { roleName: row.roleName }
+        query: { roleId: row.roleId, roleName: row.roleName }
       })
     },
     async editMembers() {
@@ -551,6 +557,10 @@ export default {
       this.$refs.transfer.$children[0].query = ''
       this.$refs.transfer.$children[3].query = ''
     },
+    tipHandleClose(done) {
+      done()
+      this.getList()
+    },
     userCancel() {
       this.userDialogVisible = false
       this.leftList.splice(0, this.leftList.length)
@@ -563,17 +573,35 @@ export default {
     },
     rightHandleChange(value) {
       this.rightList = value
+    },
+    flexTableHeight() {
+      this.tableHeight =
+        document.documentElement.clientHeight -
+        (this.$refs.formInline.$el.offsetHeight + 245)
+    },
+    fixedTableHeight() {
+      this.tableHeight = document.documentElement.clientHeight - 320
     }
   },
   created() {
     this.getList()
-    this.tableHeight = document.documentElement.clientHeight - 320
+    if (this.roleQuery) {
+      this.$nextTick(() => {
+        this.flexTableHeight()
+      })
+      this.fixedTableHeight()
+    }
   },
   mounted() {
     window.onresize = () => {
       return (() => {
-        this.tableHeight = document.documentElement.clientHeight - 320
+        this.flexTableHeight()
       })()
+    }
+  },
+  beforeDestroy() {
+    window.onresize = () => {
+      return ''
     }
   }
 }
@@ -582,54 +610,109 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
 .el-breadcrumb__item {
+  height: 58px;
+  line-height: 58px;
   /deep/ .el-breadcrumb__inner {
-    color: #999;
+    font-size: 16px;
+  }
+  &.first {
+    /deep/ .el-breadcrumb__inner,
+    /deep/ .el-breadcrumb__separator {
+      color: #3e3f42;
+      font-weight: 700;
+    }
+  }
+  &.two {
+    /deep/ .el-breadcrumb__inner {
+      color: #9ea0a5;
+    }
   }
 }
 .demo-form-inline {
-  border: 1px solid #999;
-  margin-top: 10px;
-  padding: 10px;
+  border: 1px solid #ebeef5;
   min-height: 60px;
   .el-form-item {
     margin-bottom: 0;
-  }
-  .filter {
-    font-size: 14px;
-    font-weight: bold;
-  }
-}
-.el-table {
-  border: 1px solid #999;
-  margin-top: 10px;
-}
-.el-dialog__wrapper {
-  /deep/ .el-dialog {
-    .el-dialog__header {
-      background-color: #3ba1ff !important;
-      .el-dialog__title {
-        color: #fff;
+    height: 64px;
+    line-height: 64px;
+    padding-left: 30px;
+    /deep/ .el-form-item__label {
+      padding-right: 20px;
+      font-size: 16px;
+    }
+    /deep/ .el-form-item__content {
+      height: 64px;
+      line-height: 64px;
+      width: 169px;
+      margin-right: 20px;
+      .filter-ipt .el-input__inner {
+        height: 36px;
+        width: 160px;
+      }
+      .el-button {
+        height: 36px;
+        width: 105px;
+        letter-spacing: 20px;
+        text-indent: 15px;
+        font-size: 14px;
+      }
+      .el-button--default span {
+        color: #606266;
+      }
+      .el-button--primary {
+        background-color: #1989fa;
       }
     }
   }
+  .el-form-item.roleState {
+    padding-left: 0px;
+    /deep/ .el-select .el-input__inner {
+      height: 36px;
+      width: 172px;
+    }
+  }
+  .el-form-item.fr {
+    /deep/ .el-form-item__content {
+      width: 225px;
+    }
+  }
+  .filter {
+    font-size: 16px;
+    font-weight: bold;
+    height: 41px;
+    line-height: 41px;
+    padding-left: 58px;
+    position: relative;
+    border-bottom: 1px solid #ebeef5;
+    &::before {
+      content: '';
+      height: 16px;
+      width: 16px;
+      background: url(../../assets/images/icon_筛选.png) no-repeat center center;
+      position: absolute;
+      top: 13px;
+      left: 30px;
+    }
+  }
+}
+.el-table {
+  border: 1px solid #ebeef5;
 }
 .el-pagination {
   float: right;
   margin-top: 10px;
 }
-.el-input {
-  /deep/ .el-input__inner {
-    width: 120px;
-  }
-}
+// .el-input {
+//   /deep/ .el-input__inner {
+//     width: 120px;
+//   }
+// }
 .el-input.filter-ipt {
   /deep/ .el-input__inner {
     height: 30px;
   }
 }
-.el-transfer {
-  /deep/ .el-transfer-panel {
-    width: 230px;
-  }
+.top-button {
+  width: 140px;
 }
 </style>

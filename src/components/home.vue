@@ -2,10 +2,10 @@
   <div class="home" style="height:100%">
     <el-container>
     <el-menu
-        :default-active="$route.path"
+        :default-active="$route.path.slice(0).split('-')[0]"
         :default-openeds="openeds"
         class="el-menu-vertical-demo"
-        background-color="#001529"
+        background-color="#252529"
         text-color="#9F9F8D"
         active-text-color="#fff"
         router
@@ -13,11 +13,16 @@
         <div class="logo" style="height:64px">
             <div class="in"></div>
         </div>
-        <el-submenu index="1">
+        <el-submenu :index="menus.url" v-for="menus in roleTree" :key="menus.id">
             <template slot="title">
-            <img src="../assets/images/u59.png" alt="" id="u59" style=" height: 14px">
-            <span slot="title" style="color:#fff">权限管理</span>
+              <img src="../assets/images/u59.png" alt="" id="u59" style=" height: 14px">
+              <span slot="title" style="color:#fff">{{menus.permissionName}}</span>
             </template>
+             <el-menu-item  :index="item.url.indexOf('http') === 0?'/iframe?url='+item.url+'&'+'newTab='+item.newTab:item.url" style="padding-left: 16px;" v-for="item in menus.children" :key="item.id">
+             <a target="_blank" class="link"  :href="item.newTab?item.url:''"  v-if="item.url.indexOf('http') === 0 && item.newTab">{{item.permissionName}}</a>
+             <span v-else>{{item.permissionName}}</span>
+             </el-menu-item>
+             <!-- 二级以上侧边栏显示 -->
             <!-- <template>
               <el-submenu index="1-2" class="pro">
                 <template>
@@ -47,28 +52,26 @@
                </el-menu-item>
               </el-submenu>
             </template> -->
-            <el-menu-item index="/companies" style="padding-left: 48px;" v-if="menusList.indexOf('permission_co')>-1">公司管理</el-menu-item>
-            <el-menu-item index="/role" style="padding-left: 48px;" v-if="menusList.indexOf('permission_role')>-1">角色管理</el-menu-item>
-            <el-menu-item index="/user" style="padding-left: 48px;" v-if="menusList.indexOf('permission_user')>-1">用户管理</el-menu-item>
-            <el-menu-item index="/logs" style="padding-left: 48px;" v-if="menusList.indexOf('permission_log')>-1">操作日志</el-menu-item>
         </el-submenu>
     </el-menu>
     <el-container>
-        <el-header style="height: 64px;">
+        <el-header>
             <div class="img">
-             <img src="../assets/images/u67.png" @click="collapse">
+             <img src="../assets/images/icon_2@2x.png" @click="collapse">
             </div>
-            <span class="text">APPROPOLIS</span>
-            <el-dropdown trigger="click" @command="handleCommand">
+            <span class="text">{{companyName}}</span>
+             <div class="edits">
+             <el-dropdown trigger="click" @command="handleCommand">
               <span class="el-dropdown-link">
-                <span id="edit" v-if="$route.path.slice(1) == 'companies'" class="demonstration" trigger="click">变更</span>
+                <span id="edit" trigger="click">变更</span>
               </span>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item :command="item.companyId" v-for="item in companySet" :key="item.companyId">{{item.companyName}}</el-dropdown-item>
+                <el-dropdown-item :command="[item.companyId+'/'+item.companyName]" v-for="item in companySet" :key="item.companyId">{{item.companyName}}</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
+            </div>
             <div class="user" @click="logout">
-             <img src="../assets/images/u70.png" @click="collapse">
+             <img src="../assets/images/icon_澶村儚.png" @click="collapse">
              <span>{{loginName}}</span>
              <div class="logout" v-show="isShow">
                <ul>
@@ -78,18 +81,17 @@
              </div>
             </div>
         </el-header>
-        <el-main><router-view/></el-main>
+        <el-main><router-view></router-view></el-main>
     </el-container>
     </el-container>
     <el-dialog
-    data-backdrop="static"
+      data-backdrop="static"
       title="重置用户密码"
       class="reset"
       :visible.sync="resetDialogVisible"
       :close-on-click-modal=false
-      width="30%"
       :before-close="resetHandleClose">
-      <el-form :model="retForm" status-icon :rules="rules" ref="retForm" label-width="100px" class="demo-ruleForm">
+      <el-form :model="retForm"  :rules="rules" ref="retForm" label-width="100px" class="demo-ruleForm">
         <el-form-item label="原密码" prop="oldPass">
           <el-input type="password" v-model="retForm.oldPass" autocomplete="off"></el-input>
         </el-form-item>
@@ -109,8 +111,7 @@
       title="修改密码"
       :visible.sync="editDialogVisible"
       :before-close="handleClose"
-      class="edit"
-      width="30%">
+      class="edit">
       <span class="judge" v-if="forceChangePwd===1">首次登录请重置账户密码</span>
       <span class="judge" v-else>重置密码后首次登录，请修改账户密码</span>
       <el-form :model="editForm" status-icon :rules="rules" ref="editForm" label-width="100px" class="demo-ruleForm">
@@ -171,6 +172,8 @@ export default {
       }
     }
     return {
+      path: '',
+      companyName: '',
       editDialogVisible: false,
       resetDialogVisible: false,
       isCollapse: false,
@@ -218,7 +221,11 @@ export default {
       forceChangePwd: '',
       employeeName: '',
       loginName: '',
-      openeds: ['1']
+      openeds: [],
+      roleTree: [],
+      otherTree: [],
+      localTree: [],
+      companyId: ''
     }
   },
   methods: {
@@ -247,8 +254,9 @@ export default {
             localStorage.removeItem('companySet')
             localStorage.removeItem('forceChangePwd')
             localStorage.removeItem('employeeName')
-            localStorage.removeItem('employeeName')
             localStorage.removeItem('storeList')
+            localStorage.removeItem('roleTree')
+            localStorage.removeItem('companyName')
           }
         })
         .catch(() => {
@@ -292,13 +300,35 @@ export default {
         }
       })
     },
-    async handleCommand(command) {
-      console.log(command)
-      let res = await this.axios.get(`/company/permission/${command}`)
+    async switch() {
+      let res = await this.axios.get(`/company/switchCompany/${this.companyId}`)
       let { code, data } = res.data.content
-      if (code === 0) {
-        console.log(JSON.parse(data)) // todo
+      if (code === -3005) {
+        this.$message.error('执行权限异常')
       }
+      if (code === -9999) {
+        this.$message.error('Exception Message')
+      }
+      if (code === 0) {
+        localStorage.setItem('points', JSON.stringify(data.functionPoints))
+        localStorage.setItem('roleTree', data.roleTree)
+        localStorage.setItem('companyId', this.companyId)
+        this.roleTree = JSON.parse(data.roleTree)
+        this.openeds = this.roleTree.map(item => {
+          return item.url
+        })
+        let res = JSON.parse(data.roleTree)[0].children[0].url
+        this.$router.push(res)
+        console.log(this.$route.path)
+        window.location.reload()
+      }
+    },
+    async handleCommand(command) {
+      this.companyId = +command[0].split('/')[0]
+      // this.companyName = command[0].split('/')[1]
+      localStorage.setItem('companyName', command[0].split('/')[1])
+      this.switch()
+      this.dropDown()
     },
     editCancel(formName) {
       this.$refs[formName].resetFields()
@@ -340,18 +370,35 @@ export default {
       done()
       this.$refs.retForm.resetFields()
     },
-    handleClose(done) {}
+    handleClose(done) {},
+    dropDown() {
+      this.companySet = JSON.parse(localStorage.getItem('companySet'))
+      if (this.companySet === 'undefined') {
+        this.companySet = [{ companyName: '没有数据' }]
+      } else {
+        let index = ''
+        this.companySet.forEach((item, i) => {
+          if (item.companyId === this.companyId) {
+            index += i
+          }
+        })
+        this.companySet.splice(index, 1)
+      }
+    }
   },
   created() {
     this.menusList = JSON.parse(localStorage.getItem('points'))
+    this.localTree = JSON.parse(localStorage.getItem('roleTree'))
+    this.roleTree = this.localTree
+    console.log(this.roleTree)
+    this.openeds = this.roleTree.map(item => {
+      return item.url
+    })
     this.employeeName = localStorage.getItem('employeeName')
+    this.companyName = localStorage.getItem('companyName')
     this.loginName = localStorage.getItem('loginName')
-    let newSet = localStorage.getItem('companySet')
-    if (newSet === 'undefined') {
-      this.companySet = [{ companyName: '没有数据' }]
-    } else {
-      this.companySet = JSON.parse(newSet)
-    }
+    this.companyId = +localStorage.getItem('companyId')
+    this.dropDown()
     this.forceChangePwd = +localStorage.getItem('forceChangePwd')
     if (this.forceChangePwd === 1 || this.forceChangePwd === 2) {
       this.editDialogVisible = true
@@ -365,35 +412,46 @@ export default {
   height: 100%;
   .el-header {
     background-color: #fff;
+    height: 64px !important;
     line-height: 64px;
-    font-size: 28px;
     width: 100%;
     .img {
       height: 100%;
-      width: 55px;
+      width: 48px;
       float: left;
       cursor: pointer;
       img {
         width: 20px;
         height: 15px;
-        margin-top: 28px;
-        margin-left: 8px;
+        margin-top: 26px;
+        margin-left: 10px;
       }
     }
     .text {
-      font-size: 28px;
+      font-size: 18px;
       color: #333;
       float: left;
       font-weight: bold;
     }
-    #edit {
-      color: #18abff;
+    .edits {
       float: left;
-      margin-left: 33px;
+      margin-left: 27px;
       font-size: 14px;
       cursor: pointer;
-      &:hover {
-        text-decoration: underline;
+      width: 55px;
+      #edit {
+        color: #18abff;
+        position: relative;
+        &::after {
+          content: '';
+          width: 20px;
+          height: 20px;
+          background: url(../assets/images/dropdown_arrow.png) no-repeat top
+            right;
+          position: absolute;
+          top: 4px;
+          right: -16px;
+        }
       }
     }
     .user {
@@ -401,12 +459,14 @@ export default {
       line-height: 64px;
       cursor: pointer;
       position: relative;
-      margin-right: 20px;
+      margin-right: 30px;
       img {
         display: block;
         float: left;
-        margin-top: 26px;
+        margin-top: 16px;
         margin-right: 10px;
+        height: 38px;
+        width: 38px;
       }
       span {
         font-weight: normal;
@@ -423,7 +483,7 @@ export default {
           display: inline-block;
           position: absolute;
           top: 8px;
-          right: -18px;
+          right: -20px;
         }
       }
       .logout {
@@ -450,18 +510,22 @@ export default {
     }
   }
   .el-menu-vertical-demo:not(.el-menu--collapse) {
-    width: 256px;
-    min-width: 265px;
+    width: 270px;
+    min-width: 270px;
     min-height: 400px;
+    padding-left: 14px;
+    padding-right: 14px;
+    box-sizing: border-box;
     .logo {
-      padding: 19px;
-      background-color: #c0cad3;
+      padding: 21px;
+      background-color: #252529;
       box-sizing: border-box;
       .in {
         width: 100%;
         height: 100%;
-        background: url(../assets/images/u5.png) no-repeat center center;
+        background: url(../assets/images/logo@2x.png) no-repeat center center;
         background-size: contain;
+        color: #fff;
       }
     }
     .el-submenu {
@@ -470,23 +534,172 @@ export default {
       }
     }
   }
-
+  .el-submenu .el-menu-item {
+    height: 40px !important;
+    line-height: 40px !important;
+  }
+  .el-submenu .el-menu-item:hover {
+    background-color: #252529 !important;
+  }
+  .el-menu-item.is-active:hover {
+    background-color: #1989fa !important;
+  }
   .el-menu-item.is-active {
-    background-color: #3692e8 !important;
+    background-color: #1989fa !important;
+    border-radius: 4px;
   }
 }
-.el-menu--vertical .el-menu-item.is-active {
-  background-color: #3692e8 !important;
+.el-menu--vertical .el-menu-item {
+  height: 40px;
+  line-height: 40px;
 }
-.el-dialog__wrapper {
-  /deep/ .el-dialog {
-    .el-dialog__header {
-      background-color: #3ba1ff !important;
-      .el-dialog__title {
-        color: #fff;
+.el-menu--vertical .el-menu-item.is-active {
+  background-color: #1989fa !important;
+  border-radius: 4px;
+}
+// dialog
+@dInputWidth: 220px;
+@dBodyAlign: left;
+@dHeaderAlign: left;
+@dFooterAlign: right;
+.el-dialog {
+  width: 628px;
+  padding: 20px 20px 90px 30px;
+  box-sizing: border-box;
+  min-height: 230px;
+  font-size: 16px;
+  position: relative;
+}
+.el-dialog__header {
+  padding: 0;
+  text-align: @dHeaderAlign;
+  margin-bottom: 20px;
+  .el-dialog__title {
+    color: #1989fa;
+    font-size: 20px;
+    line-height: 30px;
+    font-weight: normal;
+    margin-left: 10px;
+  }
+}
+.el-dialog__body {
+  padding: 0 0 0 10px;
+  text-align: @dBodyAlign;
+  .el-form-item__label {
+    text-align: left;
+    color: #909399;
+  }
+  .el-radio__label {
+    color: #909399;
+  }
+  .el-input__inner {
+    width: @dInputWidth;
+  }
+  .el-form-item.is-error .el-input__validateIcon {
+    position: absolute;
+  }
+  .el-form-item.is-success .el-input__validateIcon {
+    position: absolute;
+  }
+  .dRadio {
+    margin-top: -15px;
+    height: 20px;
+  }
+  .el-form-item:last-child {
+    margin-bottom: 0;
+  }
+}
+.el-dialog__footer {
+  padding: 0;
+}
+.el-dialog__footer {
+  text-align: @dFooterAlign;
+  margin-top: 30px;
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  .el-button {
+    padding: 0;
+    height: 36px;
+    line-height: 36px;
+    width: 106px;
+    text-align: center;
+    &:first-child {
+      span {
+        color: #606266;
       }
     }
   }
+}
+.el-form-item.is-required > .el-form-item__label:before {
+  position: absolute;
+  left: 20px;
+}
+.el-message-box {
+  width: 380px;
+  padding: 20px 20px 90px 20px;
+  box-sizing: border-box;
+  min-height: 230px;
+  font-size: 16px;
+  position: relative;
+  .el-message-box__headerbtn {
+    top: 0;
+    right: 0;
+  }
+  .el-message-box__header {
+    padding: 0;
+  }
+  .el-message-box__content {
+    padding: 20px 0;
+  }
+  .el-message-box__title {
+    color: #1989fa;
+    font-size: 20px;
+    line-height: 30px;
+    font-weight: normal;
+  }
+  .el-message-box__status.el-icon-warning {
+    display: none;
+  }
+  .el-message-box__status + .el-message-box__message {
+    padding-left: 0;
+  }
+  .el-message-box__btns {
+    text-align: @dFooterAlign;
+    margin-top: 30px;
+    position: absolute;
+    right: 5px;
+    bottom: 20px;
+    .el-button {
+      padding: 0;
+      height: 36px;
+      line-height: 36px;
+      width: 106px;
+      text-align: center;
+    }
+  }
+}
+.dDransferHeader {
+  margin-bottom: 20px;
+  font-size: 18px;
+  position: relative;
+  top: -10px;
+  margin-bottom: 0px;
+  font-weight: normal;
+}
+.el-transfer {
+  .el-transfer-panel {
+    width: 245px;
+  }
+}
+.el-transfer__buttons {
+  padding: 0 20px;
+}
+.judge {
+  color: #3e3f42;
+  display: inline-block;
+  margin-bottom: 20px;
+  text-align: left;
 }
 .el-dropdown-menu {
   box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.4);
@@ -497,20 +710,54 @@ export default {
   }
   .el-dropdown-menu__item:hover {
     border: 1px solid #3692e8;
-    color: #3692e8 !important;
+    color: #3ba1ff !important;
   }
 }
-.el-dialog__body {
-  padding: 20px 20px;
-}
-.judge {
-  color: red;
-  margin-bottom: 10px;
-}
+
 .edit .el-icon-close::before {
   content: '';
 }
 .pro .el-submenu__title {
   padding-left: 49px !important;
+}
+.el-main {
+  border-top: 1px solid #ebeef5;
+  padding: 0px 30px 0 30px !important;
+}
+.el-menu-vertical-demo.el-menu--collapse.el-menu {
+  .logo {
+    width: 64px;
+    height: 134px;
+    .in {
+      width: 53%;
+      height: 53%;
+      background: url(../assets/images/logo-smail.png) no-repeat 0px 0px;
+      background-size: 100% 100%;
+      color: #fff;
+      margin: 18px auto;
+    }
+  }
+  // 侧边栏收起的时候高亮
+  .el-submenu.is-active {
+    .el-submenu__title {
+      text-align: right;
+      background-color: #1989fa !important;
+    }
+  }
+}
+.el-submenu.is-active .el-submenu__title:hover {
+  background-color: #252529 !important;
+}
+.el-menu-item {
+  .link {
+    color: rgb(159, 159, 141);
+    display: block;
+    text-decoration: none;
+  }
+}
+.el-menu-item.is-active {
+  .link {
+    color: #fff;
+  }
 }
 </style>

@@ -2,6 +2,7 @@
   padding: 0;
   margin: 0;
   list-style: none;
+  font-family: 'PingFangSc', '微软雅黑', 'Microsoft YaHei';
 }
 
 html,
@@ -20,6 +21,7 @@ body {
 .fr {
   float: right;
 }
+
 /*css为clearfix，清除浮动*/
 .clearfix::before,
 .clearfix::after {
@@ -30,9 +32,128 @@ body {
   visibility: hidden;
   clear: both;
 }
+
 .clearfix:after {
   clear: both;
 }
+
 .clearfix {
-  *zoom: 1; /*IE/7/6*/
+  *zoom: 1;
+  /*IE/7/6*/
+}
+
+/* table中操作样式 */
+.operation {
+  color: #1989fa;
+  cursor: pointer;
+  padding: 0px;
+  border: 0;
+}
+
+.operation:hover {
+  text-decoration: underline;
+}
+
+.operation.last {
+  margin-left: 30px;
+}
+
+/* 删除按钮颜色 */
+.operation.last.delete {
+  color: #da2b41;
+}
+
+/* 禁用按钮颜色 */
+.operation.last.disable {
+  color: #c7c7c7;
+}
+
+/* 表头样式 */
+thead.has-gutter .is-leaf {
+  color: #909399;
+  text-align: left;
+  height: 16px;
+  line-height: 16px;
+}
+
+thead.has-gutter .is-leaf .cell {
+  height: 16px;
+  line-height: 16px;
+}
+
+/* tbody样式 */
+tbody .el-table__row .is-center {
+  color: #606266;
+  text-align: left !important;
+}
+
+/* button样式 */
+.top-button {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  height: 40px;
+  padding: 7px 20px;
+  font-size: 14px;
+  background-color: #1989fa;
+}
+
+/* 字体间有分隔 */
+.btn-divide {
+  line-height: 19px;
+  letter-spacing: 13px;
+  text-indent: 9px;
+}
+
+/* 字体间没有分隔 */
+.btn-text {
+  text-indent: 1px;
+  letter-spacing: 0px;
+  line-height: 19px;
+}
+
+/* 弹窗等小页面 */
+.marginBottom20 {
+  margin-bottom: 20px;
+}
+
+.padding20 {
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.alignCenter {
+  text-align: center;
+}
+
+textarea {
+  min-height: 80px !important;
+}
+
+.el-tree__empty-text {
+  display: inline-block;
+  width: 158px;
+  height: 222px;
+  background: url(../images/pic_none.png) no-repeat center;
+  background-size: 100% 100%;
+  color: rgba(0, 0, 0, 0);
+}
+
+.el-table__empty-text {
+  display: inline-block;
+  width: 158px;
+  height: 222px;
+  background: url(../images/pic_none.png) no-repeat center;
+  background-size: 100% 100%;
+  color: rgba(0, 0, 0, 0);
+}
+
+/* 分页颜色 */
+.el-pagination .el-pager .number.active {
+  color: #1989fa;
+}
+
+.noText {
+  text-align: center;
+  margin-top: 60px;
+  color: #666;
 }

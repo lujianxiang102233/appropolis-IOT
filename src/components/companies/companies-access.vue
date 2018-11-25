@@ -1,12 +1,13 @@
 <template>
-  <div class="companyaccess" style="padding-left: 34px;">
+  <div class="companyaccess">
     <el-breadcrumb separator="/">
-      <el-breadcrumb-item>权限管理</el-breadcrumb-item>
-      <el-breadcrumb-item :to="{ path: '/companies' }">公司管理</el-breadcrumb-item>
-      <el-breadcrumb-item>公司权限</el-breadcrumb-item>
+      <el-breadcrumb-item class="first">权限管理</el-breadcrumb-item>
+      <el-breadcrumb-item class="first" :to="{ path: '/companies' }">公司管理</el-breadcrumb-item>
+      <el-breadcrumb-item class="two">公司权限</el-breadcrumb-item>
     </el-breadcrumb>
+    <div v-if="funQuery">
     <div class="editCom"><p>编辑【{{queryCompanyName}}】权限</p></div>
-    <el-form :inline="true" class="clearfix demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_co_func_query')>-1" :model="queryTable">
+    <el-form :inline="true" class="clearfix demo-form-inline" ref="formInline" v-if="coList.indexOf('permission_co_func_query')>-1" :model="queryTable">
       <div class="filter">筛选</div>
       <el-form-item label="功能点名称">
         <el-input size="mini" v-model.trim="filterText" placeholder="请输入" class="filter-ipt" :clearable = "true"></el-input>
@@ -16,9 +17,9 @@
         <el-button @click="resetForm(filterText)" size="mini">重置</el-button>
       </el-form-item>
     </el-form>
-     <el-button type="primary" style="margin-top: 10px;" size="mini" @click="addDalogVisible = true" v-if="coList.indexOf('permission_co_func_add')>-1">+ 新建一级功能点</el-button>
-     <el-button type="primary" style="margin:0px 40px;" size="mini" @click="copyDalogVisible = true" v-if="coList.indexOf('permission_co_func_copy')>-1">复制其他公司权限</el-button>
-    <div class="table" :style="{height: tableHeight + 'px' }">
+     <el-button type="primary" class="top-button" size="mini" @click="addDalogVisible = true" v-if="coList.indexOf('permission_co_func_add')>-1"><img src="../../assets/images/add-icon.png"  class="fl"> <span class="btn-text fr">新建一级功能点</span></el-button>
+     <el-button type="primary" class="top-button" size="mini" @click="copyDalogVisible = true" v-if="coList.indexOf('permission_co_func_copy')>-1"><img src="../../assets/images/copy-icon.png"  class="fl"> <span class="btn-text fr">复制其他公司权限</span></el-button>
+    <div class="table" >
       <div class="tableTitle">
         <span class="permissionName">功能点名称</span>
         <span class="permissionCode">FUNCID</span>
@@ -27,34 +28,38 @@
         <span class="remark">功能描述</span>
         <span class="handle">操作</span>
       </div>
-      <el-tree
-        :data = "funcTable"
-        show-checkbox
-        node-key = "id"
-        :default-expanded-keys = "expandedKeys"
-        ref="tree2"
-        :filter-node-method="filterNode"
-        :expand-on-click-node = "false">
-        <span slot-scope= "{node,data}" class="treeTable">
-          <span class="permissionName" >{{data.permissionName}}</span>
-          <span class="elli permissionCode" :title="data.permissionCode">{{data.permissionCode}}</span>
-          <div  class="menu">{{data.menu?'是':'否'}}&nbsp;&nbsp;&nbsp;<span v-show="data.weight>-1">(</span>{{data.weight}}<span v-show="data.weight >-1">)</span></div>
-          <span class="elli url" :title="data.url">{{data.url}}</span>
-          <span class="elli remark" :title="data.remark">{{data.remark}}</span>
-          <span class="handle">
-            <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_addsub')>-1"  plain @click="addsub(data)" >添加</el-button>
-            <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_edit')>-1"  plain @click="edit(data)">编辑</el-button>
-            <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_func_del')>-1"  plain @click="del(data)">删除</el-button>
+      <div class="treeBody">
+        <el-tree
+          class="treeWrapper"
+          :data = "funcTable"
+          node-key = "id"
+          :default-expanded-keys = "expandedKeys"
+          ref="tree2"
+          :filter-node-method="filterNode"
+          :expand-on-click-node = "false">
+          <template slot-scope= "empty">
+            <span class="pic"></span>
+          </template>
+          <span slot-scope= "{node,data}" class="treeTable">
+            <span class="permissionName" >{{data.permissionName}}</span>
+            <span class="elli permissionCode" :title="data.permissionCode">{{data.permissionCode}}</span>
+            <div  class="menu">{{data.menu?'是':'否'}}&nbsp;&nbsp;&nbsp;<span v-show="data.weight>-1">(</span>{{data.weight}}<span v-show="data.weight >-1">)</span></div>
+            <span class="elli url" :title="data.url">{{data.url}}</span>
+            <span class="elli remark" :title="data.remark">{{data.remark}}</span>
+            <span class="handle">
+            <el-button class="operation last"  v-if="coList.indexOf('permission_co_func_addsub')>-1"  plain @click="addsub(data)">添加</el-button>
+            <el-button class="operation last" v-if="coList.indexOf('permission_co_func_edit')>-1"  plain @click="edit(data)">编辑</el-button>
+            <el-button class="operation last delete" v-if="coList.indexOf('permission_co_func_del')>-1"  plain @click="del(data)">删除</el-button>
+            </span>
           </span>
-        </span>
-      </el-tree>
+        </el-tree>
+      </div>
     </div>
     <el-dialog
       title="新建一级功能点"
       :visible.sync="addDalogVisible"
       :before-close="addHandleClose"
-      :close-on-click-modal=false
-      width="40%">
+      :close-on-click-modal=false>
       <el-form :model="addForm" :rules="rules" ref="addForm" label-width="120px" class="demo-ruleForm">
         <el-form-item label="功能点名称" prop="permissionName">
           <el-input v-model="addForm.permissionName" placeholder="请输入"></el-input>
@@ -62,14 +67,14 @@
         <el-form-item label="FUNCID" prop="permissionCode">
           <el-input v-model="addForm.permissionCode" placeholder="请输入"></el-input>
         </el-form-item>
-        <el-form-item label="是否菜单栏" prop="menu">
+        <el-form-item label="是否菜单栏" prop="menu" class="dRadio">
           <el-radio v-model="addForm.menu" label="true">是</el-radio>
           <el-radio v-model="addForm.menu" label="false">否</el-radio>
         </el-form-item>
         <el-form-item label="URL" prop="url">
           <el-input  v-model="addForm.url"  placeholder="请输入"></el-input>
         </el-form-item>
-        <el-form-item label="页面内打开" prop="newTab">
+        <el-form-item label="页面内打开" prop="newTab" class="dRadio">
           <el-radio v-model="addForm.newTab" label="true">是</el-radio>
           <el-radio v-model="addForm.newTab" label="false">否</el-radio>
         </el-form-item>
@@ -89,8 +94,7 @@
       title="新建功能点"
       :visible.sync="addsubDalogVisible"
       :before-close="addsubHandleClose"
-      :close-on-click-modal=false
-      width="40%">
+      :close-on-click-modal=false>
       <el-form :model="addsubForm" :rules="rules" ref="addsubForm" label-width="140px" class="demo-ruleForm">
         <el-form-item label="父级功能点名称" prop="paipermissionName">
           <el-input :disabled="true" v-model="paipermissionName" placeholder="请输入"></el-input>
@@ -104,14 +108,14 @@
         <el-form-item label="FUNCID" prop="permissionCode">
           <el-input v-model="addsubForm.permissionCode" placeholder="请输入"></el-input>
         </el-form-item>
-        <el-form-item label="是否菜单栏" prop="menu">
+        <el-form-item label="是否菜单栏" prop="menu" class="dRadio">
           <el-radio v-model="addsubForm.menu" label="true">是</el-radio>
           <el-radio v-model="addsubForm.menu" label="false">否</el-radio>
         </el-form-item>
         <el-form-item label="URL" prop="url">
           <el-input  v-model="addsubForm.url"  placeholder="请输入"></el-input>
         </el-form-item>
-        <el-form-item label="页面内打开" prop="newTab">
+        <el-form-item label="页面内打开" prop="newTab" class="dRadio">
           <el-radio v-model="addsubForm.newTab" label="true">是</el-radio>
           <el-radio v-model="addsubForm.newTab" label="false">否</el-radio>
         </el-form-item>
@@ -131,23 +135,22 @@
       title="编辑功能点"
       :visible.sync="editDalogVisible"
       :before-close="editHandleClose"
-      :close-on-click-modal=false
-      width="40%">
+      :close-on-click-modal=false>
       <el-form :model="editForm" :rules="rules" ref="editForm" label-width="120px" class="demo-ruleForm">
         <el-form-item label="功能点名称" prop="permissionName">
           <el-input v-model="editForm.permissionName" placeholder="请输入"></el-input>
         </el-form-item>
         <el-form-item label="FUNCID" prop="permissionCode">
-          <el-input :disabled="true" v-model="editForm.permissionCode" placeholder="请输入"></el-input>
+          <el-input :disabled="disabled" v-model="editForm.permissionCode" placeholder="请输入"></el-input>
         </el-form-item>
-        <el-form-item label="是否菜单栏" prop="menu">
+        <el-form-item label="是否菜单栏" prop="menu" class="dRadio">
           <el-radio v-model="editForm.menu" label="true">是</el-radio>
           <el-radio v-model="editForm.menu" label="false">否</el-radio>
         </el-form-item>
         <el-form-item label="URL" prop="url">
           <el-input  v-model="editForm.url"  placeholder="请输入"></el-input>
         </el-form-item>
-        <el-form-item label="页面内打开" prop="newTab">
+        <el-form-item label="页面内打开" prop="newTab" class="dRadio">
           <el-radio v-model="editForm.newTab" label="true">是</el-radio>
           <el-radio v-model="editForm.newTab" label="false">否</el-radio>
         </el-form-item>
@@ -167,8 +170,7 @@
       title="请选择模板公司"
       :visible.sync="copyDalogVisible"
       :before-close="copyHandleClose"
-      :close-on-click-modal=false
-      width="40%">
+      :close-on-click-modal=false>
       <el-form :model="copyForm" :rules="rules" ref="copyForm" label-width="120px" class="demo-ruleForm">
         <el-form-item label="公司名称" prop="state">
            <el-autocomplete
@@ -177,8 +179,7 @@
           :fetch-suggestions="querySearch"
           placeholder="请输入内容"
           style="width:360px;"
-          @select="handleSelect"
-        >
+          @select="handleSelect">
         </el-autocomplete>
          <i class="el-icon-circle-close" v-show="copyForm.state.length > 0" @click="clear" style="position:absolute; top:13px; right:31px;"></i>
         </el-form-item>
@@ -188,13 +189,16 @@
         <el-button type="primary" @click="copy('copyForm')">确 定</el-button>
       </span>
     </el-dialog>
+    </div>
+     <div class="noText" v-else>您没有当前api访问权限 ~</div>
   </div>
 </template>
 <script>
-let ElTreeGrid = require('element-tree-grid')
 export default {
   data() {
     return {
+      disabled: false,
+      funQuery: '',
       filterText: '',
       addDalogVisible: false,
       addsubDalogVisible: false,
@@ -292,7 +296,7 @@ export default {
         ]
       },
       coList: [],
-      tableHeight: '',
+      tableWidth: '',
       funcTable: [],
       queryTable: {
         permissionName: '',
@@ -322,30 +326,37 @@ export default {
       this.getList()
     },
     async getList() {
+      // debugger
       let indexi = 0
-      function getArray(data, depth, parentId) {
+      // 给每组数据添加id值和parentId
+      function getArray(data, parentId) {
         for (var i in data) {
-          if (data[i].permissionCode !== undefined) {
-            data[i].id = ++indexi
-            data[i].depth = depth
-            data[i].parentId = parentId
-            data[i].child_num = data[i].children.length
-          }
+          // if (data[i].permissionCode !== undefined) {
+          data[i].id = ++indexi
+          // data[i].depth = depth
+          data[i].parentId = parentId
+          // data[i].child_num = data[i].children.length
+          // }
           if (data[i].children.length > 0) {
-            let tempDept = depth + 1
-            getArray(data[i].children, tempDept, data[i].id)
+            // let tempDept = depth + 1
+            getArray(data[i].children, data[i].id)
           }
         }
       }
       this.coList = JSON.parse(localStorage.getItem('points'))
-      let res = await this.axios.get(`/company/permission/${this.nowCompanyId}`)
+      this.funQuery = localStorage
+        .getItem('points')
+        .includes('permission_co_func_query')
+      let res = await this.axios.get(
+        `/company/permission/${this.$route.query.id}`
+      )
       let { code, data } = res.data.content
       if (code === -9999) {
         this.$message.error(`Exception Message`)
       }
       if (code === 0) {
         let newdata = JSON.parse(data)
-        getArray(newdata.permissionTree, 0, null)
+        getArray(newdata.permissionTree, null)
         this.funcTable = newdata.permissionTree
         if (this.funcTable !== undefined) {
           this.expandedKeys = this.funcTable.map(item => {
@@ -362,6 +373,9 @@ export default {
     add(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
+          if (this.addForm.menu === 'false') {
+            this.addForm.weight = ''
+          }
           if (this.treeList.permissionTree === undefined) {
             this.treeList.permissionTree = []
             this.treeList.permissionTree.push(this.addForm)
@@ -389,6 +403,7 @@ export default {
           }
           if (code === +-9999) {
             this.$message.error(`Exception Message`)
+            this.getList()
           }
           if (code === +0) {
             this.getList()
@@ -425,6 +440,9 @@ export default {
       }
       this.$refs[formName].validate(async valid => {
         if (valid) {
+          if (this.addsubForm.menu === 'false') {
+            this.addsubForm.weight = ''
+          }
           getAddArray(this.treeList.permissionTree, this.paiId, this.addsubForm)
           let res = await this.axios.post(
             `/company/permission/${this.$route.query.id}/${
@@ -447,6 +465,7 @@ export default {
           }
           if (code === +-9999) {
             this.$message.error(`Exception Message`)
+            this.getList()
           }
           if (code === +0) {
             this.getList()
@@ -475,21 +494,25 @@ export default {
         children,
         id
       } = row
-      let res = await this.axios.put(
-        `/company/checkCompanyPermissionChildrenAndRoles/${
+      let getUrl = `/company/checkCompanyPermissionChildrenAndRoles/${
+        this.$route.query.id
+      }/${permissionCode}`
+      if (permissionCode === undefined) {
+        getUrl = `/company/checkCompanyPermissionChildrenAndRoles/${
           this.$route.query.id
-        }/${permissionCode}`,
-        {
-          permissionTree: this.treeList.permissionTree,
-          version: this.treeList.version
-        }
-      )
+        }/{funcId}`
+      }
+      let res = await this.axios.put(getUrl, {
+        permissionTree: this.treeList.permissionTree,
+        version: this.treeList.version
+      })
       let {
         code,
         data: { numOfRoles, firstRolesName }
       } = res.data.content
       if (code === 0) {
         if (numOfRoles === 1) {
+          this.disabled = true
           this.$confirm(
             `该功能点已配置给【${firstRolesName}】,FUNID不可编辑，如需编辑FUNCID请先取消角色授权`,
             '提示',
@@ -518,6 +541,7 @@ export default {
               })
             })
         } else if (numOfRoles > 1) {
+          this.disabled = true
           this.$confirm(
             `该功能点已配置给【${firstRolesName}】等【${numOfRoles}】个角色,FUNID不可编辑，如需编辑FUNCID请先取消角色授权`,
             '提示',
@@ -546,6 +570,7 @@ export default {
               })
             })
         } else {
+          this.disabled = false
           this.editDalogVisible = true
           this.editForm.permissionName = permissionName
           this.editForm.permissionCode = permissionCode
@@ -565,15 +590,18 @@ export default {
     async del(row) {
       let { id, permissionCode, permissionName } = row
       this.editId = id
-      let res1 = await this.axios.put(
-        `/company/checkCompanyPermissionChildrenAndRoles/${
+      let getUrl = `/company/checkCompanyPermissionChildrenAndRoles/${
+        this.$route.query.id
+      }/${permissionCode}`
+      if (permissionCode === undefined) {
+        getUrl = `/company/checkCompanyPermissionChildrenAndRoles/${
           this.$route.query.id
-        }/${permissionCode}`,
-        {
-          permissionTree: this.treeList.permissionTree,
-          version: this.treeList.version
-        }
-      )
+        }/{funcId}`
+      }
+      let res1 = await this.axios.put(getUrl, {
+        permissionTree: this.treeList.permissionTree,
+        version: this.treeList.version
+      })
       let {
         code,
         data: { numOfChildren, numOfRoles, firstRolesName }
@@ -604,15 +632,18 @@ export default {
           )
             .then(async () => {
               getAddArray(this.treeList.permissionTree, this.editId)
-              let res2 = await this.axios.put(
-                `/company/permission/${
+              let delUrl = `/company/permission/${
+                this.$route.query.id
+              }/${permissionCode}/${permissionName}`
+              if (permissionCode === undefined) {
+                delUrl = `/company/permission/${
                   this.$route.query.id
-                }/${permissionCode}/${permissionName}`,
-                {
-                  permissionTree: this.treeList.permissionTree,
-                  version: this.treeList.version
-                }
-              )
+                }/{permissionCode}/${permissionName}`
+              }
+              let res2 = await this.axios.put(delUrl, {
+                permissionTree: this.treeList.permissionTree,
+                version: this.treeList.version
+              })
               let { code } = res2.data.content
               if (code === 0) {
                 this.$message.success(
@@ -673,6 +704,7 @@ export default {
             companyName: item.companyName
           }
         })
+        // 去除登录时（自己）的公司名称
         let index = ''
         this.copyList.forEach((value, i) => {
           if (Number(value.companyId) === Number(this.$route.query.id)) {
@@ -689,6 +721,7 @@ export default {
       this.copyDalogVisible = false
       this.$refs[formName].resetFields()
     },
+    // 搜索输入的字符并返回
     querySearch(queryString, cb) {
       var restaurants = this.copyList
       var results = queryString
@@ -696,6 +729,7 @@ export default {
         : restaurants
       cb(results)
     },
+    // 搜索要求，！==-1是指只要包含该字符即可
     createFilter(queryString) {
       return restaurant => {
         return (
@@ -750,6 +784,7 @@ export default {
         }
       })
     },
+    // 获取被选中的公司的信息
     handleSelect(item) {
       this.nowCompanyId = item.companyId
       this.companyName = item.companyName
@@ -768,15 +803,18 @@ export default {
       this.$refs[formName].validate(async valid => {
         if (valid) {
           getAddArray(this.treeList.permissionTree, this.editId, this.editForm)
-          let res = await this.axios.put(
-            `/company/permission/${this.$route.query.id}/${
-              this.editForm.permissionCode
-            }`,
-            {
-              permissionTree: this.treeList.permissionTree,
-              version: this.treeList.version
-            }
-          )
+          let getUrl = `/company/permission/${this.$route.query.id}/${
+            this.editForm.permissionCode
+          }`
+          if (this.editForm.permissionCode.length === 0) {
+            getUrl = `/company/permission/${this.$route.query.id}/{
+              originalFuncId
+            }`
+          }
+          let res = await this.axios.put(getUrl, {
+            permissionTree: this.treeList.permissionTree,
+            version: this.treeList.version
+          })
           let { code } = res.data.content
           if (code === 0) {
             this.$message.success(`编辑功能完成`)
@@ -816,24 +854,37 @@ export default {
     copyHandleClose(done) {
       done()
       this.$refs.copyForm.resetFields()
+    },
+    // 树的高度
+    treeHeight() {
+      this.$refs.tree2.$el.style.height =
+        document.documentElement.clientHeight -
+        (this.$refs.formInline.$el.offsetHeight + 338) +
+        'px'
     }
-  },
-  components: {
-    'el-table-tree-column': ElTreeGrid
   },
   created() {
     this.queryCompanyName = this.$route.query.companyName
-    this.nowCompanyId = this.$route.query.id
     this.lastId = this.$route.query.id
     this.getList()
-    this.tableHeight = `${document.documentElement.clientHeight}` - 320
+    if (this.funQuery) {
+      this.$nextTick(() => {
+        this.treeHeight()
+      })
+    }
   },
   mounted() {
+    // 复制其他公司权限的下拉列表明细
     this.render()
     window.onresize = () => {
       return (() => {
-        this.tableHeight = document.documentElement.clientHeight - 320
+        this.treeHeight()
       })()
+    }
+  },
+  beforeDestroy() {
+    window.onresize = () => {
+      return ''
     }
   }
 }
@@ -842,40 +893,79 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
 .el-breadcrumb__item {
+  height: 58px;
+  line-height: 58px;
   /deep/ .el-breadcrumb__inner {
-    color: #999;
+    font-size: 16px;
   }
-}
-.demo-form-inline {
-  border: 1px solid #999;
-  margin-top: 10px;
-  padding: 10px;
-  min-height: 60px;
-  .el-form-item {
-    margin-bottom: 0;
+  &.first {
+    /deep/ .el-breadcrumb__inner,
+    /deep/ .el-breadcrumb__separator {
+      color: #3e3f42;
+      font-weight: 700;
+    }
   }
-  .filter {
-    font-size: 14px;
-    font-weight: bold;
-  }
-}
-.el-table {
-  border: 1px solid #999;
-  margin-top: 10px;
-}
-.el-dialog__wrapper {
-  /deep/ .el-dialog {
-    .el-dialog__header {
-      background-color: #3ba1ff !important;
-      .el-dialog__title {
-        color: #fff;
-      }
+  &.two {
+    /deep/ .el-breadcrumb__inner {
+      color: #9ea0a5;
     }
   }
 }
-.el-input {
-  /deep/ .el-input__inner {
-    width: 70%;
+.demo-form-inline {
+  border: 1px solid #ebeef5;
+  min-height: 60px;
+  .el-form-item {
+    margin-bottom: 0;
+    height: 64px;
+    line-height: 64px;
+    padding-left: 30px;
+    /deep/ .el-form-item__label {
+      padding-right: 20px;
+      font-size: 16px;
+      text-align: center;
+    }
+    /deep/ .el-form-item__content {
+      height: 64px;
+      line-height: 64px;
+      width: 225px;
+      margin-right: 20px;
+      .filter-ipt .el-input__inner {
+        height: 38px;
+        line-height: 38px;
+        width: 226px;
+      }
+      .el-button {
+        height: 36px;
+        width: 105px;
+        letter-spacing: 20px;
+        text-indent: 15px;
+        font-size: 14px;
+      }
+      .el-button--default span {
+        color: #606266;
+      }
+      .el-button--primary {
+        background-color: #1989fa;
+      }
+    }
+  }
+  .filter {
+    font-size: 16px;
+    font-weight: bold;
+    height: 41px;
+    line-height: 41px;
+    padding-left: 58px;
+    position: relative;
+    border-bottom: 1px solid #ebeef5;
+    &::before {
+      content: '';
+      height: 16px;
+      width: 16px;
+      background: url(../../assets/images/icon_筛选.png) no-repeat center center;
+      position: absolute;
+      top: 13px;
+      left: 30px;
+    }
   }
 }
 .el-input.filter-ipt {
@@ -885,65 +975,23 @@ export default {
   }
 }
 .editCom {
-  margin-top: 10px;
+  margin-bottom: 16px;
   p {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 700;
-    line-height: 28px;
-    color: rgba(0, 0, 0, 0.847058823529412);
+    color: #1989fa;
   }
-}
-.el-table {
-  /deep/ .cell .elli {
-    display: inline-block;
-    *display: inline;
-    *zoom: 1;
-    width: 10em;
-    height: 23px;
-    line-height: 23px;
-    // font-size: 12px;
-    overflow: hidden;
-    -ms-text-overflow: ellipsis;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .el-form-item {
-    /deep/ .el-autocomplete {
-      width: 360px;
-    }
-  }
-
-  .el-autocomplete {
-    position: relative;
-  }
-
-  // .elliSpan {
-  //   color: red;
-  //   // display: inline-block;
-  //   *display: inline;
-  //   *zoom: 1;
-  //   width: 10em;
-  //   height: 23px;
-  //   line-height: 23px;
-  //   // font-size: 12px;
-  //   overflow: hidden;
-  //   -ms-text-overflow: ellipsis;
-  //   text-overflow: ellipsis;
-  //   white-space: nowrap;
-  // }
 }
 .table {
-  margin-top: 20px;
-  border: 1px solid #999;
-  // width: 1009px;
-  overflow: auto;
+  border: 1px solid #ebeef5;
+  // overflow: auto;
   .elli {
     display: inline-block;
     *display: inline;
     *zoom: 1;
     width: 10em;
-    height: 53px;
-    line-height: 53px;
+    height: 42px;
+    line-height: 42px;
     // font-size: 12px;
     overflow: hidden;
     -ms-text-overflow: ellipsis;
@@ -951,50 +999,55 @@ export default {
     white-space: nowrap;
   }
   .tableTitle {
-    height: 53px;
-    line-height: 53px;
+    height: 42px;
+    line-height: 42px;
     display: flex;
-    width: 1300px;
+    width: 1020px;
+    align-items: center;
+    justify-content: space-between;
     .permissionName {
-      flex: 1.5;
+      flex: 2.6;
       padding-left: 10px;
       box-sizing: border-box;
     }
     .permissionCode {
-      text-align: center;
-      // width: 300px;
-      flex: 1;
-      padding: 0 10px;
+      text-align: left;
+      width: 160px;
+      // flex: 1;
+      // padding: 0 10px;
     }
     .menu {
-      text-align: center;
+      text-align: left;
       // width: 120px;
-      flex: 1;
-      padding: 0 10px;
+      flex: 1.2;
+      padding: 0 0px;
+      box-sizing: border-box;
     }
     .remark {
-      text-align: center;
+      text-align: left;
       // width: 170px;
-      padding: 0 10px;
-      flex: 1;
+      flex: 1.4;
     }
     .url {
-      text-align: center;
+      text-align: left;
       // width: 140px;
-      padding: 0 10px;
-      flex: 1;
+      flex: 1.5;
     }
     .handle {
-      text-align: center;
-      // width: 300px;
-      flex: 1;
-      padding: 0 10px;
+      text-align: left;
+      // width: 209px;
+      flex: 1.8;
+      box-sizing: border-box;
     }
   }
+  .treeBody {
+    overflow: auto;
+  }
   .el-tree {
-    width: 1300px;
+    width: 1000px;
+    // height: 1000px;
     /deep/ .el-tree-node__content {
-      height: 53px;
+      height: 48px;
       line-height: 53px;
       border-top: 1px solid #ebeef5;
       // flex: 1;
@@ -1006,51 +1059,54 @@ export default {
       .treeTable {
         flex: 1;
         display: flex;
-        font-size: 14px;
+        height: 48px;
         .permissionName {
-          flex: 3;
+          flex: 2;
+          height: 48px;
         }
         .elli.permissionCode {
-          text-align: center;
+          text-align: left;
           display: inline-block;
-          width: 160px;
-          // flex: 1;
+          width: 140px;
+          height: 48px;
           padding: 0 10px;
         }
         .elli.url {
-          text-align: center;
+          text-align: left;
           display: inline-block;
-          width: 170px;
-          // flex: 1;
+          width: 130px;
+          height: 48px;
           padding: 0 10px;
         }
         .elli.remark {
-          text-align: center;
+          text-align: left;
           display: inline-block;
-          width: 170px;
+          width: 130px;
+          height: 48px;
           padding: 0 10px;
         }
         div.menu {
-          text-align: center;
+          text-align: left;
           display: inline-block;
-          width: 221px;
-          // flex: 1;
+          width: 100px;
+          height: 48px;
           padding: 0 10px;
         }
         .elli.handle {
-          text-align: center;
+          text-align: left;
           flex: 1;
-          // width: 300px;
+          height: 48px;
           padding: 0 10px;
           display: inline-block;
         }
       }
     }
   }
-  .overflowClass {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+}
+.top-button {
+  width: 190px;
+  .btn-text {
+    width: 108px;
   }
 }
 </style>

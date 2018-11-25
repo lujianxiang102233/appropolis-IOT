@@ -1,21 +1,23 @@
 <template>
-  <div class="compaines" style="padding-left: 34px;">
+  <div class="compaines">
     <el-breadcrumb separator="/">
-      <el-breadcrumb-item>权限管理</el-breadcrumb-item>
-      <el-breadcrumb-item>公司管理</el-breadcrumb-item>
+      <el-breadcrumb-item class="first">权限管理</el-breadcrumb-item>
+      <el-breadcrumb-item class="two">公司管理</el-breadcrumb-item>
     </el-breadcrumb>
-    <el-form :model="ruleForm" :inline="true" class="clearfix demo-form-inline" ref="ruleForm" v-if="coList.indexOf('permission_co_query')>-1">
+    <div v-if="coQuery">
+    <el-form :model="ruleForm" :inline="true" class="clearfix demo-form-inline" ref="ruleForm">
       <div class="filter">筛选</div>
-      <el-form-item label="公司名称">
-        <el-input size="mini" v-model="ruleForm.companyName" placeholder="请输入" class="filter-ipt"></el-input>
+      <el-form-item class="filterName" label="公司名称">
+        <el-input v-model="ruleForm.companyName" placeholder="请输入公司名称" class="filter-ipt"></el-input>
       </el-form-item>
       <el-form-item class="fr">
         <el-button type="primary" @click="onSubmit" size="mini">查询</el-button>
         <el-button @click="resetForm('ruleForm')" size="mini">重置</el-button>
       </el-form-item>
     </el-form>
-     <el-button type="primary" style="margin-top: 10px;" size="mini" @click="addDalogVisible = true" v-if="coList.indexOf('permission_co_add')>-1">+ 新建</el-button>
+     <el-button type="primary" class="top-button" size="mini" @click="addDalogVisible = true" v-if="coList.indexOf('permission_co_add')>-1"><img src="../../assets/images/add-icon.png"  class="fl"> <span class="btn-divide fr">新建</span></el-button>
      <el-table
+      ref="table"
       :data="tableData"
       :height='tableHeight'
       style="width: 100%">
@@ -62,12 +64,12 @@
           </template>
       </el-table-column>
       <el-table-column
+        class="operation"
         align="center"
-        width="260"
         label="操作">
           <template slot-scope="scope">
-            <el-button type="primary" size="mini" v-if="coList.indexOf('permission_co_resetAdmin')>-1" plain @click="resetAdmin(scope.row)">重置超管</el-button>
-            <el-button type="success" size="mini" v-if="coList.indexOf('permission_co_func')>-1" plain @click="jump(scope.row)">权限</el-button>
+            <el-button class="operation"  v-if="coList.indexOf('permission_co_resetAdmin')>-1" @click="resetAdmin(scope.row)" plain>重置超管</el-button>
+            <el-button class="operation last" v-if="coList.indexOf('permission_co_func')>-1" plain @click="jump(scope.row)">权限</el-button>
           </template>
       </el-table-column>
     </el-table>
@@ -84,8 +86,7 @@
       title="新建公司"
       :visible.sync="addDalogVisible"
       :before-close="addHandleClose"
-      :close-on-click-modal=false
-      width="40%">
+      :close-on-click-modal=false>
       <el-form :model="addForm" :rules="rules" ref="addForm" label-width="120px" class="demo-ruleForm">
         <el-form-item label="公司名称" prop="companyName">
           <el-input v-model="addForm.companyName" placeholder="请输入"></el-input>
@@ -109,11 +110,11 @@
       </span>
     </el-dialog>
     <el-dialog
+      ref="dialog"
       title="重置超管密码"
       :visible.sync="resetDalogVisible"
       :before-close="resetHandleClose"
-      :close-on-click-modal=false
-      width="40%">
+      :close-on-click-modal=false>
       <el-form :model="retForm" :rules="rules" ref="retForm" label-width="120px" class="demo-ruleForm">
         <el-form-item label="公司名称">
           <el-input :disabled="true" v-model="retForm.companyName" placeholder="请输入"></el-input>
@@ -133,6 +134,8 @@
         <el-button type="primary" @click="reset('retForm')">确 定</el-button>
       </span>
     </el-dialog>
+    </div>
+    <div class="noText" v-else>您没有当前api访问权限 ~</div>
   </div>
 </template>
 <script>
@@ -245,9 +248,10 @@ export default {
       },
       pageIndex: 1,
       pageSize: 10,
-      total: 1,
+      total: 0,
       coList: [],
-      disabled: false
+      disabled: false,
+      coQuery: ''
     }
   },
   methods: {
@@ -270,6 +274,9 @@ export default {
     },
     async getList() {
       this.coList = JSON.parse(localStorage.getItem('points'))
+      this.coQuery = localStorage
+        .getItem('points')
+        .includes('permission_co_query')
       let getUrl = `/company/${this.ruleForm.companyName}/${this.pageIndex}/${
         this.pageSize
       }`
@@ -359,9 +366,8 @@ export default {
     },
     jump(row) {
       this.$router.push({
-        path: `/companyaccess?id=${row.companyId}&companyName=${
-          row.companyName
-        }`
+        path: '/companies-access',
+        query: { id: row.companyId, companyName: row.companyName }
       })
     },
     indexMethod(index) {
@@ -374,16 +380,29 @@ export default {
     resetHandleClose(done) {
       done()
       this.$refs.retForm.resetFields()
+    },
+    flexTableHeight() {
+      this.tableHeight =
+        document.documentElement.clientHeight -
+        (this.$refs.ruleForm.$el.offsetHeight + 245)
+    },
+    fixedTableHeight() {
+      this.tableHeight = document.documentElement.clientHeight - 320
     }
   },
   created() {
     this.getList()
-    this.tableHeight = document.documentElement.clientHeight - 320
+    if (this.coQuery) {
+      this.$nextTick(() => {
+        this.flexTableHeight()
+      })
+      this.fixedTableHeight()
+    }
   },
   mounted() {
     window.onresize = () => {
       return (() => {
-        this.tableHeight = document.documentElement.clientHeight - 320
+        this.flexTableHeight()
       })()
     }
   }
@@ -393,69 +412,115 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
 .el-breadcrumb__item {
+  height: 58px;
+  line-height: 58px;
   /deep/ .el-breadcrumb__inner {
-    color: #999;
+    font-size: 16px;
   }
-}
-.demo-form-inline {
-  border: 1px solid #999;
-  margin-top: 10px;
-  padding: 10px;
-  min-height: 60px;
-  .el-form-item {
-    margin-bottom: 0;
+  &.first {
+    /deep/ .el-breadcrumb__inner,
+    /deep/ .el-breadcrumb__separator {
+      color: #3e3f42;
+      font-weight: 700;
+    }
   }
-  .filter {
-    font-size: 14px;
-    font-weight: bold;
-  }
-}
-.el-table {
-  border: 1px solid #999;
-  margin-top: 10px;
-}
-.el-dialog__wrapper {
-  /deep/ .el-dialog {
-    .el-dialog__header {
-      background-color: #3ba1ff !important;
-      .el-dialog__title {
-        color: #fff;
-      }
+  &.two {
+    /deep/ .el-breadcrumb__inner {
+      color: #9ea0a5;
     }
   }
 }
+.demo-form-inline {
+  border: 1px solid #ebeef5;
+  min-height: 60px;
+  .el-form-item {
+    margin-bottom: 0;
+    height: 64px;
+    line-height: 64px;
+    padding-left: 30px;
+    /deep/ .el-form-item__label {
+      padding-right: 20px;
+      font-size: 16px;
+      // text-align: center;
+    }
+    /deep/ .el-form-item__content {
+      height: 64px;
+      line-height: 64px;
+      width: 225px;
+      margin-right: 20px;
+      .filter-ipt .el-input__inner {
+        height: 36px;
+        line-height: 36px;
+        width: 226px;
+      }
+      .el-button {
+        height: 36px;
+        width: 105px;
+        letter-spacing: 20px;
+        text-indent: 15px;
+        font-size: 14px;
+      }
+      .el-button--default span {
+        color: #606266;
+      }
+      .el-button--primary {
+        background-color: #1989fa;
+      }
+    }
+  }
+  .filter {
+    font-size: 16px;
+    font-weight: bold;
+    height: 41px;
+    line-height: 41px;
+    padding-left: 58px;
+    position: relative;
+    border-bottom: 1px solid #ebeef5;
+    &::before {
+      content: '';
+      height: 16px;
+      width: 16px;
+      background: url(../../assets/images/icon_筛选.png) no-repeat center center;
+      position: absolute;
+      top: 13px;
+      left: 30px;
+    }
+  }
+}
+
 .el-pagination {
   float: right;
   margin-top: 10px;
 }
-.el-input {
-  /deep/ .el-input__inner {
-    width: 70%;
-  }
-}
+// .el-input {
+//   /deep/ .el-input__inner {
+//     width: 70%;
+//   }
+// }
 .el-input.filter-ipt {
   /deep/ .el-input__inner {
     height: 30px;
   }
 }
 .el-table {
+  border: 1px solid #ebeef5;
   /deep/ .cell .elli {
     display: inline-block;
     *display: inline;
     *zoom: 1;
     width: 11em;
-    height: 23px;
-    line-height: 23px;
-    // font-size: 12px;
+    height: 17px;
+    line-height: 17px;
     overflow: hidden;
     -ms-text-overflow: ellipsis;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .el-form-item {
-    /deep/ .el-autocomplete {
-      width: 360px;
-    }
+}
+.top-button {
+  width: 124px;
+  .btn-divide {
+    width: 50px;
   }
 }
 </style>
